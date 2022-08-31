@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from aggregation import GAPPNP
 
 class LogReg(nn.Module):
     def __init__(self, hid_dim, out_dim):
