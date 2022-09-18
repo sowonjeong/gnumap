@@ -31,8 +31,6 @@ def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
         A2 = A.dot(A)
         A3 = A.dot(A2)
         new_edge_index, new_edge_weights =  from_scipy_sparse_matrix(A3)
-        print("here are the tools")
-        print(new_edge_weights)
         new_edge_weights = torch.exp(-(new_edge_weights-new_edge_weights.max())/
              torch.median(new_edge_weights-new_edge_weights.max()))
         edge_index, edge_weights = transform_edge_weights(new_edge_index,
