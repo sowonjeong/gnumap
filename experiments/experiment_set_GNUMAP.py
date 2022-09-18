@@ -129,7 +129,7 @@ results = []
 
 for dim in [16, 32, 64, 128, 256, 512]:
     for n_neighbours in [5, 10, 15, 20, 30]:
-        for method in ['heat', 'power', 'laplacian']:
+        for method in ['power', 'heat', 'laplacian']:
             for min_dist in [1e-4, 1e-3, 1e-2, 1e-1]:
                 for model in ['GNUMAP', 'semiGNUMAP']:
                     print([model, min_dist, method, n_neighbours, dim])

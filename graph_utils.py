@@ -31,11 +31,12 @@ def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
         A2 = A.dot(A)
         A3 = A.dot(A2)
         new_edge_index, new_edge_weights =  from_scipy_sparse_matrix(A3)
-        new_edge_weights = np.exp(-(new_edge_weights.numpy()-new_edge_weights.numpy().max()),
-             np.median(new_edge_weights.numpy()-new_edge_weights.numpy().max()))
-        edge_index, edge_weights  = from_scipy_sparse_matrix(A3)
-        edge_index, edge_weights = transform_edge_weights(edge_index,
-                                                          edge_weights,
+        print("here are the tools")
+        print(new_edge_weights)
+        new_edge_weights = torch.exp(-(new_edge_weights-new_edge_weights.max())/
+             torch.median(new_edge_weights-new_edge_weights.max()))
+        edge_index, edge_weights = transform_edge_weights(new_edge_index,
+                                                          new_edge_weights,
                                                           data.num_nodes,
                                                           n_neighbours = neighbours)
         ####  This is perhaps not the best way to create my network though...,
@@ -64,7 +65,7 @@ def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
                                                           n_neighbours = neighbours)
     else:
         raise ValueError("Model unknown!!")
-        
+
     edge_index, edge_weights = add_remaining_self_loops(
                   edge_index,
                   edge_weights,
