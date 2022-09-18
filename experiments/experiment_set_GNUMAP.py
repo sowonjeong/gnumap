@@ -146,7 +146,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
                                beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
                                proj=args.proj, pred_hid=args.pred_hid,
                                dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
-                               drf2=args.drf2,name_file=args.name_file)
+                               drf2=args.drf2,name_file=args.dataset + '_' + args.name_file)
                     results += [res]
                     pd.DataFrame(np.array(results),
                                  columns =[ 'model', 'method',
