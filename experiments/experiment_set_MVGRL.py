@@ -1,10 +1,10 @@
 import argparse
-from carbontracker.tracker import CarbonTracker
+#from carbontracker.tracker import CarbonTracker
 import copy, collections
 import networkx as nx,  numpy as np
 from numbers import Number
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import random, time
 import sys, os
@@ -142,7 +142,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
                        beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
                        proj=args.proj, pred_hid=args.pred_hid,
                        dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
-                       drf2=args.drf2, name_file=args.name_file)
+                       drf2=args.drf2, name_file=args.dataset + '_' + args.name_file)
     results += [res]
 
     pd.DataFrame(np.array(results),

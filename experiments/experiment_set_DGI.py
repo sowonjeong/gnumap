@@ -4,7 +4,7 @@ import copy, collections
 import networkx as nx,  numpy as np
 from numbers import Number
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import random, time
 import sys, os
@@ -106,7 +106,7 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() +  args.result_file + 'DGI_results_' + args.name_file + '.csv'
+file_path = os.getcwd() +  args.result_file + 'DGI_results_' + args.dataset + '_'  + args.name_file + '.csv'
 
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
@@ -141,7 +141,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
                beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
                proj=args.proj, pred_hid=args.pred_hid,
                dre1=args.dre1, dre2=args.dre2, drf1=args.drf1, drf2=args.drf2,
-               name_file=args.name_file)
+               name_file=args.dataset + '_' + args.name_file)
     results += [res]
     pd.DataFrame(np.array(results),
                  columns =[ 'model', 'method',
