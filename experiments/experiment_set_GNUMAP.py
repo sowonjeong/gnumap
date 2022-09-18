@@ -147,14 +147,14 @@ for dim in [16, 32, 64, 128, 256, 512]:
                                proj=args.proj, pred_hid=args.pred_hid,
                                dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
                                drf2=args.drf2,name_file=args.name_file)
-    results += [res]
-    pd.DataFrame(np.array(results),
-                 columns =[ 'model', 'method',
-                            'dim', 'neighbours', 'n_layers', 'norm','min_dist',
-                             'dre1', 'drf1', 'lr', 'edr', 'fmr',
-                            'tau', 'lambd','pred_hid,' 'proj_hid_dim',
-                            'train_roc', 'train_ap',
-                            'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
-                            'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
-                            'F1Mi-std','F1Ma-mean', 'F1Ma-std', 'acc-mean',  'acc-std'] ).to_csv(file_path)
+                    results += [res]
+                    pd.DataFrame(np.array(results),
+                                 columns =[ 'model', 'method',
+                                            'dim', 'neighbours', 'n_layers', 'norm','min_dist',
+                                             'dre1', 'drf1', 'lr', 'edr', 'fmr',
+                                            'tau', 'lambd','pred_hid,' 'proj_hid_dim',
+                                            'train_roc', 'train_ap',
+                                            'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
+                                            'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
+                                            'F1Mi-std','F1Ma-mean', 'F1Ma-std', 'acc-mean',  'acc-std'] ).to_csv(file_path)
     print(results)
