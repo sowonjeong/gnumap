@@ -1,4 +1,5 @@
 import numpy as np
+from carbontracker.tracker import CarbonTracker
 import os
 import torch
 import torch.nn as nn
@@ -23,7 +24,7 @@ from graph_utils import *
 
 def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
               epochs=200, lr=1e-3, name_file="1"):
-
+    log_dir = '/log_dir/log_dir_DGI_' + str(out_dim)+ '/'
     dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     num_class = int(data.y.max().item()) + 1
     in_dim = data.num_features
@@ -37,7 +38,9 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     model = model.to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
     loss_fn1 = nn.BCEWithLogitsLoss()
+    # tracker = CarbonTracker(epochs=epochs, log_dir=log_dir)
     for epoch in range(epochs):
+        #tracker.epoch_start()
         model.train()
         optimizer.zero_grad()
         idx = np.random.permutation(N)
@@ -55,6 +58,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
 
         loss.backward()
         optimizer.step()
+        #tracker.epoch_end()
 
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss.item()))
         if loss < best:
@@ -68,6 +72,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
         if cnt_wait == patience:
             print('Early stopping!')
             break
+    #tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
     model.load_state_dict(torch.load(os.getcwd() + '/results/best_dgi_dim'
