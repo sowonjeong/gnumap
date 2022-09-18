@@ -4,13 +4,13 @@ import copy, collections
 import networkx as nx,  numpy as np
 from numbers import Number
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import random, time
 import sys, os
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_scatter import scatter_add
+#from torch_scatter import scatter_add
 import torch_geometric.transforms as T
 from torch_geometric.datasets import Planetoid
 from torch_geometric.data import Data
