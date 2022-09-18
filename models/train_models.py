@@ -17,7 +17,7 @@ from models.data_augmentation import *
 from scipy import optimize
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+from codecarbon import EmissionsTracker
 from umap_functions import *
 from graph_utils import *
 
@@ -37,6 +37,8 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     model = model.to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
     loss_fn1 = nn.BCEWithLogitsLoss()
+    tracker = EmissionsTracker(project_name='DGI_'+ str(out_dim) + '_' +  name_file)
+    tracker.start()
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -68,6 +70,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
         if cnt_wait == patience:
             print('Early stopping!')
             break
+    tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
     model.load_state_dict(torch.load(os.getcwd() + '/results/best_dgi_dim'
