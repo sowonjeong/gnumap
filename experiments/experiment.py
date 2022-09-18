@@ -43,21 +43,23 @@ def experiment(model, data,
                method='heat', n_neighbours=15,
                beta=1, norm='normalize', edr=0.5, fmr=0.2,
                proj="standard", pred_hid=512, proj_hid_dim=512,
-               dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4):
+               dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
+               name_file="1"):
 
     num_classes = int(data.y.max().item()) + 1
     if model == 'DGI':
         model = train_dgi(data, hid_dim=out_dim, out_dim=out_dim,
                           n_layers=n_layers,
                           patience=patience,
-                          epochs=epochs, lr=lr1)
+                          epochs=epochs, lr=lr1,
+                          name_file=name_file)
         embeds = model.get_embedding(data)
     elif model == 'MVGRL':
         model = train_mvgrl(data, diff=diff, out_dim=out_dim,
                             n_layers=n_layers,
                             patience=patience,
                             epochs=epochs, lr=lr1, wd=wd1,
-                            )
+                            name_file=name_file)
         embeds =  model.get_embedding(data, diff)
     elif model == 'GRACE':
         model =  train_grace(data, channels=out_dim, proj_hid_dim=out_dim,
@@ -68,10 +70,11 @@ def experiment(model, data,
     elif model == 'GNUMAP':
         model =  train_gnumap(data, target=None, dim=out_dim, n_layers=n_layers,
                               method = method,
-                              norm=norm, neighbours=neighbours,
+                              norm=norm, neighbours=n_neighbours,
                               beta=beta, patience=patience, epochs=epochs,
                               lr=lr1, wd=wd1,
-                              min_dist=min_dist)
+                              min_dist=min_dist,
+                              name_file=name_file)
         embeds = model(data.x, data.edge_index)
     elif model == 'semiGNUMAP':
         model =  train_gnumap(data, target=target, dim=out_dim, n_layers=n_layers,
@@ -79,7 +82,8 @@ def experiment(model, data,
                               norm=norm, neighbours=n_neighbours,
                               beta=beta, patience=patience, epochs=epochs,
                               lr=lr1, wd=wd1,
-                              min_dist=min_dist)
+                              min_dist=min_dist,
+                              name_file=name_file)
         embeds = model(data.x, data.edge_index)
     elif model == 'CCA-SSG':
         model =  train_cca_ssg(data, channels=out_dim,

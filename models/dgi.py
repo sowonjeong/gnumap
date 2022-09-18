@@ -6,33 +6,8 @@ import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv
+from models.baseline_models import LogReg, GCN
 
-class LogReg(nn.Module):
-    def __init__(self, hid_dim, out_dim):
-        super(LogReg, self).__init__()
-        self.fc = nn.Linear(hid_dim, out_dim)
-
-    def forward(self, x):
-        ret = self.fc(x)
-        return ret
-
-class GCN(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers):
-        super().__init__()
-        self.n_layers = n_layers
-        self.convs = nn.ModuleList()
-        self.convs.append(GCNConv(in_dim, hid_dim))
-        if n_layers > 1:
-            for i in range(n_layers - 2):
-                self.convs.append(GCNConv(hid_dim, hid_dim))
-            self.convs.append(GCNConv(hid_dim, out_dim))
-
-    def forward(self, x, edge_index):
-        for i in range(self.n_layers - 1):
-            x = F.relu(self.convs[i](x, edge_index)) # nn.PReLU
-        x = self.convs[-1](x, edge_index)
-        return x
 
 class Discriminator(nn.Module):
     def __init__(self, out_dim):

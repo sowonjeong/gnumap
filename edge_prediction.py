@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from models.models import MLP, LogReg
+from models.baseline_models import MLP, LogReg
 from train_utils.evaluation import get_scores
 
 

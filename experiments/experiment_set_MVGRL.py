@@ -35,6 +35,7 @@ from experiments.experiment import experiment
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='MVGRL')
 parser.add_argument('--dataset', type=str, default='Cora')
+parser.add_argument('--name_file', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
 parser.add_argument('--epochs', type=int, default=500)
 parser.add_argument('--n_experiments', type=int, default=1)
@@ -63,12 +64,18 @@ parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_file', type=str, default="/results/MVGRL_node_classification.csv")
-parser.add_argument('--embeddings', type=str, default="/results/MVGRL_node_classification_embeddings.csv")
+parser.add_argument('--result_file', type=str, default="/results/")
+parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+torch.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+np.random.seed(args.seed)
+
 transform = NormalizeFeatures()
 diff_transform = T.Compose([T.GDC(self_loop_weight=1, normalization_in='sym', normalization_out=None,
         diffusion_kwargs=dict(method='ppr', alpha=0.2), sparsification_kwargs=dict(method='threshold', eps=0.01),
@@ -99,7 +106,8 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() +  args.result_file
+file_path = os.getcwd() +  args.result_file + 'MVGRL_results_' + args.name_file + '.csv'
+
 
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
@@ -121,7 +129,7 @@ results = []
 
 
 for dim in [16, 32, 64, 128, 256, 512]:
-            _, res = experiment(model='MVGRL', data=data,
+    _, res = experiment(model='MVGRL', data=data,
                        train_data=train_data, val_data=val_data, test_data=test_data,
                        rand_data = rand_data,
                        diff = diff, target = target, device=device,
@@ -133,10 +141,12 @@ for dim in [16, 32, 64, 128, 256, 512]:
                        method=args.method, n_neighbours=args.n_neighbours,
                        beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
                        proj=args.proj, pred_hid=args.pred_hid,
-                       dre1=args.dre1, dre2=args.dre2, drf1=args.drf1, drf2=args.drf2)
+                       dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
+                       drf2=args.drf2, name_file=args.name_file)
     results += [res]
+
     pd.DataFrame(np.array(results),
-                 columns =[ 'model', 'method',
+    columns =[ 'model', 'method',
                             'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                              'dre1', 'drf1', 'lr', 'edr', 'fmr',
                             'tau', 'lambd','pred_hid,' 'proj_hid_dim',

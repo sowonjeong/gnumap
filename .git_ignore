@@ -1,2 +1,8 @@
 .DS_Store/
 .ipynb_checkpoints/
+notebooks/
+Planetoid/
+results_experiments/
+experiments/results/
+experiments/Planetoid/
+results/

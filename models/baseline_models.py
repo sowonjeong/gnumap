@@ -2,7 +2,7 @@ from numbers import Number
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from torch_geometric.nn import GCNConv
 
 from models.aggregation import GAPPNP
 
@@ -18,6 +18,23 @@ class LogReg(nn.Module):
 def weights_init(m):
     if isinstance(m, nn.Linear):
         nn.init.xavier_uniform_(m.weight.data)
+
+class GCN(nn.Module):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers, norm = True):
+        super().__init__()
+        self.n_layers = n_layers
+        self.convs = nn.ModuleList()
+        self.convs.append(GCNConv(in_dim, hid_dim))
+        if n_layers > 1:
+            for i in range(n_layers - 2):
+                self.convs.append(GCNConv(hid_dim, hid_dim))
+            self.convs.append(GCNConv(hid_dim, out_dim))
+
+    def forward(self, x, edge_index, edge_weight = None):
+        for i in range(self.n_layers - 1):
+            x = F.relu(self.convs[i](x, edge_index, edge_weight)) # nn.PReLU
+        x = self.convs[-1](x, edge_index)
+        return x
 
 
 class GNN(nn.Module):
@@ -105,7 +122,7 @@ class GNN(nn.Module):
         return h
 
 
-class MLP(nn.Module):
+class genMLP(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, n_layers=2,
     activation='relu', slope=.1, device='cpu', use_bn=False):
         super().__init__()
@@ -167,3 +184,24 @@ class MLP(nn.Module):
                 h = self._act_f[c](self.fc[c](h))
                 if self.use_bn: h= self.bn(h)
         return h
+
+class MLP(nn.Module):
+    def __init__(self, nfeat, nhid, nclass, use_bn=True):
+        super(MLP, self).__init__()
+
+        self.layer1 = nn.Linear(nfeat, nhid, bias=True)
+        self.layer2 = nn.Linear(nhid, nclass, bias=True)
+
+        self.bn = nn.BatchNorm1d(nhid)
+        self.use_bn = use_bn
+        self.act_fn = nn.ReLU()
+
+    def forward(self, _, x):
+        x = self.layer1(x)
+        if self.use_bn:
+            x = self.bn(x)
+
+        x = self.act_fn(x)
+        x = self.layer2(x)
+
+        return x

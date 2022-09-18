@@ -1,6 +1,10 @@
 import torch
 import numpy as np
+from sklearn.metrics import roc_auc_score, average_precision_score
+import sys, os
+sys.path.append('../')
 
+from models.baseline_models import MLP, LogReg
 
 def get_scores(edges_pos, edges_neg, adj_rec):
     def sigmoid(x):

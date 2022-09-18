@@ -1,19 +1,22 @@
 import numpy as np
 import torch
-from models.models import MLP, LogReg
+from models.baseline_models import MLP, LogReg
+
 
 def node_prediction(embeds, out_dim, y, train_mask, test_mask, val_mask,
                     lr=0.01, wd=1e-4,  n_layers=1,
                     patience = 30, max_epochs=3000):
 
     if n_layers > 1:
-        node_classifier = MLP(embeds.shape[1], int(np.max([int(embeds.shape[1])/2, out_dim])), out_dim,  n_layers=2)
+        node_classifier = MLP(embeds.shape[1], int(np.max([int(embeds.shape[1])/2, out_dim])),
+                              out_dim,  n_layers=2)
     else:
         node_classifier = LogReg(embeds.shape[1], out_dim)
     train_labels = y[train_mask]
     test_labels = y[test_mask]
     val_labels = y[val_mask]
-    optimizer_temp = torch.optim.Adam(node_classifier.parameters(), lr=lr, weight_decay=wd)
+    optimizer_temp = torch.optim.Adam(node_classifier.parameters(), lr=lr,
+                                      weight_decay=wd)
     res_temp = []
     trigger_times = 0
     last_acc = 0
