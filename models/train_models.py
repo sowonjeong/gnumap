@@ -1,5 +1,6 @@
 import numpy as np
 from carbontracker.tracker import CarbonTracker
+import cProfile
 import os
 import torch
 import torch.nn as nn
@@ -7,7 +8,7 @@ from torch_geometric.data import Data
 from torch_geometric.utils import remove_self_loops, negative_sampling
 from torch_geometric.utils import add_remaining_self_loops
 from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix
-
+import time
 from models.dgi import DGI
 from models.mvgrl import MVGRL
 from models.grace import GRACE
@@ -66,7 +67,8 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), "/scratch/midway3/cdonnat/gnumap/experiments" + '/results/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
+            torch.save(model.state_dict(), os.getcwd()  +
+                                           '/results/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
 
@@ -76,7 +78,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     #tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load("/scratch/midway3/cdonnat/gnumap/experiments" + '/results/best_dgi_dim'
+    model.load_state_dict(torch.load(os.getcwd()   + '/results/best_dgi_dim'
                                      + str(out_dim) + '_' + name_file +  '.pkl'))
     return(model)
 
@@ -102,6 +104,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
     loss_fn1 = nn.BCEWithLogitsLoss()
     #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='MVGRL_'+ str(out_dim) + '_' +  name_file)
     #tracker.start()
+
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -124,7 +127,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), '/scratch/midway3/cdonnat/gnumap/experiments' +
+            torch.save(model.state_dict(), os.getcwd()  +
                        '/results/best_mvgrl_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
@@ -133,7 +136,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             break
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load('/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_mvgrl_dim' +
+    model.load_state_dict(torch.load(os.getcwd()  + '/results/best_mvgrl_dim' +
                                      str(out_dim) + '_' + name_file +  '.pkl'))
     return(model)
 
@@ -142,7 +145,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
                  method = 'laplacian',
                  norm='normalize', neighbours=15,
                  beta=1, patience=20, epochs=200, lr=1e-3, wd=1e-4,
-                 min_dist=0.1, name_file="1"):
+                 min_dist=0.1, name_file="1", subsampling=None):
     dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     EPS_0 = data.num_edges/ (data.num_nodes ** 2)
     x = np.linspace(0, 2, 300)
@@ -163,6 +166,8 @@ def train_gnumap(data, dim, n_layers=2, target=None,
     print("Epsilon is " + str(EPS))
     print("Hyperparameters a = " + str(a) + " and b = " + str(b))
 
+    sparsity =  data.num_edges/(data.num_nodes**2 - data.num_nodes)
+
     model = GNN(data.num_features, dim, dim, n_layers=n_layers,
                             normalize=(norm=='normalize'),
                             standardize=(norm=='standardize'))
@@ -177,17 +182,18 @@ def train_gnumap(data, dim, n_layers=2, target=None,
                     y=data.y, edge_attr=edge_weights)
     row_pos, col_pos =  new_data.edge_index
     index = (row_pos != col_pos)
-    edge_weights_pos = new_data.edge_attr[index]
+    edge_weights_pos = new_data.edge_attr#[index]
     if target is not None:
         edge_weights_pos = fast_intersection(row_pos[index], col_pos[index], edge_weights_pos,
                                              target, unknown_dist=1.0, far_dist=5.0)
 
-    # row_neg, col_neg = negative_sampling(new_data.edge_index)
-    # index_neg = (row_neg != col_neg)
-    # edge_weights_neg = EPS * torch.ones(len(row_neg))
-    # if target is not None:
-    #     edge_weights_neg = fast_intersection(row_neg[index_neg], col_neg[index_neg], edge_weights_neg,
-    #                                          target, unknown_dist=1.0, far_dist=3.0)
+    if subsampling is None:
+        row_neg, col_neg = negative_sampling(new_data.edge_index, num_neg_samples = 5 * new_data.edge_index.shape[1] )
+        index_neg = (row_neg != col_neg)
+        edge_weights_neg = EPS * torch.ones(len(row_neg))
+        if target is not None:
+            edge_weights_neg = fast_intersection(row_neg[index_neg], col_neg[index_neg], edge_weights_neg,
+                                                 target, unknown_dist=1.0, far_dist=5.0)
     best_t=0
     #if target is None:
     #    tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='GNUMAP_'+ str(dim) + '_' +  method +
@@ -197,40 +203,75 @@ def train_gnumap(data, dim, n_layers=2, target=None,
     #                + 'n_neighbours' + str(neighbours) + '_mindist_'+ str(min_dist) +  norm + '_' +  name_file)
     #tracker.start()
     for epoch in range(epochs):
+        tic_epoch = time.time()
         model.train()
         optimizer.zero_grad()
+        tic = time.time()
         out = model(data.x, data.edge_index)
-
+        # print("epoch", epoch, -(tic - time.time()))
+        # tic = time.time()
         #### need to remove add_self_loops
         #row_pos, col_pos =  remove_self_loops(train_data.pos_edge_label_index)
+        #print("index sum is ", index.sum())
+        if subsampling is not None:
+            idx_sample = np.random.choice(range(int(index.sum())), size=subsampling)
+            #print(idx_sample)
+            diff_norm = torch.sum(torch.square(out[row_pos[index][idx_sample]] - out[col_pos[index][idx_sample]]), 1) + min_dist
+            # print(diff_norm.min(), diff_norm.max())
 
-        diff_norm = torch.sum(torch.square(out[row_pos[index]] - out[col_pos[index]]), 1) + min_dist
-        # print(diff_norm.min(), diff_norm.max())
-        # index = torch.where(diff_norm==0)[0]
-        # print(row_pos[index], col_pos[index])
-
-        q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
-        #edge_weights_pos = train_data.edge_attr[:len(train_data.pos_edge_label)][index]
-        loss =  -torch.mean(edge_weights_pos *  torch.log(q))  #- torch.mean((1.-edge_weights_pos) * (  torch.log(1. - q)))
-        #print("loss pos", loss)
+            # index = torch.where(diff_norm==0)[0]
+            # print(row_pos[index], col_pos[index])
+            # print("epoch", epoch, "diff norm", time.time()-tic)
+            # tic = time.time()
+            #print()
+            q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
+            #print(diff_norm.shape, edge_weights_pos[idx_sample].shape)
+            # print("epoch", epoch, "power", time.time()-tic)
+            # tic = time.time()
+            #edge_weights_pos = train_data.edge_attr[:len(train_data.pos_edge_label)][index]
+            loss =  - torch.mean(edge_weights_pos[index][idx_sample] *  torch.log(q))  #- torch.mean((1.-edge_weights_pos) * (  torch.log(1. - q)))
+        else:
+            diff_norm = torch.sum(torch.square(out[row_pos[index]] - out[col_pos[index]]), 1) + min_dist
+            q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
+            loss =  - torch.mean(edge_weights_pos[index] *  torch.log(q))
+        # print("loss pos", loss)
+        # print("epoch", epoch, "loss", time.time()-tic)
+        # tic =  time.time()
         #row_neg, col_neg =  train_data.neg_edge_label_index
-        row_neg, col_neg = negative_sampling(new_data.edge_index)
-        index_neg = (row_neg != col_neg)
-        edge_weights_neg = EPS * torch.ones(len(row_neg))
-        diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) + min_dist
+        if subsampling is not None:
+            row_neg, col_neg = negative_sampling(new_data.edge_index, num_neg_samples = subsampling)
+            # print("epoch", epoch, "neg sampling", time.time()-tic)
+            # tic = time.time()
+            index_neg = (row_neg != col_neg)
+            edge_weights_neg = EPS * torch.ones(len(row_neg))
+            # print("epoch", epoch, "neg weights", time.time()-tic)
+            # tic = time.time()
+            diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) + min_dist
+            # print("epoch", epoch, "diff neg", time.time()-tic)
+            # tic = time.time()
+            q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
+        else:
+            q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
+            edge_weights_neg = fast_intersection(row_neg[index_neg], col_neg[index_neg], edge_weights_neg,
+                                                 target, unknown_dist=1.0, far_dist=5.0)
 
-        q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
-        loss +=  - torch.mean((1. - edge_weights_neg) * (torch.log(1.- q_neg)  ))
+        # print("epoch", epoch, "q_neg", time.time()-tic)
+        # tic =  time.time()
+
+        loss +=  - (1.0/sparsity) *  torch.mean((1. - edge_weights_neg) * (torch.log(1.- q_neg)  ))
+        #print("epoch", epoch, "loss neg", time.time()-tic)
+        tic =  time.time()
         loss.backward()
         optimizer.step()
         #print("weight", model.fc[0].weight.grad)
-        print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss.item()))
+        print('Epoch={:03d}, loss={:.4f}, time={:.4f}'.format(epoch, loss.item(),time.time()-tic_epoch))
+        #print("Time epoch", time.time()-tic_epoch)
 
         if loss < best:
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), '/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_gnumap_'
+            torch.save(model.state_dict(), os.getcwd()  + '/results/best_gnumap_'
                                           + str(method) + '_neigh' + str(neighbours)
                                           + '_dim' + str(dim) + '_' + name_file +  '.pkl')
         else:
@@ -238,9 +279,10 @@ def train_gnumap(data, dim, n_layers=2, target=None,
         if cnt_wait == patience:
             print('Early stopping at epoch {}!'.format(epoch))
             break
+        #print("Time epoch after saving", time.time()-tic_epoch)
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load('/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_gnumap_' +
+    model.load_state_dict(torch.load(os.getcwd()  + '/results/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     return(model)
