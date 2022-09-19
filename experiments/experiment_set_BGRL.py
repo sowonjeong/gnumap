@@ -64,7 +64,7 @@ parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_file', type=str, default="/results/")
+parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
@@ -105,8 +105,7 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() + 'experiments/results/CCA-SSG_results' +  args.dataset + '_' + args.name_file + '.csv'
-
+file_path = os.getcwd() +  args.result_folder + 'BGRL_results_' + args.dataset + '_'  + args.name_file + '.csv'
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
 test_ratio = (1.0 - args.training_rate) / 3 * 2
@@ -130,7 +129,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
     for pred_hid in [128, 256, 521]:
          for dre1 in [0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
              for drf1 in [0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
-                 _, res = experiment(model='BGRL', data=data,
+                 _, res = experiment(model_name='BGRL', data=data,
                                            train_data=train_data, val_data=val_data, test_data=test_data,
                                            rand_data = rand_data,
                                            diff = diff, target = target,

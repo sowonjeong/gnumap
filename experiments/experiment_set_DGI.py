@@ -33,7 +33,7 @@ from experiments.experiment import experiment
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', type=str, default='MVGRL')
+parser.add_argument('--model', type=str, default='DGI')
 parser.add_argument('--dataset', type=str, default='Cora')
 parser.add_argument('--name_file', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
@@ -64,7 +64,7 @@ parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_file', type=str, default="/results/")
+parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 # parser.add_argument('--embeddings', type=str, default="/results/MVGRL_node_classification_embeddings.csv")
 args = parser.parse_args()
@@ -106,8 +106,8 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() +  args.result_file + 'DGI_results_' + args.dataset + '_'  + args.name_file + '.csv'
-
+file_path = os.getcwd() +  args.result_folder + 'DGI_results_' + args.dataset + '_'  + args.name_file + '.csv'
+print(file_path)
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
 test_ratio = (1.0 - args.training_rate) / 3 * 2
@@ -128,7 +128,7 @@ results = []
 
 
 for dim in [16, 32, 64, 128, 256, 512]:
-    _, res = experiment(model='DGI', data=data,
+    _, res = experiment(model_name='DGI', data=data,
                train_data=train_data, val_data=val_data, test_data=test_data,
                rand_data = rand_data,
                diff = diff, target = target, device=device,
