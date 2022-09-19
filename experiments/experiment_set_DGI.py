@@ -128,7 +128,7 @@ results = []
 
 
 for dim in [16, 32, 64, 128, 256, 512]:
-    _, res = experiment(model='DGI', data=data,
+    _, res = experiment(model_name='DGI', data=data,
                train_data=train_data, val_data=val_data, test_data=test_data,
                rand_data = rand_data,
                diff = diff, target = target, device=device,

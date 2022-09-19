@@ -1,0 +1,26 @@
+My SLURM_ARRAY_TASK_ID:  15
+My SLURM_ARRAY_JOB_ID:  4522369
+CCA-SSG
+Cora
+result file is 4522369_15
+Dataset: Cora():
+======================
+Number of graphs: 1
+Number of features: 1433
+Number of classes: 7
+Data(x=[2708, 1433], edge_index=[2, 10556], y=[2708], train_mask=[2708], val_mask=[2708], test_mask=[2708])
+==============================================================
+Number of nodes: 2708
+Number of edges: 10556
+Average node degree: 3.90
+Number of training nodes: 140
+Training node label rate: 0.05
+Contains isolated nodes: False
+Contains self-loops: False
+Is undirected: True
+=== train SelfGCon model ===
+Early stopping!
+Start to test process.
+done with the edge prediction
+done with the node prediction
+done with the second node prediction
