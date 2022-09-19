@@ -43,6 +43,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     #tracker.start()
     for epoch in range(epochs):
         #tracker.epoch_start()
+        tic_epoch = time.time()
         model.train()
         optimizer.zero_grad()
         idx = np.random.permutation(N)
@@ -62,7 +63,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
         optimizer.step()
         #tracker.epoch_end()
 
-        print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss.item()))
+        print('Epoch={:03d}, loss={:.4f}, time={:.4f}'.format(epoch, loss.item(), time.time()-tic_epoch))
         if loss < best:
             best = loss
             best_t = epoch

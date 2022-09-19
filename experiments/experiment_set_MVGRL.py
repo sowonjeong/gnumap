@@ -142,9 +142,8 @@ for dim in [16, 32, 64, 128, 256, 512]:
                        dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
                        drf2=args.drf2, name_file=args.dataset + '_' + args.name_file)
     results += [res]
-
     pd.DataFrame(np.array(results),
-    columns =[ 'model', 'method',
+                 columns =[ 'model', 'method',
                             'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                              'dre1', 'drf1', 'lr', 'edr', 'fmr',
                             'tau', 'lambd','pred_hid', 'proj_hid_dim',
