@@ -84,7 +84,8 @@ def experiment(model_name, data,
                               beta=beta, patience=patience, epochs=epochs,
                               lr=lr1, wd=wd1,
                               min_dist=min_dist,
-                              name_file=name_file)
+                              name_file=name_file,
+                              subsampling=subsampling)
         embeds = model(data.x, data.edge_index)
     elif model_name == 'CCA-SSG':
         model =  train_cca_ssg(data, channels=out_dim,
