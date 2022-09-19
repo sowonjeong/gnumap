@@ -150,7 +150,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
                                  columns =[ 'model', 'method',
                                             'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                                              'dre1', 'drf1', 'lr', 'edr', 'fmr',
-                                            'tau', 'lambd','pred_hid,' 'proj_hid_dim',
+                                            'tau', 'lambd','pred_hid','proj_hid_dim',
                                             'train_roc', 'train_ap',
                                             'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
                                             'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
