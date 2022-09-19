@@ -143,7 +143,7 @@ def experiment(model, data,
     acc_train_default, acc_val_default, acc_default = nodes_res_default[best_epoch][2], nodes_res_default[best_epoch][3], nodes_res_default[best_epoch][4]
     other = label_classification(embeds, data.y, 0.05)
 
-    results = [
+    results = [  model,
                  method,
                  out_dim,
                  n_neighbours,
