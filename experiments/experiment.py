@@ -65,7 +65,7 @@ def experiment(model, data,
         model =  train_grace(data, channels=out_dim, proj_hid_dim=out_dim,
                              tau=tau,
                              epochs=epochs, lr=lr1, wd=wd1,
-                             fmr=fmr, edr=edr, proj=proj)
+                             fmr=fmr, edr=edr, proj=proj, name_file=name_file)
         embeds = model.get_embedding(data)
     elif model == 'GNUMAP':
         model =  train_gnumap(data, target=None, dim=out_dim, n_layers=n_layers,
@@ -90,7 +90,7 @@ def experiment(model, data,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr1,
-                               fmr=fmr, edr=edr)
+                               fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(data)
     elif model == 'BGRL':
         model =  train_bgrl(data, channels=out_dim,
@@ -100,7 +100,7 @@ def experiment(model, data,
                                fmr=fmr, edr=edr,
                                pred_hid=pred_hid,  wd=wd1,
                                drf1=drf1, drf2=drf2, dre1=dre1,
-                               dre2=dre2)
+                               dre2=dre2,name_file=name_file)
         embeds = model.get_embedding(data)
     else:
         raise ValueError("Model unknown!!")

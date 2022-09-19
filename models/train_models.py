@@ -18,7 +18,7 @@ from models.data_augmentation import *
 from scipy import optimize
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-from codecarbon import EmissionsTracker
+from codecarbon import OfflineEmissionsTracker
 from umap_functions import *
 from graph_utils import *
 
@@ -38,8 +38,8 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     model = model.to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
     loss_fn1 = nn.BCEWithLogitsLoss()
-    tracker = EmissionsTracker(project_name='DGI_'+ str(out_dim) + '_' +  name_file)
-    tracker.start()
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='DGI_'+ str(out_dim) + '_' +  name_file)
+    #tracker.start()
     for epoch in range(epochs):
         #tracker.epoch_start()
         model.train()
@@ -66,17 +66,17 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), os.getcwd() + '/results/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
+            torch.save(model.state_dict(), "/scratch/midway3/cdonnat/gnumap/experiments" + '/results/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
 
         if cnt_wait == patience:
             print('Early stopping!')
             break
-    tracker.stop()
+    #tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd() + '/results/best_dgi_dim'
+    model.load_state_dict(torch.load("/scratch/midway3/cdonnat/gnumap/experiments" + '/results/best_dgi_dim'
                                      + str(out_dim) + '_' + name_file +  '.pkl'))
     return(model)
 
@@ -100,8 +100,8 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
     model = model.to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
     loss_fn1 = nn.BCEWithLogitsLoss()
-    tracker = EmissionsTracker(project_name='MVGRL_'+ str(out_dim) + '_' +  name_file)
-    tracker.start()
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='MVGRL_'+ str(out_dim) + '_' +  name_file)
+    #tracker.start()
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -131,7 +131,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
         if cnt_wait == patience:
             print('Early stopping!')
             break
-    tracker.stop()
+    #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
     model.load_state_dict(torch.load(os.getcwd() + '/results/best_mvgrl_dim' +
                                      str(out_dim) + '_' + name_file +  '.pkl'))
@@ -189,13 +189,13 @@ def train_gnumap(data, dim, n_layers=2, target=None,
     #     edge_weights_neg = fast_intersection(row_neg[index_neg], col_neg[index_neg], edge_weights_neg,
     #                                          target, unknown_dist=1.0, far_dist=3.0)
     best_t=0
-    if target is None:
-        tracker = EmissionsTracker(project_name='GNUMAP_'+ str(dim) + '_'  method +
-                    + 'n_neighbours' + str(neighbours) + '_mindist_'+ str(min_dist) +  norm + '_' +  name_file)
-    else:
-        tracker = EmissionsTracker(project_name='semiGNUMAP_'+ str(dim) + '_'  method +
-                    + 'n_neighbours' + str(neighbours) + '_mindist_'+ str(min_dist) +  norm + '_' +  name_file)
-    tracker.start()
+    #if target is None:
+    #    tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='GNUMAP_'+ str(dim) + '_' +  method +
+    #                + 'n_neighbours' + str(neighbours) + '_mindist_'+ str(min_dist) +  norm + '_' +  name_file)
+    #else:
+    #    tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='semiGNUMAP_'+ str(dim) + '_' +  method +
+    #                + 'n_neighbours' + str(neighbours) + '_mindist_'+ str(min_dist) +  norm + '_' +  name_file)
+    #tracker.start()
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -238,7 +238,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
         if cnt_wait == patience:
             print('Early stopping at epoch {}!'.format(epoch))
             break
-    tracker.stop()
+    #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
     model.load_state_dict(torch.load(os.getcwd() + '/results/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
@@ -248,7 +248,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
 
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                 epochs=100, wd=1e-5, lr=1e-3, fmr=0.2, edr =0.5,
-                proj="standard"):
+                proj="standard", name_file="test"):
 
         dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         train_idx = data.train_mask
@@ -269,9 +269,9 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         model = GRACE(in_dim, hid_dim, proj_hid_dim, n_layers, tau)
         model = model.to(dev)
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
-        tracker = EmissionsTracker(project_name='GRACE_'+ str(channels) +
-                    + '_proj_hid_dim' + str(proj_hid_dim) + '_tau'+ str(tau) +
-                    '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' + proj + '_' +  name_file)
+        #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='GRACE_'+ str(channels) +
+        #            '_proj_hid_dim' + str(proj_hid_dim) + '_tau'+ str(tau) +
+        #            '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' + proj + '_' +  name_file)
         def train_grace_one_epoch(model, data, fmr, edr, proj):
                 model.train()
                 optimizer.zero_grad()
@@ -284,18 +284,18 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                 loss.backward()
                 optimizer.step()
                 return loss.item()
-        tracker.start()
+        #tracker.start()
         for epoch in range(epochs):
             loss = train_grace_one_epoch(model, data, fmr,
                                           edr, proj)
             print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
-        tracker.stop()
+        #tracker.stop()
         return(model)
 
 
 def train_cca_ssg(data, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
-                  fmr=0.2, edr =0.5):
+                  fmr=0.2, edr =0.5, name_file="test"):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     train_idx = data.train_mask
     val_idx = data.val_mask
@@ -321,9 +321,9 @@ def train_cca_ssg(data, channels, lambd=1e-5,
     model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False) #
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
-    tracker = EmissionsTracker(project_name='CCA-SSG_'+ str(channels) +
-                + '_lambda' + str(lambd) +
-                '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' +  name_file)
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
+    #            '_lambda' + str(lambd) +
+    #            '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' +  name_file)
 
     def train_cca_one_epoch(model, data):
         model.train()
@@ -337,18 +337,18 @@ def train_cca_ssg(data, channels, lambd=1e-5,
         loss.backward()
         optimizer.step()
         return loss.item()
-    tracker.start()
+    #tracker.start()
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
         # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
-    tracker.stop()
+    #tracker.stop()
     return(model)
 
 
 def train_bgrl(data, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
                   fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,
-                  drf1=0.2, drf2=0.2, dre1=0.4, dre2=0.4):
+                  drf1=0.2, drf2=0.2, dre1=0.4, dre2=0.4, name_file="test"):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     train_idx = data.train_mask
     val_idx = data.val_mask
@@ -369,11 +369,11 @@ def train_bgrl(data, channels, lambd=1e-5,
     s = lambda epoch: epoch / 1000 if epoch < 1000 \
                     else ( 1 + np.cos((epoch-1000) * np.pi / (epochs - 1000))) * 0.5
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda = s)
-    tracker = EmissionsTracker(project_name='BGRL_'+ str(channels) +
-                + '_lambda' + str(lambd) +
-                '_edr' + str(edr) + '_fmr'  +str(fmr) +
-                '_drf1' + str(drf1) + '_dre1'  +str(dre1) + '_pred_hid' +
-                str(pred_hid) + '_' +  name_file)
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='BGRL_'+ str(channels) +
+    #            '_lambda' + str(lambd) +
+    #            '_edr' + str(edr) + '_fmr'  +str(fmr) +
+    #            '_drf1' + str(drf1) + '_dre1'  +str(dre1) + '_pred_hid' +
+    #            str(pred_hid) + '_' +  name_file)
 
 
     def train_bgrl_one_epoch(model, data):
