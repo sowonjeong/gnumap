@@ -44,7 +44,7 @@ def experiment(model_name, data,
                beta=1, norm='normalize', edr=0.5, fmr=0.2,
                proj="standard", pred_hid=512, proj_hid_dim=512,
                dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-               name_file="1"):
+               name_file="1",subsampling=None):
 
     num_classes = int(data.y.max().item()) + 1
     if model_name == 'DGI':
@@ -74,7 +74,8 @@ def experiment(model_name, data,
                               beta=beta, patience=patience, epochs=epochs,
                               lr=lr1, wd=wd1,
                               min_dist=min_dist,
-                              name_file=name_file)
+                              name_file=name_file,
+                              subsampling=subsampling)
         embeds = model(data.x, data.edge_index)
     elif model_name == 'semiGNUMAP':
         model =  train_gnumap(data, target=target, dim=out_dim, n_layers=n_layers,

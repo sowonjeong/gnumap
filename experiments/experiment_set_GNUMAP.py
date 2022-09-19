@@ -126,34 +126,35 @@ target[rand_data.train_mask] = rand_data.y[rand_data.train_mask]
 results = []
 
 
-for dim in [16, 32, 64, 128, 256, 512]:
-    for n_neighbours in [5, 10, 15, 20, 30]:
-        for method in ['power', 'heat', 'laplacian']:
-            for min_dist in [1e-4, 1e-3, 1e-2, 1e-1]:
-                for model in ['GNUMAP', 'semiGNUMAP']:
-                    print([model, min_dist, method, n_neighbours, dim])
-                    _, res = experiment(model_name=model, data=data,
-                               train_data=train_data, val_data=val_data, test_data=test_data,
-                               rand_data = rand_data,
-                               diff = diff, target = target, device=device,
-                               patience=args.patience, epochs=args.epochs,
-                               n_layers=args.n_layers, out_dim=dim,
-                               lr1=args.lr1, lr2=args.lr2, wd1=args.wd1,
-                               wd2=args.wd2, tau=args.tau, lambd=args.lambd,
-                               min_dist=min_dist,
-                               method=method, n_neighbours=n_neighbours,
-                               beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
-                               proj=args.proj, pred_hid=args.pred_hid,
-                               dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
-                               drf2=args.drf2,name_file=args.dataset + '_' + args.name_file)
-                    results += [res]
-                    pd.DataFrame(np.array(results),
-                                 columns =[ 'model', 'method',
-                                            'dim', 'neighbours', 'n_layers', 'norm','min_dist',
-                                             'dre1', 'drf1', 'lr', 'edr', 'fmr',
-                                            'tau', 'lambd','pred_hid', 'proj_hid_dim',
-                                            'train_roc', 'train_ap',
-                                            'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
-                                            'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
-                                            'F1Mi-std','F1Ma-mean', 'F1Ma-std', 'acc-mean',  'acc-std'] ).to_csv(file_path)
-    print(results)
+for subsampling in [500, 200, 700, 1000, None]:
+    for dim in [16, 32, 64, 128, 256, 512]:
+        for n_neighbours in [5, 10, 15, 20, 30]:
+            for method in ['power', 'heat', 'laplacian']:
+                for min_dist in [1e-4, 1e-3, 1e-2, 1e-1]:
+                    for model in ['GNUMAP', 'semiGNUMAP']:
+                        print([model, min_dist, method, n_neighbours, dim])
+                        _, res = experiment(model_name=model, data=data,
+                                   train_data=train_data, val_data=val_data, test_data=test_data,
+                                   rand_data = rand_data,
+                                   diff = diff, target = target, device=device,
+                                   patience=args.patience, epochs=args.epochs,
+                                   n_layers=args.n_layers, out_dim=dim,
+                                   lr1=args.lr1, lr2=args.lr2, wd1=args.wd1,
+                                   wd2=args.wd2, tau=args.tau, lambd=args.lambd,
+                                   min_dist=min_dist,
+                                   method=method, n_neighbours=n_neighbours,
+                                   beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
+                                   proj=args.proj, pred_hid=args.pred_hid,
+                                   dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
+                                   drf2=args.drf2,name_file=args.dataset + '_' + args.name_file,
+                                   subsampling=subsampling)
+                        results += [res + [subsampling]]
+                        pd.DataFrame(np.array(results),
+                                     columns =[ 'model', 'method',
+                                                'dim', 'neighbours', 'n_layers', 'norm','min_dist',
+                                                 'dre1', 'drf1', 'lr', 'edr', 'fmr',
+                                                'tau', 'lambd','pred_hid', 'proj_hid_dim',
+                                                'train_roc', 'train_ap',
+                                                'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
+                                                'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
+                                                'F1Mi-std','F1Ma-mean', 'F1Ma-std', 'acc-mean',  'acc-std', 'subsamples'] ).to_csv(file_path)
