@@ -166,7 +166,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
     print("Epsilon is " + str(EPS))
     print("Hyperparameters a = " + str(a) + " and b = " + str(b))
 
-    sparsity =  data.num_edges/(data.num_nodes**2 - data.num_nodes)
+
 
     model = GNN(data.num_features, dim, dim, n_layers=n_layers,
                             normalize=(norm=='normalize'),
@@ -180,9 +180,11 @@ def train_gnumap(data, dim, n_layers=2, target=None,
     #### modify with edge weights
     new_data = Data(x=data.x, edge_index=edge_index,
                     y=data.y, edge_attr=edge_weights)
+    sparsity =  new_data.num_edges/(new_data .num_nodes**2 -new_data.num_nodes)
     row_pos, col_pos =  new_data.edge_index
     index = (row_pos != col_pos)
     edge_weights_pos = new_data.edge_attr#[index]
+
     if target is not None:
         edge_weights_pos = fast_intersection(row_pos[index], col_pos[index], edge_weights_pos,
                                              target, unknown_dist=1.0, far_dist=5.0)
@@ -208,65 +210,38 @@ def train_gnumap(data, dim, n_layers=2, target=None,
         optimizer.zero_grad()
         tic = time.time()
         out = model(data.x, data.edge_index)
-        # print("epoch", epoch, -(tic - time.time()))
-        # tic = time.time()
-        #### need to remove add_self_loops
-        #row_pos, col_pos =  remove_self_loops(train_data.pos_edge_label_index)
-        #print("index sum is ", index.sum())
-        if subsampling is not None:
-            idx_sample = np.random.choice(range(int(index.sum())), size=subsampling)
-            #print(idx_sample)
-            diff_norm = torch.sum(torch.square(out[row_pos[index][idx_sample]] - out[col_pos[index][idx_sample]]), 1) + min_dist
-            # print(diff_norm.min(), diff_norm.max())
-
-            # index = torch.where(diff_norm==0)[0]
-            # print(row_pos[index], col_pos[index])
-            # print("epoch", epoch, "diff norm", time.time()-tic)
-            # tic = time.time()
-            #print()
-            q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
-            #print(diff_norm.shape, edge_weights_pos[idx_sample].shape)
-            # print("epoch", epoch, "power", time.time()-tic)
-            # tic = time.time()
-            #edge_weights_pos = train_data.edge_attr[:len(train_data.pos_edge_label)][index]
-            loss =  - torch.mean(edge_weights_pos[index][idx_sample] *  torch.log(q))  #- torch.mean((1.-edge_weights_pos) * (  torch.log(1. - q)))
-        else:
+        if subsampling is None:
             diff_norm = torch.sum(torch.square(out[row_pos[index]] - out[col_pos[index]]), 1) + min_dist
             q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
             loss =  - torch.mean(edge_weights_pos[index] *  torch.log(q))
-        # print("loss pos", loss)
-        # print("epoch", epoch, "loss", time.time()-tic)
-        # tic =  time.time()
-        #row_neg, col_neg =  train_data.neg_edge_label_index
-        if subsampling is not None:
-            row_neg, col_neg = negative_sampling(new_data.edge_index, num_neg_samples = subsampling)
-            # print("epoch", epoch, "neg sampling", time.time()-tic)
-            # tic = time.time()
+
+            diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) + min_dist
+            q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
+
+        else:
+            #print("subsampling pos", subsampling)
+            idx_sample = np.random.choice(range(int(index.sum())), size=subsampling)
+            diff_norm = torch.sum(torch.square(out[row_pos[index][idx_sample]] - out[col_pos[index][idx_sample]]), 1) + min_dist
+            q =  torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm)), -1)
+            loss =  - torch.mean(edge_weights_pos[index][idx_sample] *  torch.log(q))  #- torch.mean((1.-edge_weights_pos) * (  torch.log(1. - q)))
+
+            #print("subsampling neg", subsampling)
+            row_neg, col_neg = negative_sampling(new_data.edge_index,
+                                                 num_neg_samples=subsampling)
             index_neg = (row_neg != col_neg)
             edge_weights_neg = EPS * torch.ones(len(row_neg))
-            # print("epoch", epoch, "neg weights", time.time()-tic)
-            # tic = time.time()
+            if target is not None:
+                edge_weights_neg = fast_intersection(row_neg[index_neg],
+                                                     col_neg[index_neg], edge_weights_neg,
+                                                     target, unknown_dist=1.0, far_dist=5.0)
             diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) + min_dist
-            # print("epoch", epoch, "diff neg", time.time()-tic)
-            # tic = time.time()
             q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
-        else:
-            q_neg = torch.pow(1.  + a * torch.exp(b * torch.log(diff_norm_neg)), -1)
-            edge_weights_neg = fast_intersection(row_neg[index_neg], col_neg[index_neg], edge_weights_neg,
-                                                 target, unknown_dist=1.0, far_dist=5.0)
-
-        # print("epoch", epoch, "q_neg", time.time()-tic)
-        # tic =  time.time()
 
         loss +=  - (1.0/sparsity) *  torch.mean((1. - edge_weights_neg) * (torch.log(1.- q_neg)  ))
-        #print("epoch", epoch, "loss neg", time.time()-tic)
         tic =  time.time()
         loss.backward()
         optimizer.step()
-        #print("weight", model.fc[0].weight.grad)
         print('Epoch={:03d}, loss={:.4f}, time={:.4f}'.format(epoch, loss.item(),time.time()-tic_epoch))
-        #print("Time epoch", time.time()-tic_epoch)
-
         if loss < best:
             best = loss
             best_t = epoch

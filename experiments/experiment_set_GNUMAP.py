@@ -130,9 +130,9 @@ for subsampling in [500, 200, 700, 1000, None]:
     for dim in [16, 32, 64, 128, 256, 512]:
         for n_neighbours in [5, 10, 15, 20, 30]:
             for method in ['power', 'heat', 'laplacian']:
-                for min_dist in [1e-4, 1e-3, 1e-2, 1e-1]:
-                    for model in ['GNUMAP', 'semiGNUMAP']:
-                        print([model, min_dist, method, n_neighbours, dim])
+                for min_dist in [1e-5, 1e-4, 1e-3, 1e-2, 1e-1]:
+                    for model in ['semiGNUMAP', 'GNUMAP']:
+                        print([subsampling, model, min_dist, method, n_neighbours, dim])
                         _, res = experiment(model_name=model, data=data,
                                    train_data=train_data, val_data=val_data, test_data=test_data,
                                    rand_data = rand_data,
