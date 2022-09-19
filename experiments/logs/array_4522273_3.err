@@ -1,0 +1,327 @@
+/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_isolated_nodes' is deprecated, use 'has_isolated_nodes' instead
+  warnings.warn(out)
+/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_self_loops' is deprecated, use 'has_self_loops' instead
+  warnings.warn(out)
+[codecarbon INFO @ 10:56:15] offline tracker init
+[codecarbon ERROR @ 10:56:15] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 10:56:15] [setup] RAM Tracking...
+[codecarbon INFO @ 10:56:15] [setup] GPU Tracking...
+[codecarbon INFO @ 10:56:15] No GPU found.
+[codecarbon INFO @ 10:56:15] [setup] CPU Tracking...
+[codecarbon INFO @ 10:56:15] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:56:15] >>> Tracker's metadata:
+[codecarbon INFO @ 10:56:15]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:56:15]   Python version: 3.9.13
+[codecarbon INFO @ 10:56:15]   Available RAM : 10.000 GB
+[codecarbon INFO @ 10:56:15]   CPU count: 1
+[codecarbon INFO @ 10:56:15]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:56:15]   GPU count: None
+[codecarbon INFO @ 10:56:15]   GPU model: None
+[codecarbon WARNING @ 10:56:15] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:15] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:56:15] stopping.
+[codecarbon INFO @ 10:56:29] Energy consumed for RAM : 0.000015 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:56:29] Energy consumed for all CPUs : 0.000679 kWh. All CPUs Power : 169.886825386776 W
+[codecarbon INFO @ 10:56:29] 0.000694 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:56:29] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:29] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:56:29] stopping.
+[codecarbon INFO @ 10:56:49] offline tracker init
+[codecarbon ERROR @ 10:56:49] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 10:56:49] [setup] RAM Tracking...
+[codecarbon INFO @ 10:56:50] [setup] GPU Tracking...
+[codecarbon INFO @ 10:56:50] No GPU found.
+[codecarbon INFO @ 10:56:50] [setup] CPU Tracking...
+[codecarbon INFO @ 10:56:50] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:56:50] >>> Tracker's metadata:
+[codecarbon INFO @ 10:56:50]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:56:50]   Python version: 3.9.13
+[codecarbon INFO @ 10:56:50]   Available RAM : 10.000 GB
+[codecarbon INFO @ 10:56:50]   CPU count: 1
+[codecarbon INFO @ 10:56:50]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:56:50]   GPU count: None
+[codecarbon INFO @ 10:56:50]   GPU model: None
+[codecarbon WARNING @ 10:56:50] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:50] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:56:50] stopping.
+[codecarbon INFO @ 10:57:05] Energy consumed for RAM : 0.000016 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:57:05] Energy consumed for all CPUs : 0.000739 kWh. All CPUs Power : 169.81364501515245 W
+[codecarbon INFO @ 10:57:05] 0.000754 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:57:14] Energy consumed for RAM : 0.000025 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:57:14] Energy consumed for all CPUs : 0.001152 kWh. All CPUs Power : 170.69424232824167 W
+[codecarbon INFO @ 10:57:14] 0.001177 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:57:14] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:57:14] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:57:14] stopping.
+[codecarbon INFO @ 10:57:29] offline tracker init
+[codecarbon ERROR @ 10:57:29] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 10:57:29] [setup] RAM Tracking...
+[codecarbon INFO @ 10:57:29] [setup] GPU Tracking...
+[codecarbon INFO @ 10:57:29] No GPU found.
+[codecarbon INFO @ 10:57:29] [setup] CPU Tracking...
+[codecarbon INFO @ 10:57:29] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:57:29] >>> Tracker's metadata:
+[codecarbon INFO @ 10:57:29]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:57:29]   Python version: 3.9.13
+[codecarbon INFO @ 10:57:29]   Available RAM : 10.000 GB
+[codecarbon INFO @ 10:57:29]   CPU count: 1
+[codecarbon INFO @ 10:57:29]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:57:29]   GPU count: None
+[codecarbon INFO @ 10:57:29]   GPU model: None
+[codecarbon WARNING @ 10:57:29] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:57:29] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:57:29] stopping.
+[codecarbon INFO @ 10:57:45] Energy consumed for RAM : 0.000016 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:57:45] Energy consumed for all CPUs : 0.000742 kWh. All CPUs Power : 170.41823637852735 W
+[codecarbon INFO @ 10:57:45] 0.000757 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:58:00] Energy consumed for RAM : 0.000031 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:58:00] Energy consumed for all CPUs : 0.001449 kWh. All CPUs Power : 169.68851634626455 W
+[codecarbon INFO @ 10:58:00] 0.001480 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:58:10] Energy consumed for RAM : 0.000041 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:58:10] Energy consumed for all CPUs : 0.001905 kWh. All CPUs Power : 170.01967508354477 W
+[codecarbon INFO @ 10:58:10] 0.001945 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:58:10] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:58:10] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:58:10] stopping.
+[codecarbon INFO @ 10:58:26] offline tracker init
+[codecarbon ERROR @ 10:58:26] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 10:58:26] [setup] RAM Tracking...
+[codecarbon INFO @ 10:58:26] [setup] GPU Tracking...
+[codecarbon INFO @ 10:58:26] No GPU found.
+[codecarbon INFO @ 10:58:26] [setup] CPU Tracking...
+[codecarbon INFO @ 10:58:26] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:58:26] >>> Tracker's metadata:
+[codecarbon INFO @ 10:58:26]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:58:26]   Python version: 3.9.13
+[codecarbon INFO @ 10:58:26]   Available RAM : 10.000 GB
+[codecarbon INFO @ 10:58:26]   CPU count: 1
+[codecarbon INFO @ 10:58:26]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:58:26]   GPU count: None
+[codecarbon INFO @ 10:58:26]   GPU model: None
+[codecarbon WARNING @ 10:58:26] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:58:26] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:58:26] stopping.
+[codecarbon INFO @ 10:58:41] Energy consumed for RAM : 0.000016 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:58:42] Energy consumed for all CPUs : 0.000741 kWh. All CPUs Power : 170.50935941494933 W
+[codecarbon INFO @ 10:58:42] 0.000757 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:58:56] Energy consumed for RAM : 0.000031 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:58:57] Energy consumed for all CPUs : 0.001453 kWh. All CPUs Power : 170.3603884554071 W
+[codecarbon INFO @ 10:58:57] 0.001484 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:59:03] Energy consumed for RAM : 0.000037 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:59:03] Energy consumed for all CPUs : 0.001734 kWh. All CPUs Power : 169.76621464187437 W
+[codecarbon INFO @ 10:59:03] 0.001771 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:59:03] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:59:03] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:59:03] stopping.
+[codecarbon INFO @ 10:59:21] offline tracker init
+[codecarbon ERROR @ 10:59:21] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 10:59:21] [setup] RAM Tracking...
+[codecarbon INFO @ 10:59:21] [setup] GPU Tracking...
+[codecarbon INFO @ 10:59:21] No GPU found.
+[codecarbon INFO @ 10:59:21] [setup] CPU Tracking...
+[codecarbon INFO @ 10:59:21] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:59:22] >>> Tracker's metadata:
+[codecarbon INFO @ 10:59:22]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:59:22]   Python version: 3.9.13
+[codecarbon INFO @ 10:59:22]   Available RAM : 10.000 GB
+[codecarbon INFO @ 10:59:22]   CPU count: 1
+[codecarbon INFO @ 10:59:22]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:59:22]   GPU count: None
+[codecarbon INFO @ 10:59:22]   GPU model: None
+[codecarbon WARNING @ 10:59:22] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:59:22] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:59:22] stopping.
+[codecarbon INFO @ 10:59:37] Energy consumed for RAM : 0.000016 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:59:37] Energy consumed for all CPUs : 0.000743 kWh. All CPUs Power : 170.6116837892012 W
+[codecarbon INFO @ 10:59:37] 0.000758 kWh of electricity used since the begining.
+[codecarbon INFO @ 10:59:52] Energy consumed for RAM : 0.000031 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 10:59:52] Energy consumed for all CPUs : 0.001456 kWh. All CPUs Power : 170.76790386485743 W
+[codecarbon INFO @ 10:59:52] 0.001486 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:00:07] Energy consumed for RAM : 0.000045 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:00:07] Energy consumed for all CPUs : 0.002166 kWh. All CPUs Power : 170.7225064969519 W
+[codecarbon INFO @ 11:00:07] 0.002211 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:00:22] Energy consumed for RAM : 0.000060 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:00:22] Energy consumed for all CPUs : 0.002875 kWh. All CPUs Power : 170.76694509728077 W
+[codecarbon INFO @ 11:00:22] 0.002935 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:00:37] Energy consumed for RAM : 0.000075 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:00:37] Energy consumed for all CPUs : 0.003587 kWh. All CPUs Power : 170.70674399694207 W
+[codecarbon INFO @ 11:00:37] 0.003662 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:00:52] Energy consumed for RAM : 0.000090 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:00:52] Energy consumed for all CPUs : 0.004300 kWh. All CPUs Power : 170.74674967849586 W
+[codecarbon INFO @ 11:00:52] 0.004390 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:01:07] Energy consumed for RAM : 0.000105 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:01:07] Energy consumed for all CPUs : 0.005008 kWh. All CPUs Power : 170.4559605380589 W
+[codecarbon INFO @ 11:01:07] 0.005113 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:01:09] Energy consumed for RAM : 0.000107 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:01:09] Energy consumed for all CPUs : 0.005077 kWh. All CPUs Power : 172.92662881158583 W
+[codecarbon INFO @ 11:01:09] 0.005184 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:01:09] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 11:01:09] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 11:01:09] stopping.
+[codecarbon INFO @ 11:01:53] offline tracker init
+[codecarbon ERROR @ 11:01:53] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon INFO @ 11:01:53] [setup] RAM Tracking...
+[codecarbon INFO @ 11:01:53] [setup] GPU Tracking...
+[codecarbon INFO @ 11:01:53] No GPU found.
+[codecarbon INFO @ 11:01:53] [setup] CPU Tracking...
+[codecarbon INFO @ 11:01:53] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 11:01:53] >>> Tracker's metadata:
+[codecarbon INFO @ 11:01:53]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 11:01:53]   Python version: 3.9.13
+[codecarbon INFO @ 11:01:53]   Available RAM : 10.000 GB
+[codecarbon INFO @ 11:01:53]   CPU count: 1
+[codecarbon INFO @ 11:01:53]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 11:01:53]   GPU count: None
+[codecarbon INFO @ 11:01:53]   GPU model: None
+[codecarbon WARNING @ 11:01:53] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 11:01:53] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 11:01:53] stopping.
+[codecarbon INFO @ 11:02:09] Energy consumed for RAM : 0.000016 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:02:09] Energy consumed for all CPUs : 0.000745 kWh. All CPUs Power : 171.2310098292104 W
+[codecarbon INFO @ 11:02:09] 0.000761 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:02:24] Energy consumed for RAM : 0.000031 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:02:24] Energy consumed for all CPUs : 0.001460 kWh. All CPUs Power : 171.2651795268574 W
+[codecarbon INFO @ 11:02:24] 0.001490 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:02:39] Energy consumed for RAM : 0.000046 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:02:39] Energy consumed for all CPUs : 0.002174 kWh. All CPUs Power : 171.3477920649094 W
+[codecarbon INFO @ 11:02:39] 0.002219 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:02:54] Energy consumed for RAM : 0.000060 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:02:54] Energy consumed for all CPUs : 0.002886 kWh. All CPUs Power : 171.28380635700393 W
+[codecarbon INFO @ 11:02:54] 0.002947 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:03:09] Energy consumed for RAM : 0.000075 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:03:09] Energy consumed for all CPUs : 0.003600 kWh. All CPUs Power : 171.46407736706607 W
+[codecarbon INFO @ 11:03:09] 0.003676 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:03:24] Energy consumed for RAM : 0.000090 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:03:24] Energy consumed for all CPUs : 0.004314 kWh. All CPUs Power : 171.3089691098783 W
+[codecarbon INFO @ 11:03:24] 0.004404 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:03:39] Energy consumed for RAM : 0.000105 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:03:39] Energy consumed for all CPUs : 0.005024 kWh. All CPUs Power : 171.32883633330817 W
+[codecarbon INFO @ 11:03:39] 0.005129 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:03:54] Energy consumed for RAM : 0.000120 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:03:54] Energy consumed for all CPUs : 0.005737 kWh. All CPUs Power : 171.18722145869407 W
+[codecarbon INFO @ 11:03:54] 0.005857 kWh of electricity used since the begining.
+[codecarbon INFO @ 11:04:09] Energy consumed for RAM : 0.000135 kWh. RAM Power : 3.75 W
+[codecarbon INFO @ 11:04:09] Energy consumed for all CPUs : 0.006455 kWh. All CPUs Power : 171.2836820495522 W
+[codecarbon INFO @ 11:04:09] 0.006590 kWh of electricity used since the begining.

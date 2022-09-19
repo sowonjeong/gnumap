@@ -64,7 +64,7 @@ parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_file', type=str, default="/results/")
+parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 # parser.add_argument('--embeddings', type=str, default="/results/GNUMAP_resultsembeddings.csv")
 args = parser.parse_args()
@@ -106,8 +106,7 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() + 'experiments/results/GNUMAP_results' +  args.dataset + '_' + args.name_file + '.csv'
-
+file_path = os.getcwd() +  args.result_folder + 'GNUMAP_results_' + args.dataset + '_'  + args.name_file + '.csv'
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
 test_ratio = (1.0 - args.training_rate) / 3 * 2
@@ -133,7 +132,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
             for min_dist in [1e-4, 1e-3, 1e-2, 1e-1]:
                 for model in ['GNUMAP', 'semiGNUMAP']:
                     print([model, min_dist, method, n_neighbours, dim])
-                    _, res = experiment(model=model, data=data,
+                    _, res = experiment(model_name=model, data=data,
                                train_data=train_data, val_data=val_data, test_data=test_data,
                                rand_data = rand_data,
                                diff = diff, target = target, device=device,

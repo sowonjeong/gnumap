@@ -1,0 +1,406 @@
+/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_isolated_nodes' is deprecated, use 'has_isolated_nodes' instead
+  warnings.warn(out)
+/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_self_loops' is deprecated, use 'has_self_loops' instead
+  warnings.warn(out)
+[codecarbon INFO @ 10:56:14] offline tracker init
+[codecarbon ERROR @ 10:56:14] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 10:56:14] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 10:56:14] [setup] RAM Tracking...
+[codecarbon WARNING @ 10:56:14] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:14] [setup] GPU Tracking...
+[codecarbon INFO @ 10:56:14] No GPU found.
+[codecarbon INFO @ 10:56:14] [setup] CPU Tracking...
+[codecarbon INFO @ 10:56:14] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:56:15] >>> Tracker's metadata:
+[codecarbon INFO @ 10:56:15]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:56:15]   Python version: 3.9.13
+[codecarbon INFO @ 10:56:15]   Available RAM : 188.580 GB
+[codecarbon INFO @ 10:56:15]   CPU count: 48
+[codecarbon INFO @ 10:56:15]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:56:15]   GPU count: None
+[codecarbon INFO @ 10:56:15]   GPU model: None
+[codecarbon WARNING @ 10:56:15] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:15] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:56:15] stopping.
+[codecarbon WARNING @ 10:56:30] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:30] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:56:30] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:30] Energy consumed for all CPUs : 0.000697 kWh. All CPUs Power : 160.74563302301513 W
+[codecarbon INFO @ 10:56:30] 0.000991 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:56:31] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:31] Energy consumed for RAM : 0.000302 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:56:31] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:31] Energy consumed for all CPUs : 0.000717 kWh. All CPUs Power : 166.2603823914465 W
+[codecarbon INFO @ 10:56:31] 0.001019 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:56:31] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:31] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:56:31] stopping.
+[codecarbon INFO @ 10:56:52] offline tracker init
+[codecarbon ERROR @ 10:56:52] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 10:56:52] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 10:56:52] [setup] RAM Tracking...
+[codecarbon WARNING @ 10:56:52] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:56:52] [setup] GPU Tracking...
+[codecarbon INFO @ 10:56:52] No GPU found.
+[codecarbon INFO @ 10:56:52] [setup] CPU Tracking...
+[codecarbon INFO @ 10:56:52] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:56:52] >>> Tracker's metadata:
+[codecarbon INFO @ 10:56:52]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:56:52]   Python version: 3.9.13
+[codecarbon INFO @ 10:56:52]   Available RAM : 188.580 GB
+[codecarbon INFO @ 10:56:52]   CPU count: 48
+[codecarbon INFO @ 10:56:52]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:56:52]   GPU count: None
+[codecarbon INFO @ 10:56:52]   GPU model: None
+[codecarbon WARNING @ 10:56:52] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:56:52] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:56:52] stopping.
+[codecarbon WARNING @ 10:57:08] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:08] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:57:08] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:08] Energy consumed for all CPUs : 0.000697 kWh. All CPUs Power : 160.59632581792826 W
+[codecarbon INFO @ 10:57:08] 0.000992 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:57:11] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:11] Energy consumed for RAM : 0.000348 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:57:11] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:11] Energy consumed for all CPUs : 0.000823 kWh. All CPUs Power : 161.87849930043097 W
+[codecarbon INFO @ 10:57:11] 0.001171 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:57:11] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:57:11] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:57:11] stopping.
+[codecarbon INFO @ 10:57:25] offline tracker init
+[codecarbon ERROR @ 10:57:25] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 10:57:25] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 10:57:25] [setup] RAM Tracking...
+[codecarbon WARNING @ 10:57:25] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:25] [setup] GPU Tracking...
+[codecarbon INFO @ 10:57:25] No GPU found.
+[codecarbon INFO @ 10:57:25] [setup] CPU Tracking...
+[codecarbon INFO @ 10:57:25] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:57:25] >>> Tracker's metadata:
+[codecarbon INFO @ 10:57:25]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:57:25]   Python version: 3.9.13
+[codecarbon INFO @ 10:57:25]   Available RAM : 188.580 GB
+[codecarbon INFO @ 10:57:25]   CPU count: 48
+[codecarbon INFO @ 10:57:25]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:57:25]   GPU count: None
+[codecarbon INFO @ 10:57:25]   GPU model: None
+[codecarbon WARNING @ 10:57:25] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:57:25] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:57:25] stopping.
+[codecarbon WARNING @ 10:57:41] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:41] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:57:41] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:41] Energy consumed for all CPUs : 0.000700 kWh. All CPUs Power : 160.98853446474652 W
+[codecarbon INFO @ 10:57:41] 0.000995 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:57:49] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:49] Energy consumed for RAM : 0.000449 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:57:49] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:57:49] Energy consumed for all CPUs : 0.001056 kWh. All CPUs Power : 161.56566374775986 W
+[codecarbon INFO @ 10:57:49] 0.001506 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:57:49] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:57:49] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:57:49] stopping.
+[codecarbon INFO @ 10:58:04] offline tracker init
+[codecarbon ERROR @ 10:58:04] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 10:58:04] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 10:58:04] [setup] RAM Tracking...
+[codecarbon WARNING @ 10:58:04] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:04] [setup] GPU Tracking...
+[codecarbon INFO @ 10:58:04] No GPU found.
+[codecarbon INFO @ 10:58:04] [setup] CPU Tracking...
+[codecarbon INFO @ 10:58:04] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:58:05] >>> Tracker's metadata:
+[codecarbon INFO @ 10:58:05]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:58:05]   Python version: 3.9.13
+[codecarbon INFO @ 10:58:05]   Available RAM : 188.580 GB
+[codecarbon INFO @ 10:58:05]   CPU count: 48
+[codecarbon INFO @ 10:58:05]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:58:05]   GPU count: None
+[codecarbon INFO @ 10:58:05]   GPU model: None
+[codecarbon WARNING @ 10:58:05] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:58:05] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:58:05] stopping.
+[codecarbon WARNING @ 10:58:20] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:20] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:58:20] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:20] Energy consumed for all CPUs : 0.000700 kWh. All CPUs Power : 161.010773801958 W
+[codecarbon INFO @ 10:58:20] 0.000995 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:58:35] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:35] Energy consumed for RAM : 0.000577 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:58:35] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:35] Energy consumed for all CPUs : 0.001365 kWh. All CPUs Power : 161.31356686213334 W
+[codecarbon INFO @ 10:58:35] 0.001942 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:58:35] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:35] Energy consumed for RAM : 0.000867 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:58:35] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:35] Energy consumed for all CPUs : 0.001367 kWh. All CPUs Power : 158.56161121036212 W
+[codecarbon INFO @ 10:58:35] 0.002235 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:58:35] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:58:35] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 10:58:35] stopping.
+[codecarbon INFO @ 10:58:53] offline tracker init
+[codecarbon ERROR @ 10:58:53] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 10:58:53] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 10:58:53] [setup] RAM Tracking...
+[codecarbon WARNING @ 10:58:53] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:58:53] [setup] GPU Tracking...
+[codecarbon INFO @ 10:58:53] No GPU found.
+[codecarbon INFO @ 10:58:53] [setup] CPU Tracking...
+[codecarbon INFO @ 10:58:53] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 10:58:53] >>> Tracker's metadata:
+[codecarbon INFO @ 10:58:53]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 10:58:53]   Python version: 3.9.13
+[codecarbon INFO @ 10:58:53]   Available RAM : 188.580 GB
+[codecarbon INFO @ 10:58:53]   CPU count: 48
+[codecarbon INFO @ 10:58:53]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 10:58:53]   GPU count: None
+[codecarbon INFO @ 10:58:53]   GPU model: None
+[codecarbon WARNING @ 10:58:53] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 10:58:53] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 10:58:53] stopping.
+[codecarbon WARNING @ 10:59:09] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:09] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:59:09] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:09] Energy consumed for all CPUs : 0.000701 kWh. All CPUs Power : 161.6241756018561 W
+[codecarbon INFO @ 10:59:09] 0.000996 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:59:24] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:24] Energy consumed for RAM : 0.000578 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:59:24] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:24] Energy consumed for all CPUs : 0.001376 kWh. All CPUs Power : 161.38803408788445 W
+[codecarbon INFO @ 10:59:24] 0.001953 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:59:39] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:39] Energy consumed for RAM : 0.000859 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:59:39] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:39] Energy consumed for all CPUs : 0.002048 kWh. All CPUs Power : 161.17713516325375 W
+[codecarbon INFO @ 10:59:39] 0.002908 kWh of electricity used since the begining.
+[codecarbon WARNING @ 10:59:54] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:54] Energy consumed for RAM : 0.001141 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 10:59:54] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 10:59:54] Energy consumed for all CPUs : 0.002720 kWh. All CPUs Power : 161.79938505182201 W
+[codecarbon INFO @ 10:59:54] 0.003861 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:00:09] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:09] Energy consumed for RAM : 0.001423 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:00:09] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:09] Energy consumed for all CPUs : 0.003392 kWh. All CPUs Power : 160.85456156019248 W
+[codecarbon INFO @ 11:00:09] 0.004815 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:00:24] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:24] Energy consumed for RAM : 0.001704 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:00:24] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:24] Energy consumed for all CPUs : 0.004064 kWh. All CPUs Power : 161.3686108515372 W
+[codecarbon INFO @ 11:00:24] 0.005768 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:00:33] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:33] Energy consumed for RAM : 0.001881 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:00:33] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:33] Energy consumed for all CPUs : 0.004468 kWh. All CPUs Power : 160.1094460182448 W
+[codecarbon INFO @ 11:00:33] 0.006349 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:00:33] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 11:00:33] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 424, in stop
+    emissions_data = self._prepare_emissions_data()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 444, in _prepare_emissions_data
+    emissions = self._emissions.get_private_infra_emissions(
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_emissions'
+[codecarbon WARNING @ 11:00:33] stopping.
+[codecarbon INFO @ 11:00:56] offline tracker init
+[codecarbon ERROR @ 11:00:56] Does not support country with ISO code US Exception occurred 'US'
+[codecarbon WARNING @ 11:00:56] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available cpus. Using the machine's cpu count.
+[codecarbon INFO @ 11:00:56] [setup] RAM Tracking...
+[codecarbon WARNING @ 11:00:56] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:00:56] [setup] GPU Tracking...
+[codecarbon INFO @ 11:00:56] No GPU found.
+[codecarbon INFO @ 11:00:56] [setup] CPU Tracking...
+[codecarbon INFO @ 11:00:56] Tracking Intel CPU via RAPL interface
+[codecarbon INFO @ 11:00:56] >>> Tracker's metadata:
+[codecarbon INFO @ 11:00:56]   Platform system: Linux-4.18.0-305.3.1.el8.x86_64-x86_64-with-glibc2.28
+[codecarbon INFO @ 11:00:56]   Python version: 3.9.13
+[codecarbon INFO @ 11:00:56]   Available RAM : 188.580 GB
+[codecarbon INFO @ 11:00:56]   CPU count: 48
+[codecarbon INFO @ 11:00:56]   CPU model: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+[codecarbon INFO @ 11:00:56]   GPU count: None
+[codecarbon INFO @ 11:00:56]   GPU model: None
+[codecarbon WARNING @ 11:00:56] graceful shutdown. Exceptions:
+[codecarbon WARNING @ 11:00:56] <class 'Exception'>
+Traceback (most recent call last):
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/core/util.py", line 18, in suppress
+    yield
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/contextlib.py", line 79, in inner
+    return func(*args, **kwds)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 684, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 322, in __init__
+    self._geo = self._get_geo_metadata()
+  File "/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/codecarbon/emissions_tracker.py", line 689, in _get_geo_metadata
+    country_name=self._country_name,
+AttributeError: 'OfflineEmissionsTracker' object has no attribute '_country_name'
+[codecarbon WARNING @ 11:00:56] stopping.
+[codecarbon WARNING @ 11:01:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:12] Energy consumed for RAM : 0.000295 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:01:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:12] Energy consumed for all CPUs : 0.000707 kWh. All CPUs Power : 162.42112947218777 W
+[codecarbon INFO @ 11:01:12] 0.001002 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:01:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:27] Energy consumed for RAM : 0.000576 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:01:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:27] Energy consumed for all CPUs : 0.001380 kWh. All CPUs Power : 161.42685553823705 W
+[codecarbon INFO @ 11:01:27] 0.001956 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:01:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:42] Energy consumed for RAM : 0.000858 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:01:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:42] Energy consumed for all CPUs : 0.002053 kWh. All CPUs Power : 161.85967802011743 W
+[codecarbon INFO @ 11:01:42] 0.002910 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:01:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:57] Energy consumed for RAM : 0.001140 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:01:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:01:57] Energy consumed for all CPUs : 0.002729 kWh. All CPUs Power : 162.49063016624217 W
+[codecarbon INFO @ 11:01:57] 0.003869 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:02:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:12] Energy consumed for RAM : 0.001422 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:02:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:12] Energy consumed for all CPUs : 0.003402 kWh. All CPUs Power : 161.97597003327598 W
+[codecarbon INFO @ 11:02:12] 0.004824 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:02:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:27] Energy consumed for RAM : 0.001705 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:02:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:27] Energy consumed for all CPUs : 0.004083 kWh. All CPUs Power : 162.5701321593727 W
+[codecarbon INFO @ 11:02:27] 0.005788 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:02:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:42] Energy consumed for RAM : 0.001986 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:02:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:42] Energy consumed for all CPUs : 0.004758 kWh. All CPUs Power : 162.14377460457817 W
+[codecarbon INFO @ 11:02:42] 0.006744 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:02:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:57] Energy consumed for RAM : 0.002267 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:02:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:02:57] Energy consumed for all CPUs : 0.005435 kWh. All CPUs Power : 162.8857655837071 W
+[codecarbon INFO @ 11:02:57] 0.007702 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:03:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:12] Energy consumed for RAM : 0.002549 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:03:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:12] Energy consumed for all CPUs : 0.006112 kWh. All CPUs Power : 162.27622245830554 W
+[codecarbon INFO @ 11:03:12] 0.008661 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:03:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:27] Energy consumed for RAM : 0.002831 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:03:27] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:27] Energy consumed for all CPUs : 0.006787 kWh. All CPUs Power : 162.38478919344666 W
+[codecarbon INFO @ 11:03:27] 0.009618 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:03:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:42] Energy consumed for RAM : 0.003114 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:03:42] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:42] Energy consumed for all CPUs : 0.007463 kWh. All CPUs Power : 161.62102178849446 W
+[codecarbon INFO @ 11:03:42] 0.010577 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:03:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:57] Energy consumed for RAM : 0.003395 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:03:57] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:03:57] Energy consumed for all CPUs : 0.008135 kWh. All CPUs Power : 161.42543460252625 W
+[codecarbon INFO @ 11:03:57] 0.011530 kWh of electricity used since the begining.
+[codecarbon WARNING @ 11:04:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:04:12] Energy consumed for RAM : 0.003676 kWh. RAM Power : 70.71753072738647 W
+[codecarbon WARNING @ 11:04:12] Unexpected output after running `scontrol show job $SLURM_JOBID` to count SLURM-available RAM. Using the machine's total RAM.
+[codecarbon INFO @ 11:04:12] Energy consumed for all CPUs : 0.008814 kWh. All CPUs Power : 163.0888757046441 W
+[codecarbon INFO @ 11:04:12] 0.012490 kWh of electricity used since the begining.

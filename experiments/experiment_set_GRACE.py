@@ -64,7 +64,7 @@ parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_file', type=str, default="/results/")
+parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
@@ -106,8 +106,7 @@ if args.dataset in ['Computers', 'Photo']:
 dataset_print(dataset)
 data_print(data)
 
-
-file_path = os.getcwd() + 'experiments/results/GRACE_results' +  args.dataset + '_' + args.name_file + '.csv'
+file_path = os.getcwd() +  args.result_folder + 'GRACE_results_' + args.dataset + '_'  + args.name_file + '.csv'
 
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
@@ -132,7 +131,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
         for tau in [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
             for edr in [0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
                 for fmr in [0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
-                    _, res = experiment(model='GRACE', data=data,
+                    _, res = experiment(model_name='GRACE', data=data,
                                    train_data=train_data, val_data=val_data, test_data=test_data,
                                    rand_data = rand_data,
                                    diff = diff, target = target, device=device,

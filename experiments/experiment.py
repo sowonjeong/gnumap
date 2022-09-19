@@ -33,7 +33,7 @@ from umap_functions import *
 
 
 
-def experiment(model, data,
+def experiment(model_name, data,
                train_data, val_data, test_data,
                rand_data,
                diff, target, device,
@@ -47,27 +47,27 @@ def experiment(model, data,
                name_file="1"):
 
     num_classes = int(data.y.max().item()) + 1
-    if model == 'DGI':
+    if model_name == 'DGI':
         model = train_dgi(data, hid_dim=out_dim, out_dim=out_dim,
                           n_layers=n_layers,
                           patience=patience,
                           epochs=epochs, lr=lr1,
                           name_file=name_file)
         embeds = model.get_embedding(data)
-    elif model == 'MVGRL':
+    elif model_name == 'MVGRL':
         model = train_mvgrl(data, diff=diff, out_dim=out_dim,
                             n_layers=n_layers,
                             patience=patience,
                             epochs=epochs, lr=lr1, wd=wd1,
                             name_file=name_file)
         embeds =  model.get_embedding(data, diff)
-    elif model == 'GRACE':
+    elif model_name == 'GRACE':
         model =  train_grace(data, channels=out_dim, proj_hid_dim=out_dim,
                              tau=tau,
                              epochs=epochs, lr=lr1, wd=wd1,
                              fmr=fmr, edr=edr, proj=proj, name_file=name_file)
         embeds = model.get_embedding(data)
-    elif model == 'GNUMAP':
+    elif model_name == 'GNUMAP':
         model =  train_gnumap(data, target=None, dim=out_dim, n_layers=n_layers,
                               method = method,
                               norm=norm, neighbours=n_neighbours,
@@ -76,7 +76,7 @@ def experiment(model, data,
                               min_dist=min_dist,
                               name_file=name_file)
         embeds = model(data.x, data.edge_index)
-    elif model == 'semiGNUMAP':
+    elif model_name == 'semiGNUMAP':
         model =  train_gnumap(data, target=target, dim=out_dim, n_layers=n_layers,
                               method = method,
                               norm=norm, neighbours=n_neighbours,
@@ -85,14 +85,14 @@ def experiment(model, data,
                               min_dist=min_dist,
                               name_file=name_file)
         embeds = model(data.x, data.edge_index)
-    elif model == 'CCA-SSG':
+    elif model_name == 'CCA-SSG':
         model =  train_cca_ssg(data, channels=out_dim,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr1,
                                fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(data)
-    elif model == 'BGRL':
+    elif model_name == 'BGRL':
         model =  train_bgrl(data, channels=out_dim,
                                lambd=lambd,
                                n_layers=n_layers,
@@ -143,7 +143,7 @@ def experiment(model, data,
     acc_train_default, acc_val_default, acc_default = nodes_res_default[best_epoch][2], nodes_res_default[best_epoch][3], nodes_res_default[best_epoch][4]
     other = label_classification(embeds, data.y, 0.05)
 
-    results = [
+    results = [  model_name,
                  method,
                  out_dim,
                  n_neighbours,
