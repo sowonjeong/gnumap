@@ -18,16 +18,16 @@ module load python
 source activate pytorch_geom3.9
 
 cd $SCRATCH/$USER/gnumap/experiments
-if [$1 = 'DGI']; then
+if [[ "$METH" == "DGI" ]]; then
   python3 experiment_set_DGI.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
-elif [$1 = 'MVGRL']; then
+elif [[ "$METH" == "MVGRL" ]]; then
   python3 experiment_set_MVGRL.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
-elif [$1 = 'GNUMAP']; then
+elif [[ "$METH" == "GNUMAP" ]]; then
   python3 experiment_set_GNUMAP.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
-elif [$1 = 'GRACE']; then
+elif [[ "$METH" == "GRACE" ]]; then
   python3 experiment_set_GRACE.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
-elif [$1 = 'CCA-SSG']; then
+elif [[ "$METH" == "CCA-SSG" ]]; then
   python3 experiment_set_CCA-SSG.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
-elif [$1 = 'BGRL']; then
+elif [[ "$METH" == "BGRL" ]]; then
   python3 experiment_set_BGRL.py --dataset $2 --result_file $SLURM_ARRAY_TASK_ID
 fi;
