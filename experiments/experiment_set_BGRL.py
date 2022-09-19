@@ -105,8 +105,7 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() +  args.result_file + 'BGRL_results_' + args.name_file + '.csv'
-
+file_path = os.getcwd() + 'experiments/results/CCA-SSG_results' +  args.dataset + '_' + args.name_file + '.csv'
 
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
@@ -152,7 +151,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
                  pd.DataFrame(np.array(results), columns =[ 'model', 'method',
                             'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                              'dre1', 'drf1', 'lr', 'edr', 'fmr',
-                            'tau', 'lambd','pred_hid,' 'proj_hid_dim',
+                            'tau', 'lambd','pred_hid', 'proj_hid_dim',
                             'train_roc', 'train_ap',
                             'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
                             'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
