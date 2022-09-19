@@ -124,7 +124,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), os.getcwd() +
+            torch.save(model.state_dict(), '/scratch/midway3/cdonnat/gnumap/experiments' +
                        '/results/best_mvgrl_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
@@ -133,7 +133,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             break
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd() + '/results/best_mvgrl_dim' +
+    model.load_state_dict(torch.load('/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_mvgrl_dim' +
                                      str(out_dim) + '_' + name_file +  '.pkl'))
     return(model)
 
@@ -230,7 +230,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), os.getcwd() + '/results/best_gnumap_'
+            torch.save(model.state_dict(), '/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_gnumap_'
                                           + str(method) + '_neigh' + str(neighbours)
                                           + '_dim' + str(dim) + '_' + name_file +  '.pkl')
         else:
@@ -240,7 +240,7 @@ def train_gnumap(data, dim, n_layers=2, target=None,
             break
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd() + '/results/best_gnumap_' +
+    model.load_state_dict(torch.load('/scratch/midway3/cdonnat/gnumap/experiments' + '/results/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     return(model)

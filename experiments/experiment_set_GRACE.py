@@ -107,8 +107,7 @@ dataset_print(dataset)
 data_print(data)
 
 
-file_path = os.getcwd() +  args.result_file + 'GRACE_results_' + args.name_file + '.csv'
-
+file_path = os.getcwd() + 'experiments/results/GRACE_results' +  args.dataset + '_' + args.name_file + '.csv'
 
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
