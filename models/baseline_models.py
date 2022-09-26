@@ -44,8 +44,9 @@ class GNN(nn.Module):
                  device: str='cpu',
                  alpha_res: float=0, alpha: float=0.5,
                  beta: float=1., gnn_type: str = 'symmetric',
-                 normalize: bool=True,
-                 standardize: bool=False):
+                 norm: str='normalize',
+                 must_propagate=None,
+                 lambd_corr: float = 0):
         super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -55,12 +56,14 @@ class GNN(nn.Module):
         self.alpha_res = alpha_res
         self.alpha = alpha
         self.beta= beta
+        self.must_propagate = must_propagate
         self.propagate = GAPPNP(K=1, alpha_res=self.alpha_res,
                                 alpha = self.alpha,
                                 gnn_type=self.gnn_type,
                                 beta = self.beta)
-        self.normalize = normalize
-        self.standardize = standardize
+        self.norm = norm
+        if self.must_propagate is None:
+            self.must_propagate = [True] * self.n_layers
         if isinstance(hidden_dim, Number):
             self.hidden_dim = [hidden_dim] * (self.n_layers - 1)
         elif isinstance(hidden_dim, list):
@@ -110,15 +113,31 @@ class GNN(nn.Module):
         for c in range(self.n_layers):
             if c == self.n_layers - 1:
                 h = self.fc[c](h)
+                if self.norm == 'normalize' and c==0:
+                    h = F.normalize(h, p=2, dim=1)
+                elif self.norm == 'standardize'and c==0:
+                    h = (h - h.mean(0)) / h.std(0)
+                elif self.norm == 'uniform'and c==0:
+                    h = 10 * (h - h.min()) / (h.max() - h.min())
+                elif self.norm == 'col_uniform'and c==0:
+                    h = 10 * (h - h.min(0)[0].reshape([1,-1]))/ (h.max(0)[0].reshape([1,-1])-h.min(0)[0].reshape([1,-1]))
+
             else:
                 h = self.fc[c](h)
                 h = F.dropout(h, p=0.5, training=self.training)
-                h = self.propagate(h, edge_index)
-                if self.normalize:
+                if self.must_propagate[c]:
+                    h = self.propagate(h, edge_index)
+                if self.norm == 'normalize':
                     h = F.normalize(h, p=2, dim=1)
-                elif self.standardize:
-                    h = (h - h.mean(0)) / h.std(0)
+                elif self.norm == 'standardize':
+                    h = (h - h.mean(0)) / h.std(0) #z1 = (h1 - h1.mean(0)) / h1.std(0)
+                elif self.norm == 'uniform':
+                    h = 10 * (h - h.min()) / (h.max() - h.min())
+                elif self.norm == 'col_uniform':
+                    h = 10 * (h - h.min(0)[0].reshape([1,-1]))/ (h.max(0)[0].reshape([1,-1])-h.min(0)[0].reshape([1,-1]))
                 h = self._act_f[c](h)
+        if self.norm == 'standardize_last':
+            h = (h - h.mean(0)) / h.std(0)
         return h
 
 
@@ -130,6 +149,7 @@ class genMLP(nn.Module):
         self.output_dim = output_dim
         self.n_layers = n_layers
         self.device = device
+        self.bn = nn.BatchNorm1d(nhid)
         self.use_bn = use_bn
         if isinstance(hidden_dim, Number):
             self.hidden_dim = [hidden_dim] * (self.n_layers - 1)
@@ -169,7 +189,6 @@ class genMLP(nn.Module):
             _fc_list.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
         self.fc = nn.ModuleList(_fc_list)
         self.to(self.device)
-
     @staticmethod
     def xtanh(x, alpha=.1):
         """tanh function plus an additional linear term"""
