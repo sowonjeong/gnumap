@@ -2,6 +2,7 @@ import numpy as np
 from carbontracker.tracker import CarbonTracker
 import cProfile
 import os
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch_geometric
@@ -17,8 +18,10 @@ from models.baseline_models import GNN
 from models.cca_ssg import CCA_SSG
 from models.bgrl import BGRL
 from models.data_augmentation import *
+from models.clgr import CLGR
 from models.vgnae import *
 from scipy import optimize
+import scipy
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from codecarbon import OfflineEmissionsTracker
@@ -176,6 +179,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         new_edge_index, new_edge_attr = torch_geometric.utils.to_undirected(data.edge_index, data.edge_weight)
     else:
         new_edge_index, new_edge_attr = data.edge_index, data.edge_weight
+    ### remove self loop
     #### transform edge index into knn matrix
     knn = []
     for i in range(data.num_nodes):
@@ -266,17 +270,13 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
             diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) #+ 1e-3
             diff_norm_neg = torch.clip(diff_norm_neg, min=1e-3)
             log_q_neg = torch.log1p(_a *  diff_norm_neg ** _b)
-        print("loss before neg", loss_pos)
         loss_neg = - torch.mean((log_sigmoid(log_q_neg) - log_q_neg ) * repulsion_strength)
-        print("loss after neg", loss_neg)
         ### Add a term to make sure that the features are learned independently
         c1 = torch.mm(out.T, out)
         c1 = c1 / out.shape[0]
         iden = torch.tensor(np.eye(out.shape[1])).to(device)
         loss_dec1 = (iden - c1).pow(2).sum()
-        loss = loss_pos + loss_neg +  lambd * loss_dec1
-        print("loss corr",lambd * loss_dec1)
-        print("loss final", loss)
+        loss = loss_pos + loss_neg +  lambd_corr * loss_dec1
         tic =  time.time()
         loss.backward()
         #torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=4)
@@ -359,7 +359,7 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
     out_dim = channels
     N = data.num_nodes
     ##### Train the SelfGCon model #####
-    print("=== train SelfGCon model ===")
+    print("=== train CCa model model ===")
     model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False) #
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
@@ -487,4 +487,44 @@ def train_vgnae():
                                 val_data.pos_edge_label_index,
                                 val_data.neg_edge_label_index)
             current_ac = np.mean(out)
+    return(model)
+
+def train_clgr(data,  hid_dim, channels,
+                  n_layers=2, epochs=100, lr=1e-3,
+                  tau=0.1, edr=0.2, fmr=0.2,
+                  name_file="test",
+                  device=None, mlp_use=False):
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    in_dim = data.num_features
+    hid_dim =  hid_dim
+    out_dim = channels
+    N = data.num_nodes
+    ##### Train the SelfGCon model #####
+    print("=== train SelfGCon model ===")
+    model = CLGR(in_dim, hid_dim, out_dim,
+                 n_layers, tau, use_mlp = mlp_use) #
+    model = model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
+    #            '_lambda' + str(lambd) +
+    #            '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' +  name_file)
+    def train_clgr_one_epoch(model, data):
+        model.train()
+        optimizer.zero_grad()
+        new_data1 = random_aug(data, fmr, edr)
+        new_data2 = random_aug(data, fmr, edr)
+        new_data1 = new_data1.to(device)
+        new_data2 = new_data2.to(device)
+        z1, z2 = model(new_data1, new_data2)
+        loss = model.loss(z1, z2)
+        loss.backward()
+        optimizer.step()
+        return loss.item()
+    #tracker.start()
+    for epoch in range(epochs):
+        loss = train_clgr_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
+        # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+    #tracker.stop()
     return(model)

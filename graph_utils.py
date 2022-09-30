@@ -5,7 +5,7 @@ from torch_scatter import scatter_add
 from torch_geometric.utils import to_scipy_sparse_matrix, from_scipy_sparse_matrix
 from torch_geometric.utils import add_remaining_self_loops
 import torch_geometric.transforms as T
-from umap_functions import prob_high_dim, k, sigma_binary_search
+from umap_functions import *
 
 
 def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
