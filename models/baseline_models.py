@@ -24,11 +24,13 @@ class GCN(nn.Module):
         super().__init__()
         self.n_layers = n_layers
         self.convs = nn.ModuleList()
-        self.convs.append(GCNConv(in_dim, hid_dim))
         if n_layers > 1:
+            self.convs.append(GCNConv(in_dim, hid_dim))
             for i in range(n_layers - 2):
                 self.convs.append(GCNConv(hid_dim, hid_dim))
             self.convs.append(GCNConv(hid_dim, out_dim))
+        else:
+            self.convs.append(GCNConv(in_dim, out_dim))
 
     def forward(self, x, edge_index, edge_weight = None):
         for i in range(self.n_layers - 1):
