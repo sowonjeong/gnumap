@@ -60,7 +60,7 @@ from sklearn.model_selection import train_test_split, cross_validate
 results = []
 for exp in range(50):
     for dataset_type in ['moon', 'swissroll', 'circles']:
-        for nb_repeats in [1, 2, 5, 10, 20, 30, 40, 50, 100]:
+        for nb_repeats in [1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 300]:
             reg = LogisticRegression(random_state=0)
             parameters = {'C':[0.1, 0.5, 1, 2, 5, 7, 10]}
             svc = SVC()
@@ -105,7 +105,7 @@ for exp in range(50):
                             edge_index=edge_index,
                             edge_weight=edge_weights)
 
-            model = train_dgi(moon_data, 128, nb_repeats, args.n_layers, patience=20,
+            model = train_dgi(moon_data,3 * nb_repeats, nb_repeats, args.n_layers, patience=20,
                   epochs=1000, lr=0.01, name_file=DICT_NAME_APP)
             out = model.get_embedding(moon_data).numpy()
             u = out
@@ -115,39 +115,65 @@ for exp in range(50):
                 clf.fit(u, y[:,i])
                 best_scores += [clf.best_score_]
                 cv_results = cross_validate(reg, u, y[:,i], cv=5)
-                reg_scores  += [cv_results['test_score']]
+                reg_scores  += [np.mean(cv_results['test_score'])]
             results+= [[exp, dataset_type, args.noise, 'dgi', np.nan, np.nan, np.nan,
-                        nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                        nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
             pd.DataFrame(np.array(results),
                                     columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
-                                            'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
-
-            model_grace = train_grace(moon_data,128, nb_repeats, args.n_layers,
-                    epochs=1000, lr=0.01, name_file=DICT_NAME_APP)
-            out = model_grace.get_embedding(moon_data).numpy()
-            u = out
-            best_scores = []
-            reg_scores = []
-            for i in range(nb_repeats):
-                clf.fit(u, y[:,i])
-                best_scores += [clf.best_score_]
-                cv_results = cross_validate(reg, u, y[:,i], cv=5)
-                reg_scores  += [cv_results['test_score']]
-            results+= [[exp, dataset_type, args.noise, 'grace', np.nan, np.nan,  np.nan,
-                        nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
-            pd.DataFrame(np.array(results),
-                                    columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
+                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
                                             'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
 
 
             for edr in [0.5]:
-                for tau in [1e-2, 1e-1, 0.5]:
+                for tau in [1e-2, 1e-1, 0.2, 0.5]:
+                    if tau > 1e-1:
+                        model_grace = train_grace(moon_data,3 * nb_repeats,  nb_repeats,
+                                                  n_layers=args.n_layers, tau=tau,
+                                                  fmr=0.2, edr=edr, proj="nonlinear-hid",
+                                                  epochs=1000, lr=0.01, name_file=DICT_NAME_APP)
+                        out = model_grace.get_embedding(moon_data).numpy()
+                        u = out
+                        best_scores = []
+                        reg_scores = []
+                        for i in range(nb_repeats):
+                            clf.fit(u, y[:,i])
+                            best_scores += [clf.best_score_]
+                            cv_results = cross_validate(reg, u, y[:,i], cv=5)
+                            reg_scores  += [np.mean(cv_results['test_score'])]
+                        results+= [[exp, dataset_type, args.noise, 'grace', np.nan, np.nan,  np.nan,
+                                    nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                        pd.DataFrame(np.array(results),
+                                                columns=['exp', 'dataset', 'noise', 'method',
+                                                        'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
+                                                        'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
+
+                        model_grace = train_grace(moon_data,3 * nb_repeats,  nb_repeats,
+                                                  n_layers=args.n_layers, tau=tau,
+                                                  fmr=0.2, edr=edr, proj="standard",
+                                                  epochs=1000, lr=0.01, name_file=DICT_NAME_APP)
+                        out = model_grace.get_embedding(moon_data).numpy()
+                        u = out
+                        best_scores = []
+                        reg_scores = []
+                        for i in range(nb_repeats):
+                            clf.fit(u, y[:,i])
+                            best_scores += [clf.best_score_]
+                            cv_results = cross_validate(reg, u, y[:,i], cv=5)
+                            reg_scores  += [np.mean(cv_results['test_score'])]
+                        results+= [[exp, dataset_type, args.noise, 'grace_std', np.nan, np.nan,  np.nan,
+                                    nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                        pd.DataFrame(np.array(results),
+                                                columns=['exp', 'dataset', 'noise', 'method',
+                                                        'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
+                                                        'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
+
+
+
                     model = train_clgr(moon_data,
-                                       channels=nb_repeats, hid_dim=128, tau=tau, lambd=0.,
+                                       channels=nb_repeats, hid_dim=3 * nb_repeats,
+                                       tau=tau, lambd=0.,
                                        n_layers=args.n_layers, epochs=1000, lr=0.01,
-                                       fmr=0., edr =edr, name_file=DICT_NAME_APP,
+                                       fmr=0.2, edr =edr, name_file=DICT_NAME_APP,
                                        device=None,
                                        normalize=True,
                                        standardize=True)
@@ -160,19 +186,19 @@ for exp in range(50):
                         clf.fit(u, y[:,i])
                         best_scores += [clf.best_score_]
                         cv_results = cross_validate(reg, u, y[:,i], cv=5)
-                        reg_scores  += [cv_results['test_score']]
+                        reg_scores  += [np.mean(cv_results['test_score'])]
                     results+= [[exp, dataset_type, args.noise, 'clgr', edr, tau, np.nan,
-                                nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                                nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
                     pd.DataFrame(np.array(results),
                                     columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
+                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
                                             'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
 
                     for lambd in [1e-3, 1e-2, 1e-1]:
                         model = train_clgr(moon_data,
-                                           channels=nb_repeats, hid_dim=128, tau=tau, lambd=lambd,
+                                           channels=nb_repeats, hid_dim=3 * nb_repeats, tau=tau, lambd=lambd,
                                            n_layers=args.n_layers, epochs=1000, lr=0.01,
-                                           fmr=0., edr =edr, name_file= DICT_NAME_APP + "regularized",
+                                           fmr=0.2, edr =edr, name_file= DICT_NAME_APP + "regularized",
                                            device=None,
                                            normalize=True,
                                            standardize=False
@@ -186,21 +212,21 @@ for exp in range(50):
                             clf.fit(u, y[:,i])
                             best_scores += [clf.best_score_]
                             cv_results = cross_validate(reg, u, y[:,i], cv=5)
-                            reg_scores  += [cv_results['test_score']]
+                            reg_scores  += [np.mean(cv_results['test_score'])]
 
                         results+= [[exp, dataset_type, args.noise, 'clgr_regularized', edr, tau, lambd,
-                                    nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                                    nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
                         pd.DataFrame(np.array(results),
                                     columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
+                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
                                             'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
 
 
                 for lambd in [1e-3, 1e-2, 1e-1]:
                         model_cca = train_cca_ssg(moon_data, channels=nb_repeats,
-                                                  hid_dim=128, lambd=lambd,
+                                                  hid_dim=3 * nb_repeats, lambd=lambd,
                                                   n_layers=args.n_layers,  epochs=1000, lr=0.01,
-                                                  fmr=0., edr =edr, name_file=DICT_NAME_APP,
+                                                  fmr=0.2, edr =edr, name_file=DICT_NAME_APP,
                                                   device=None)
                         out = model_cca.get_embedding(moon_data).numpy()
                         u = out
@@ -210,17 +236,17 @@ for exp in range(50):
                             clf.fit(u, y[:,i])
                             best_scores += [clf.best_score_]
                             cv_results = cross_validate(reg, u, y[:,i], cv=5)
-                            reg_scores  += [cv_results['test_score']]
+                            reg_scores  += [np.mean(cv_results['test_score'])]
 
                         results+= [[exp, dataset_type, args.noise, 'cca', edr, tau, lambd,
-                                    nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+                                    nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
                         pd.DataFrame(np.array(results),
                                     columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
+                                            'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
                                             'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
 
 
-#                         model_cca = train_gnumap(moon_data, channels=2, hid_dim=128,
+#                         model_cca = train_gnumap(moon_data, channels=2, hid_dim=3 * nb_repeats,
 #                                                   n_layers=2, epochs=1000, lr=1e-2,
 #                                                   name_file="test",
 #                                                   device=None)
@@ -229,8 +255,8 @@ for exp in range(50):
 #                         clf.fit(u, y)
 #                         cv_results = cross_validate(reg, u, y, cv=5)
 #                         results+= [[exp, dataset_type, args.noise, 'gnumap', edr, np.nan, lambd,
-#                                     nb_repeats, np.mean(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
+#                                     nb_repeats, np.mean(np.array(best_scores)), np.std(np.array(best_scores)),  np.mean(reg_scores), np.std(reg_scores)]]
 #                         pd.DataFrame(np.array(results),
 #                                     columns=['exp', 'dataset', 'noise', 'method',
-#                                             'edr', 'tau', 'lambd', 'nb_repeats','clf_best',
+#                                             'edr', 'tau', 'lambd', 'nb_repeats','clf_best', 'std_clf_best',
 #                                             'linear_score', 'sd_linear_score']).to_csv(FILE_NAME)
