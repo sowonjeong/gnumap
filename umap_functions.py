@@ -19,6 +19,32 @@ def prob_high_dim(sigma, dist):
     return np.exp(- d / sigma)
 
 
+def k(prob):
+    """
+    Compute n_neighbor = k (scalar) for each 1D array of high-dimensional probability
+    """
+    return np.power(2, np.sum(prob))
+
+
+def sigma_binary_search(k_of_sigma, fixed_k):
+    """
+    Solve equation k_of_sigma(sigma) = fixed_k
+    with respect to sigma by the binary search algorithm
+    Do we really need this?
+    """
+    sigma_lower_limit = 0;
+    sigma_upper_limit = 100;
+    for i in range(20):
+        approx_sigma = (sigma_lower_limit + sigma_upper_limit) / 2
+        if k_of_sigma(approx_sigma) < fixed_k:
+            sigma_lower_limit = approx_sigma
+        else:
+            sigma_upper_limit = approx_sigma
+        if np.abs(fixed_k - k_of_sigma(approx_sigma)) <= 1e-5:
+            break
+    return approx_sigma
+
+
 
 def smooth_knn_dist(distances, k, n_iter=64, local_connectivity=1.0, bandwidth=1.0):
     """Compute a continuous version of the distance to the kth nearest
