@@ -2,6 +2,7 @@ import numpy as np
 from carbontracker.tracker import CarbonTracker
 import cProfile
 import os
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch_geometric
@@ -17,8 +18,10 @@ from models.baseline_models import GNN
 from models.cca_ssg import CCA_SSG
 from models.bgrl import BGRL
 from models.data_augmentation import *
+from models.clgr import CLGR
 from models.vgnae import *
 from scipy import optimize
+import scipy
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from codecarbon import OfflineEmissionsTracker
@@ -176,6 +179,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         new_edge_index, new_edge_attr = torch_geometric.utils.to_undirected(data.edge_index, data.edge_weight)
     else:
         new_edge_index, new_edge_attr = data.edge_index, data.edge_weight
+    ### remove self loop
     #### transform edge index into knn matrix
     knn = []
     for i in range(data.num_nodes):
@@ -186,13 +190,14 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
             float(neighbours),
             local_connectivity=float(local_connectivity),
              )
-    vals = [ np.exp(-(np.max(new_edge_attr.numpy()[i] - rhos[new_edge_index[0,i]], 0)) /
-                    (sigmas[new_edge_index[0,i]])) for i in range(len(new_edge_attr))]
+    # vals = [ np.exp(-(np.max(new_edge_attr.numpy()[i] - rhos[new_edge_index[0,i]], 0)) /
+    #                 (sigmas[new_edge_index[0,i]])) for i in range(len(new_edge_attr))]
+    vals = new_edge_attr
     rows = new_edge_index[0,:].numpy()
     cols = new_edge_index[1,:].numpy()
     vals = np.array(vals)
     result = scipy.sparse.coo_matrix(
-        (vals, (rows, cols)), shape=(X.shape[0], X.shape[0])
+        (vals, (rows, cols)), shape=(data.x.shape[0], data.x.shape[0])
     )
     result.eliminate_zeros()
     target_graph_index, target_graph_weights = from_scipy_sparse_matrix(result)
@@ -247,13 +252,13 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         out = model(data.x.float(), data.edge_index)
         diff_norm = torch.sum(torch.square(out[row_pos[index]] - out[col_pos[index]]), 1)
         diff_norm = torch.clip(diff_norm, min=1e-3)
-        log_q = torch.log1p(_a *  diff_norm ** _b)
+        log_q = -torch.log1p(_a *  diff_norm ** _b)
         loss_pos = - torch.mean(edge_weights_pos[index] * log_sigmoid(log_q)) - torch.mean((1. - edge_weights_pos[index]) *  (log_sigmoid(log_q) - log_q ) * repulsion_strength)
 
         if subsampling is None:
             diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) #+ 1e-3
             diff_norm_neg = torch.clip(diff_norm_neg, min=1e-3)
-            log_q_neg = torch.log1p(_a *  diff_norm_neg ** _b)
+            log_q_neg = -torch.log1p(_a *  diff_norm_neg ** _b)
         else:
             row_neg, col_neg = negative_sampling(new_data.edge_index,
                                                  num_neg_samples=subsampling)
@@ -266,17 +271,13 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
             diff_norm_neg = torch.sum(torch.square(out[row_neg[index_neg]] - out[col_neg[index_neg]]), 1) #+ 1e-3
             diff_norm_neg = torch.clip(diff_norm_neg, min=1e-3)
             log_q_neg = torch.log1p(_a *  diff_norm_neg ** _b)
-        print("loss before neg", loss_pos)
         loss_neg = - torch.mean((log_sigmoid(log_q_neg) - log_q_neg ) * repulsion_strength)
-        print("loss after neg", loss_neg)
         ### Add a term to make sure that the features are learned independently
         c1 = torch.mm(out.T, out)
         c1 = c1 / out.shape[0]
         iden = torch.tensor(np.eye(out.shape[1])).to(device)
         loss_dec1 = (iden - c1).pow(2).sum()
-        loss = loss_pos + loss_neg +  lambd * loss_dec1
-        print("loss corr",lambd * loss_dec1)
-        print("loss final", loss)
+        loss = loss_pos + loss_neg +  lambd_corr * loss_dec1
         tic =  time.time()
         loss.backward()
         #torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=4)
@@ -305,9 +306,10 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     return(model,target_graph_index)
 
+
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                 epochs=100, wd=1e-5, lr=1e-3, fmr=0.2, edr =0.5,
-                proj="standard", name_file="test", device=None):
+                proj="nonlinear-hid", name_file="test", device=None):
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -359,7 +361,7 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
     out_dim = channels
     N = data.num_nodes
     ##### Train the SelfGCon model #####
-    print("=== train SelfGCon model ===")
+    print("=== train CCa model model ===")
     model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False) #
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
@@ -487,4 +489,67 @@ def train_vgnae():
                                 val_data.pos_edge_label_index,
                                 val_data.neg_edge_label_index)
             current_ac = np.mean(out)
+    return(model)
+
+
+def train_clgr(data,  hid_dim, channels,
+                          n_layers=2, epochs=100, lr=1e-3,
+                          tau=0.1, edr=0.2, fmr=0.2,
+                          name_file="test", normalize=True,
+                          standardize=True, patience=20,
+                         device=None, mlp_use=False, lambd=1e-1, hinge=False):
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    in_dim = data.num_features
+    hid_dim =  hid_dim
+    out_dim = channels
+    N = data.num_nodes
+    ##### Train the SelfGCon model #####
+    print("=== train SelfGCon model ===")
+    model = CLGR(in_dim, hid_dim, out_dim,
+                 n_layers, tau, use_mlp = mlp_use,
+                 normalize=normalize, standardize=standardize,
+                  lambd=lambd, hinge=hinge) #
+    model = model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
+    #            '_lambda' + str(lambd) +
+    #            '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' +  name_file)
+    def train_clgr_one_epoch(model, data):
+        model.train()
+        optimizer.zero_grad()
+        new_data1 = random_aug(data, fmr, edr)
+        new_data2 = random_aug(data, fmr, edr)
+        new_data1 = new_data1.to(device)
+        new_data2 = new_data2.to(device)
+        z1, z2 = model(new_data1, new_data2)
+        loss = model.loss(z1, z2, device=device)
+        loss.backward()
+        optimizer.step()
+        return loss.item()
+    #tracker.start()
+
+    best_t = 0
+    cnt_wait = 0
+    best = 1e9
+    for epoch in range(epochs):
+        loss = train_clgr_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
+        print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+        ### add patience
+        if loss < best:
+            best = loss
+            best_t = epoch
+            cnt_wait = 0
+            torch.save(model.state_dict(), os.getcwd()  + '/results/best_clgr_'
+                                           + name_file +  '.pkl')
+        else:
+            cnt_wait += 1
+        if cnt_wait == patience and epoch>50:
+            print('Early stopping at epoch {}!'.format(epoch))
+            break
+    print('Loading {}th epoch'.format(best_t))
+    model.load_state_dict(torch.load( os.getcwd()  + '/results/best_clgr_'
+                                           + name_file +  '.pkl'))
+    #tracker.stop()
     return(model)
