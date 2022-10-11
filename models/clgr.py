@@ -33,11 +33,12 @@ class CLGR(nn.Module):
         else:
             return h1, h2
 
-    def sim(self, z1, z2, indices, refl=None):
+    def sim(self, z1, z2, indices):
         if self.normalize:
             z1 = F.normalize(z1)
             z2 = F.normalize(z2)
-        f = lambda x: torch.exp(0.5 *(x-1) / self.tau)
+        #f = lambda x: torch.exp(0.5 *(x-1) / self.tau)
+        f = lambda x: torch.exp(x / self.tau)
         if indices is not None:
             z2_new = z2[indices,:]
             sim = f(torch.mm(z1, z2_new.t()))
@@ -51,7 +52,7 @@ class CLGR(nn.Module):
 
     def semi_loss(self, z1, z2, indices):
         N = z1.shape[0]
-        criterion = torch.nn.MultiMarginLoss()
+
         refl_sim, refl_diag = self.sim(z1, z1, indices)
         if not self.use_hinge:
             refl_sim = refl_sim - torch.diagflat(refl_diag)
@@ -67,6 +68,7 @@ class CLGR(nn.Module):
         #print(torch.log(between_diag).mean(), torch.log(between_sim.sum(1) + refl_sim.sum(1)).mean())
         #print("min, max",(between_sim.sum(1) + refl_sim.sum(1)).min(), (between_sim.sum(1) + refl_sim.sum(1) ).max())
         if self.use_hinge:
+            criterion = torch.nn.MultiMarginLoss()
             x = torch.from_numpy(np.array(range(N)) )#torch.hstack([torch.eye(N), torch.zeros((N,N))])
             preds = torch.hstack([refl_sim, between_sim] )
             semi_loss = criterion(preds, x)
@@ -113,7 +115,6 @@ class CLGR(nn.Module):
         loss = loss1
 
         return loss
-
 
 class SemiGCon(nn.Module):
     def __init__(self, in_dim, hid_dim, out_dim, n_layers, tau = 0.5, use_mlp = False):
