@@ -497,7 +497,7 @@ def train_clgr(data,  hid_dim, channels,
                           tau=0.1, edr=0.2, fmr=0.2,
                           name_file="test", normalize=True,
                           standardize=True, patience=20,
-                         device=None, mlp_use=False, lambd=1e-1, hinge=False):
+                          device=None, mlp_use=False, lambd=1e-1, hinge=False):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

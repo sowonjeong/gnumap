@@ -9,19 +9,22 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 from models.baseline_models import LogReg, MLP, GCN
 from models.data_augmentation import *
+from models.dbn import DBN
 
 class GRACE(nn.Module):
-    def __init__(self, in_dim, hid_dim, proj_hid_dim, n_layers, tau = 0.5, use_mlp = False):
+    def __init__(self, in_dim, hid_dim, proj_hid_dim, n_layers, tau = 0.5,
+                use_mlp = False):
         super().__init__()
         if not use_mlp:
-            self.backbone = GCN(in_dim, hid_dim, hid_dim, n_layers)
+            self.backbone = GCN(in_dim, hid_dim, proj_hid_dim, n_layers)
         else:
-            self.backbone = MLP(in_dim, hid_dim, hid_dim)
+            self.backbone = MLP(in_dim, hid_dim, proj_hid_dim)
 
-        self.fc1 = nn.Linear(hid_dim, proj_hid_dim)
-        self.fc2 = nn.Linear(proj_hid_dim, hid_dim)
-        self.fc3 = nn.Linear(hid_dim, hid_dim)
+        self.fc1 = nn.Linear(proj_hid_dim, proj_hid_dim)
+        self.fc2 = nn.Linear(proj_hid_dim, proj_hid_dim)
+        self.fc3 = nn.Linear(proj_hid_dim, proj_hid_dim)
         self.tau = tau
+
 
     def get_embedding(self, data):
         out = self.backbone(data.x, data.edge_index)
@@ -42,6 +45,13 @@ class GRACE(nn.Module):
             h = self.fc3(z)
         elif layer == "standard":
             h = (z - z.mean(0)) / z.std(0)
+        elif layer == 'dbn':
+            print(z.shape)
+            self.dbn = DBN(num_features=z.shape[1],
+                          num_groups=1,
+                          dim=2,
+                          affine=False, momentum=1.)
+            h = self.dbn(z)
         return h
 
     def sim(self, z1, z2):
