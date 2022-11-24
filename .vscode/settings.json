@@ -1,0 +1,3 @@
+{
+    "python.pythonPath": "/Users/sowonjeong/opt/anaconda3/envs/${env:CONDA_DEFAULT_ENV}/bin/python"
+}
