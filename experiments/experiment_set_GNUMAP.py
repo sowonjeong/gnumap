@@ -130,10 +130,11 @@ for subsampling in [500, 200, 700, 1000, None]:
     for dim in [16, 32, 64, 128, 256, 512]:
         for n_neighbours in [5, 10, 15, 20, 30]:
             for method in ['power', 'heat', 'laplacian']:
-                for min_dist in [1e-5, 1e-4, 1e-3, 1e-2, 1e-1]:
-                    for model in ['semiGNUMAP', 'GNUMAP']:
-                        print([subsampling, model, min_dist, method, n_neighbours, dim])
-                        _, res = experiment(model_name=model, data=data,
+                for min_dist in [1e-1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.]:
+                    for norm in ['normalize', 'standardize', 'none']:
+                        for model in ['semiGNUMAP', 'GNUMAP']:
+                            print([subsampling, model, min_dist, method, n_neighbours, dim])
+                            _, res = experiment(model_name=model, data=data,
                                    train_data=train_data, val_data=val_data, test_data=test_data,
                                    rand_data = rand_data,
                                    diff = diff, target = target, device=device,
@@ -143,13 +144,13 @@ for subsampling in [500, 200, 700, 1000, None]:
                                    wd2=args.wd2, tau=args.tau, lambd=args.lambd,
                                    min_dist=min_dist,
                                    method=method, n_neighbours=n_neighbours,
-                                   beta=args.beta, norm=args.norm, edr=args.edr, fmr=args.fmr,
+                                   beta=args.beta, norm=norm, edr=args.edr, fmr=args.fmr,
                                    proj=args.proj, pred_hid=args.pred_hid,
                                    dre1=args.dre1, dre2=args.dre2, drf1=args.drf1,
                                    drf2=args.drf2,name_file=args.dataset + '_' + args.name_file,
                                    subsampling=subsampling)
-                        results += [res + [subsampling]]
-                        pd.DataFrame(np.array(results),
+                            results += [res + [subsampling]]
+                            pd.DataFrame(np.array(results),
                                      columns =[ 'model', 'method',
                                                 'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                                                  'dre1', 'drf1', 'lr', 'edr', 'fmr',
