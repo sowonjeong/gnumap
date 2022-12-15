@@ -6,3 +6,6 @@ experiments/results/
 experiments/Planetoid/
 #notebooks/references.md
 #notebooks/
+results/
+experiments/logs/
+models/__pycache__/

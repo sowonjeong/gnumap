@@ -3,7 +3,7 @@
 #SBATCH --job-name=array
 #SBATCH --output=logs/array_%A_%a.out
 #SBATCH --error=logs/array_%A_%a.err
-#SBATCH --array=1-5
+#SBATCH --array=1-20
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1

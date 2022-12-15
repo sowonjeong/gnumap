@@ -152,4 +152,4 @@ for dim in [16, 32, 64, 128, 256, 512]:
                             'test_roc', 'test_ap', 'acc_train', 'val_train', 'acc',
                             'acc_train_default', 'acc_val_default', 'acc_default', 'F1Mi-mean',
                             'F1Mi-std','F1Ma-mean', 'F1Ma-std', 'acc-mean',  'acc-std'] ).to_csv(file_path)
-    print(results)
+    #print(results)
