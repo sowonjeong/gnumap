@@ -13,10 +13,11 @@ def make_roll(c=0.6, v=4, omega=12, n_samples = 2000, n_neighbours = 30,
               standardize=True):
 
     t = np.random.beta(a=b, b=b, size=n_samples)
+    u = np.random.beta(a=2, b=2, size=n_samples) 
     vals = sc.stats.beta.pdf(t, a, b)
     x =4 *(v * t+c)* np.cos(omega  *t) + np.random.normal(scale=scale, size=n_samples)
     y =4 *(v * t+c) * np.sin(omega  *t) + np.random.normal(scale=scale, size=n_samples)
-    z = 2 * np.ceil(np.max(x)) * (np.random.beta(a=2, b=2, size=n_samples)-.5)
+    z = 2 * np.ceil(np.max(x)) * (u-.5)
 
     X = np.vstack([np.array(x), np.array(y), np.array(z)]).T
     A = kneighbors_graph(X, n_neighbours, mode='distance', include_self=True)
@@ -32,4 +33,4 @@ def make_roll(c=0.6, v=4, omega=12, n_samples = 2000, n_neighbours = 30,
     else:
         new_data = Data(x=torch.eye(n_samples), edge_index=edge_index,
                         edge_weight=edge_weights)
-    return(X, t, new_data)
+    return(X, t, new_data, u)

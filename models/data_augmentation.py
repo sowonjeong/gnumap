@@ -6,6 +6,7 @@
 import torch
 from copy import deepcopy
 import numpy as np
+from torch_geometric.data import Data
 
 def random_aug(data, feat_drop_rate, edge_mask_rate):
     n_node = data.num_nodes
@@ -16,13 +17,17 @@ def random_aug(data, feat_drop_rate, edge_mask_rate):
 
     src = new_data.edge_index[0]
     dst = new_data.edge_index[1]
+    wgt = new_data.edge_weight
 
     nsrc = src[edge_mask]
     ndst = dst[edge_mask]
+    nwgt = wgt[edge_mask]
+
     new_data.edge_index = torch.vstack([nsrc, ndst])
     new_data.x = feat
+    new_data.edge_weight = nwgt  #drop edge_weight too
 
-    return new_data
+    return new_data, edge_mask;
 
 def drop_feature(x, drop_prob):
     drop_mask = torch.empty(

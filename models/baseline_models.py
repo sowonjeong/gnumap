@@ -20,9 +20,10 @@ def weights_init(m):
         nn.init.xavier_uniform_(m.weight.data)
 
 class GCN(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers, norm = True):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers,dropout_rate, norm = True):
         super().__init__()
         self.n_layers = n_layers
+        self.p = dropout_rate
         self.convs = nn.ModuleList()
         if n_layers > 1:
             self.convs.append(GCNConv(in_dim, hid_dim))
@@ -35,6 +36,7 @@ class GCN(nn.Module):
     def forward(self, x, edge_index, edge_weight = None):
         for i in range(self.n_layers - 1):
             x = F.relu(self.convs[i](x, edge_index, edge_weight)) # nn.PReLU
+            x = F.dropout(x, p = self.p)
         x = self.convs[-1](x, edge_index)
         return x
 
@@ -217,7 +219,7 @@ class MLP(nn.Module):
         self.use_bn = use_bn
         self.act_fn = nn.ReLU()
 
-    def forward(self, _, x):
+    def forward(self, x,_):
         x = self.layer1(x)
         if self.use_bn:
             x = self.bn(x)

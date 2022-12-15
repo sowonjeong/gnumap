@@ -9,15 +9,15 @@ from umap_functions import *
 
 
 def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
-                alpha=0.5):
+                alpha=0.5, power = 3):
     if method == 'heat':
         data.edge_weight = torch.ones(data.edge_index.shape[1])
         transform = T.GDC(
                 self_loop_weight=beta,
                 normalization_in='row',
                 normalization_out='row',
-                diffusion_kwargs=dict(method='ppr', alpha=0.2),
-                sparsification_kwargs=dict(method='topk', k=15, dim=0),
+                diffusion_kwargs=dict(method='ppr', alpha=0.2), # maybe add alpha as parameter?
+                sparsification_kwargs=dict(method='topk', k= neighbours, dim=0), # k as parameter
                 exact=True,
             )
         newA = transform(copy.deepcopy(data))
@@ -29,7 +29,8 @@ def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
     elif method == 'power':
         A = to_scipy_sparse_matrix(data.edge_index)
         A2 = A.dot(A)
-        A3 = A.dot(A2)
+      #  A3 = A.dot(A2)
+        A3 = A**power
         new_edge_index, new_edge_weights =  from_scipy_sparse_matrix(A3)
         new_edge_weights = torch.exp(-(new_edge_weights-new_edge_weights.max())/
              torch.median(new_edge_weights-new_edge_weights.max()))
