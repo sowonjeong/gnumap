@@ -319,7 +319,7 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         n_layers = n_layers
         tau = tau
         N = data.num_nodes
-
+        loss_vals = []
         ##### Train GRACE model #####
         print("=== train GRACE model ===")
         model = GRACE(in_dim, hid_dim, proj_hid_dim, n_layers, tau)
@@ -331,14 +331,15 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         def train_grace_one_epoch(model, data, fmr, edr, proj):
                 model.train()
                 optimizer.zero_grad()
-                new_data1 = random_aug(data, fmr, edr)
-                new_data2 = random_aug(data, fmr, edr)
+                new_data1,_ = random_aug(data, fmr, edr)
+                new_data2,_ = random_aug(data, fmr, edr)
                 new_data1 = new_data1.to(dev)
                 new_data2 = new_data2.to(dev)
                 z1, z2 = model(new_data1, new_data2)
                 loss = model.loss(z1, z2, layer=proj)
                 loss.backward()
                 optimizer.step()
+                loss_vals.append(loss.detach().numpy())
                 return loss.item()
         #tracker.start()
         for epoch in range(epochs):
@@ -346,7 +347,7 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                                           edr, proj)
             print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         #tracker.stop()
-        return(model)
+        return(model, loss_vals)
 
 
 def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
@@ -355,7 +356,7 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
                   device=None):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    loss_vals = []
     in_dim = data.num_features
     hid_dim =  hid_dim
     out_dim = channels
@@ -372,21 +373,22 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
     def train_cca_one_epoch(model, data):
         model.train()
         optimizer.zero_grad()
-        new_data1 = random_aug(data, fmr, edr)
-        new_data2 = random_aug(data, fmr, edr)
+        new_data1,_ = random_aug(data, fmr, edr)
+        new_data2,_ = random_aug(data, fmr, edr)
         new_data1 = new_data1.to(device)
         new_data2 = new_data2.to(device)
         z1, z2 = model(new_data1, new_data2)
         loss = model.loss(z1, z2)
         loss.backward()
         optimizer.step()
+        loss_vals.append(loss.detach().numpy())
         return loss.item()
     #tracker.start()
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
-        # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+        print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     #tracker.stop()
-    return(model)
+    return(model, loss_vals)
 
 
 def train_bgrl(data, channels, lambd=1e-5,

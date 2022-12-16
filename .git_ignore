@@ -9,3 +9,4 @@ experiments/Planetoid/
 results/
 experiments/logs/
 models/__pycache__/
+.vscode/
