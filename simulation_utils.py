@@ -20,17 +20,18 @@ def make_roll(c=0.6, v=4, omega=12, n_samples = 2000, n_neighbours = 30,
     z = 2 * np.ceil(np.max(x)) * (u-.5)
 
     X = np.vstack([np.array(x), np.array(y), np.array(z)]).T
-    A = kneighbors_graph(X, n_neighbours, mode='distance', include_self=True)
+    A = kneighbors_graph(X, n_neighbours, mode='distance', include_self=False) # edge weight is given by distance
     edge_index, edge_weights = from_scipy_sparse_matrix(A)
     edge_index, edge_weights = to_undirected(edge_index, edge_weights)
+    M = torch.max(edge_weights)
     if standardize:
         preproc = StandardScaler()
         X = preproc.fit_transform(X)
     if features == 'coordinates':
         new_data = Data(x=torch.from_numpy(X).float(),
                         edge_index=edge_index,
-                        edge_weight=edge_weights)
+                        edge_weight=edge_weights/M)
     else:
         new_data = Data(x=torch.eye(n_samples), edge_index=edge_index,
-                        edge_weight=edge_weights)
+                        edge_weight=edge_weights/M)
     return(X, t, new_data, u)

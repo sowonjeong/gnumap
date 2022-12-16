@@ -20,10 +20,11 @@ def weights_init(m):
         nn.init.xavier_uniform_(m.weight.data)
 
 class GCN(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers,dropout_rate, norm = True):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers,dropout_rate, normalized= True):
         super().__init__()
         self.n_layers = n_layers
         self.p = dropout_rate
+        self.normalized = normalized
         self.convs = nn.ModuleList()
         if n_layers > 1:
             self.convs.append(GCNConv(in_dim, hid_dim))
@@ -38,6 +39,8 @@ class GCN(nn.Module):
             x = F.relu(self.convs[i](x, edge_index, edge_weight)) # nn.PReLU
             x = F.dropout(x, p = self.p)
         x = self.convs[-1](x, edge_index)
+        if self.normalized is True:
+            x = F.normalize(x)
         return x
 
 
