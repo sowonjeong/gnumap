@@ -579,7 +579,7 @@ def svm_eval(X, y, n_splits=10, **kwargs):
     sum_acc = 0
     max_acc = n_splits
     for train_index, test_index in skf.split(X, y):
-        clf = LinearSVC(**kwargs)
+        clf = SVC(**kwargs)
         clf.fit(X[train_index], y[train_index])
         acc = clf.score(X[test_index], y[test_index])
         sum_acc += acc
@@ -611,7 +611,7 @@ def regression_eval(X, y, n_splits=10, **kwargs):
         clf = LinearRegression(**kwargs)
         clf.fit(X[train_index], y[train_index])
         #acc = 1 - ( 1-clf.score(X[test_index], y[test_index]) ) * ( len(y[test_index]) - 1 ) / ( len(y[test_index]) - X.shape[1] - 1 )
-        acc =clf.score(X[test_index], y[test_index])  
+        acc =clf.score(X[test_index], y[test_index]) # R^2 of prediction value 
         sum_acc += acc
     avg_acc = sum_acc/n_acc
     return avg_acc
