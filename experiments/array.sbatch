@@ -4,10 +4,10 @@
 #SBATCH --output=logs/array_%A_%a.out
 #SBATCH --error=logs/array_%A_%a.err
 #SBATCH --account=pi-cdonnat
-#SBATCH --array=1-20
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
-#SBATCH --ntasks=1
+#SBATCH --ntasks = 1
+#SBATCH --cpus-per-task=1 
 #SBATCH --mem=10G
 #SBATCH --mail-type=ALL  # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=sowonjeong@rcc.uchicago.edu  # mail notification for the job
