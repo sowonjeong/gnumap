@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=test
-#SBATCH --output=/logs/array_%A_%a.out
-#SBATCH --error=/logs/array_%A_%a.err
+#SBATCH --output=/logs/test_%A_%a.out
+#SBATCH --error=/logs/test_%A_%a.err
 #SBATCH --account=pi-cdonnat
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
