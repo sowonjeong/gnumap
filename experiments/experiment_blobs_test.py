@@ -4,12 +4,10 @@ from torch_geometric.data import Data
 from torch_geometric.utils import remove_self_loops, negative_sampling
 from torch_geometric.utils import add_remaining_self_loops
 from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix
-from torch_geometric.transforms import NormalizeFeatures
-import time
-from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
+from torch_geometric.transforms import RandomLinkSplit, RandomNodeSplit, NormalizeFeatures
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
-from torch_geometric.utils import to_scipy_sparse_matrix
+from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix, to_undirected
 from scipy.sparse import csr_matrix
 import numpy as np
 import scipy as sc
@@ -17,12 +15,11 @@ import sklearn as sk
 import umap
 import pickle
 import argparse
-from carbontracker.tracker import CarbonTracker
+#from carbontracker.tracker import CarbonTracker
 import copy, collections
 import networkx as nx,  numpy as np
 from numbers import Number
 import math
-#import matplotlib.pyplot as plt
 import pandas as pd
 import random, time
 import sys, os
@@ -32,10 +29,6 @@ from torch_scatter import scatter_add
 import torch_geometric.transforms as T
 from torch_geometric.datasets import Planetoid
 from torch_geometric.data import Data
-from torch_geometric.transforms import RandomLinkSplit, RandomNodeSplit, NormalizeFeatures
-from torch_geometric.utils import remove_self_loops, negative_sampling
-from torch_geometric.utils import add_remaining_self_loops
-from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix
 from sklearn.datasets import *
 
 sys.path.append('../')
