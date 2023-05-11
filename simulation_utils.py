@@ -35,3 +35,19 @@ def make_roll(c=0.6, v=4, omega=12, n_samples = 2000, n_neighbours = 30,
         new_data = Data(x=torch.eye(n_samples), edge_index=edge_index,
                         edge_weight=edge_weights/M)
     return(X, t, new_data, u)
+
+def create_sphere(r, resolution=360):
+    '''
+    create sphere with center (0,0,0) and radius r
+    '''
+    phi = np.linspace(0, 2*np.pi, 2*resolution)
+    theta = np.linspace(0, np.pi, resolution)
+
+    theta, phi = np.meshgrid(theta, phi)
+
+    r_xy = r*np.sin(theta)
+    x = np.cos(phi) * r_xy
+    y = np.sin(phi) * r_xy
+    z = r * np.cos(theta)
+
+    return np.stack([x,y,z]), z

@@ -44,9 +44,9 @@ def set_requires_grad(model, val):
 
 class BGRL(nn.Module):
 
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers, pred_hid, moving_average_decay=0.99, epochs=1000):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers, pred_hid, moving_average_decay=0.99, epochs=1000, dropout_rate = 0.5,alpha = 0.5, beta = 1.0, gnn_type = 'symmetric'):
         super().__init__()
-        self.student_encoder = GCN(in_dim, hid_dim, out_dim, n_layers)
+        self.student_encoder = GCN(in_dim, hid_dim, out_dim, n_layers, dropout_rate, alpha = alpha, beta = beta, gnn_type = 'gnn_type')
         self.teacher_encoder = copy.deepcopy(self.student_encoder)
 
         set_requires_grad(self.teacher_encoder, False)
@@ -68,8 +68,8 @@ class BGRL(nn.Module):
         return z.detach()
 
     def forward(self, data1, data2):
-        v1_student = self.student_encoder(data1.x, data1.edge_index, edge_weight=data1.edge_weight)
-        v2_student = self.student_encoder(data2.x, data2.edge_index, edge_weight=data2.edge_weight)
+        v1_student = self.student_encoder(data1.x, data1.edge_index, edge_weight=data1.edge_weight).type(torch.float32)
+        v2_student = self.student_encoder(data2.x, data2.edge_index, edge_weight=data2.edge_weight).type(torch.float32)
 
         v1_pred = self.student_predictor(v1_student)
         v2_pred = self.student_predictor(v2_student)

@@ -13,10 +13,10 @@ from models.dbn import DBN
 
 class GRACE(nn.Module):
     def __init__(self, in_dim, hid_dim, proj_hid_dim, n_layers, tau = 0.5,
-                use_mlp = False, dropout_rate = 0.5):
+                use_mlp = False, dropout_rate = 0.5, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
         super().__init__()
         if not use_mlp:
-            self.backbone = GCN(in_dim, hid_dim, proj_hid_dim, n_layers,dropout_rate)
+            self.backbone = GCN(in_dim, hid_dim, proj_hid_dim, n_layers,dropout_rate, gnn_type = gnn_type, alpha = alpha, beta = beta)
         else:
             self.backbone = MLP(in_dim, hid_dim, proj_hid_dim)
 
