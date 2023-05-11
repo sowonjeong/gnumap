@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #SBATCH --job-name=test
-#SBATCH --output=/logs/test_%A_%a.out
-#SBATCH --error=/logs/test_%A_%a.err
+#SBATCH --output=logs/test_%A_%a.out
+#SBATCH --error=logs/test_%A_%a.err
 #SBATCH --account=pi-cdonnat
-#SBATCH --time=35:00:00
+#SBATCH --time=20:00:00
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1 
