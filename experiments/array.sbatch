@@ -25,7 +25,7 @@ echo $2
 METH=$1
 result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
-cd $SCRATCH/$USER/gnumap/experiments
+cd $SCRATCH/$USER/gnumap/results
 
 python3 experiment_blobs.py --name_file $result_file --seed $SLURM_ARRAY_TASK_ID
 

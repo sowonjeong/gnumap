@@ -38,53 +38,57 @@ from simulation_utils import *
 from umap_functions import *
 
 
-def data(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
+def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
          centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
          factor = 0.2, noise = 0.05,
-         random_state = 0 ):
+         random_state = 0, radius = False, epsilon = 0.5):
 
     if name == 'Blob':
         X, y_true = datasets.make_blobs(
                     n_samples= n_samples, centers=centers, cluster_std=cluster_std,
-                    random_state=random_state
-                )
-        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize)
+                    random_state=random_state)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Sphere':
         X, y_true = create_sphere(r = 1
                 )
-        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Circles':
         X, y_true = datasets.make_circles(
             n_samples=n_samples, factor=factor, noise=noise, random_state=0
         )
-        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Moons':
         X, y_true = datasets.make_moons(
             n_samples=n_samples, noise=noise, random_state=random_state
         )
-        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Swissroll':
         X, y_true = datasets.make_swiss_roll(n_samples = n_samples, noise = noise, random_state=random_state)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
+        G.y = torch.from_numpy(y_true)
 
     elif name == 'Scurve':
         X, y_true = datasets.make_s_curve(n_samples = n_samples, random_state=random_state)      
-        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize)
+        G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'SBM':
         # 
         X, y_true = G.x, G.y
+
     elif name == 'Cora':
         dataset = Planetoid(root='Planetoid', name='Cora', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
+
     elif name == 'Pubmed':
         dataset = Planetoid(root='Planetoid', name='Pubmed', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
+
     elif name == 'Citeseer':
         dataset = Planetoid(root='Planetoid', name='Citeseer', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
