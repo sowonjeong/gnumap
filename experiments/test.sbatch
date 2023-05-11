@@ -20,12 +20,10 @@ echo "My SLURM_ARRAY_JOB_ID: " $SLURM_ARRAY_JOB_ID
 job_id=$SLURM_ARRAY_JOB_ID
 module load python
 source activate gnumap
-echo $1
-echo $2
-METH=$1
+
 result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
-cd $SCRATCH/$USER/gnumap/experiments
+cd $SCRATCH/$USER/gnumap/results
 
 python3 experiment_blobs_test.py --name_file $result_file --seed $SLURM_ARRAY_TASK_ID
 
