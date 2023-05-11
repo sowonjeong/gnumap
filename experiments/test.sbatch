@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=array
+#SBATCH --job-name=test
 #SBATCH --output=logs/array_%A_%a.out
 #SBATCH --error=logs/array_%A_%a.err
 #SBATCH --account=pi-cdonnat
@@ -8,7 +8,7 @@
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1 
-#SBATCH --mem=10G
+#SBATCH --mem-per-cpu=5000 #10G
 #SBATCH --mail-type=ALL  # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=sowonjeong@rcc.uchicago.edu  # mail notification for the job
 
