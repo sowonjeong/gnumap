@@ -6,6 +6,7 @@
 #SBATCH --account=pi-cdonnat
 #SBATCH --time=20:00:00
 #SBATCH --partition=caslake
+#SBATCH --array=1-20
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=5000 #10G
