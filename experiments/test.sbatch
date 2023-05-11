@@ -6,7 +6,7 @@
 #SBATCH --account=pi-cdonnat
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
-#SBATCH --nodes = 4
+#SBATCH --nodes=4
 #SBATCH --mem-per-cpu=10000 # 10G
 #SBATCH --mail-type=ALL  # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=sowonjeong@rcc.uchicago.edu  # mail notification for the job
