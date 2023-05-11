@@ -74,7 +74,7 @@ for i in np.arange(50):
                             norm='normalize', edr=edr, fmr=fmr,
                             proj="nonlinear", pred_hid=512, proj_hid_dim=dim,
                             dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-                            npoints = 500, n_neighbors = 5, classification = True, 
+                            npoints = 500, n_neighbors = 50, classification = True, 
                             densmap = False, random_state = i, n = 15, perplexity = 30, 
                             alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
                             name_file="blob-test",subsampling=None)
