@@ -1,7 +1,5 @@
 import torch
 import torch_geometric
-from models.baseline_models import *
-from models.train_models import *
 from torch_geometric.data import Data
 from torch_geometric.utils import remove_self_loops, negative_sampling
 from torch_geometric.utils import add_remaining_self_loops
@@ -13,16 +11,11 @@ from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
 from torch_geometric.utils import to_scipy_sparse_matrix
 from scipy.sparse import csr_matrix
-from evaluation_metric import *
 import numpy as np
 import scipy as sc
 import sklearn as sk
 import umap
-from sklearn import datasets
 import pickle
-from graph_utils import *
-from experiments.data_gen import *
-from experiments.experiment import *
 import argparse
 from carbontracker.tracker import CarbonTracker
 import copy, collections
@@ -44,8 +37,15 @@ from torch_geometric.utils import remove_self_loops, negative_sampling
 from torch_geometric.utils import add_remaining_self_loops
 from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix
 from sklearn.datasets import *
-from umap_functions import *
+
 sys.path.append('../')
+from models.baseline_models import *
+from models.train_models import *
+from umap_functions import *
+from graph_utils import *
+from experiments.data_gen import *
+from experiments.experiment import *
+from evaluation_metric import *
 
 
 results = []
