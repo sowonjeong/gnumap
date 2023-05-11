@@ -25,5 +25,5 @@ result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/gnumap/experiments
 
-python3 experiment_blobs_test.py --name_file $result_file --seed $SLURM_ARRAY_TASK_ID
+python experiment_blobs_test.py --name_file $result_file --seed $SLURM_ARRAY_TASK_ID
 
