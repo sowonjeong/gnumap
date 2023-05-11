@@ -5,7 +5,7 @@ if(!require('fastRG')) {
 
 set.seed(1)
 
-lazy_dcsbm <- dcsbm(n = 1000, k = 5, expected_density = 0.01)
+lazy_dcsbm <- dcsbm(n = 500, k = 5, expected_density = 0.01)
 lazy_dcsbm
 
 # sometimes you gotta let the world burn and
@@ -19,7 +19,7 @@ dense_lazy_dcsbm
 # than using randomly generated defaults
 
 k <- 5
-n <- 1000
+n <- 500
 B <- matrix(stats::runif(k * k), nrow = k, ncol = k)
 
 theta <- round(stats::rlnorm(n, 2))
@@ -30,7 +30,7 @@ custom_dcsbm <- dcsbm(
   theta = theta,
   B = B,
   pi = pi,
-  expected_degree = 50
+  expected_degree = 30
 )
 
 custom_dcsbm

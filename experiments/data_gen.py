@@ -36,12 +36,14 @@ from train_utils import *
 from graph_utils import *
 from simulation_utils import *
 from umap_functions import *
+from SBM.read_SBM import *
 
 
 def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
          centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
          factor = 0.2, noise = 0.05,
-         random_state = 0, radius = False, epsilon = 0.5):
+         random_state = 0, radius = False, epsilon = 0.5, 
+         SBMtype = 'lazy'):
 
     if name == 'Blob':
         X, y_true = datasets.make_blobs(
@@ -50,8 +52,7 @@ def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standar
         G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Sphere':
-        X, y_true = create_sphere(r = 1
-                )
+        X, y_true = create_sphere(r = 1)
         G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Circles':
@@ -76,8 +77,7 @@ def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standar
         G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'SBM':
-        # 
-        X, y_true = G.x, G.y
+        X,y_true, G = readSBM(type = SBMtype, features = None)  
 
     elif name == 'Cora':
         dataset = Planetoid(root='Planetoid', name='Cora', transform=NormalizeFeatures())

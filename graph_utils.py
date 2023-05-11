@@ -139,6 +139,9 @@ def convert_to_graph(X, n_neighbours = 5,features=None,standardize=True, epsilon
         new_data = Data(x=torch.from_numpy(X).float(),
                         edge_index=edge_index,
                         edge_weight=torch.exp(-(edge_weights-rho)/epsilon)) # heat kernel
+    elif features == 'ones':
+        new_data = Data(x=torch.ones(n,n), edge_index=edge_index, # 
+                        edge_weight=torch.exp(-(edge_weights-rho)/epsilon))
     else:
         new_data = Data(x=torch.eye(n), edge_index=edge_index, # 
                         edge_weight=torch.exp(-(edge_weights-rho)/epsilon))
