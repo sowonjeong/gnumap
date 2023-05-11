@@ -3,7 +3,7 @@ if(!require('fastRG')) {
   library('fastRG')
 }
 
-set.seed(27)
+set.seed(1)
 
 lazy_dcsbm <- dcsbm(n = 1000, k = 5, expected_density = 0.01)
 lazy_dcsbm
@@ -11,7 +11,7 @@ lazy_dcsbm
 # sometimes you gotta let the world burn and
 # sample a wildly dense graph
 
-dense_lazy_dcsbm <- dcsbm(n = 500, k = 3, expected_density = 0.8)
+dense_lazy_dcsbm <- dcsbm(n = 500, k = 5, expected_density = 0.8)
 dense_lazy_dcsbm
 
 # explicitly setting the degree heterogeneity parameter,
@@ -35,9 +35,6 @@ custom_dcsbm <- dcsbm(
 
 custom_dcsbm
 
-edgelist <- sample_edgelist(custom_dcsbm)
-edgelist
-
 # efficient eigendecompostion that leverages low-rank structure in
 # E(A) so that you don't have to form E(A) to find eigenvectors,
 # as E(A) is typically dense. computation is
@@ -54,6 +51,15 @@ original = par("mar")
 
 # gr = igraph::graph_from_adjacency_matrix(edgelist, "undirected") # convert to igraph object 
 par(mar = c(0,0,0,0))
-out = nett::plot_net(fastRG::sample_igraph(custom_dcsbm), community = z)
+#out = nett::plot_net(fastRG::sample_igraph(custom_dcsbm), community = z)
+#fastRG::sample_igraph()
 
-fastRG::sample_igraph()
+
+customedgelist <- sample_edgelist(custom_dcsbm)
+lazyedgelist <- sample_edgelist(lazy_dcsbm)
+denseedgelist <- sample_edgelist(dense_lazy_dcsbm)
+
+setwd('/Users/sowonjeong/Documents/GitHub/gnumap/SBM/')
+write.csv(customedgelist, "customSBM.csv", row.names = FALSE)
+write.csv(lazyedgelist, "lazySBM.csv", row.names = FALSE)
+write.csv(denseedgelist,"denseSBM.csv", row.names = FALSE)
