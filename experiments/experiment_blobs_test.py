@@ -55,7 +55,7 @@ for i in np.arange(1):
     )
     new_data = convert_to_graph(X, n_neighbours = 50,features='none',standardize=True)
     new_data.y = torch.from_numpy(y_true)
-    for model_name in ['GRACE','DGI','BGRL','CCA-SSG','LaplacianEigenmap','TSNE','UMAP','DenseMAp']:
+    for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0,1.1,0.1):
                 mod, res = experiment(model_name, new_data,new_data.x,
