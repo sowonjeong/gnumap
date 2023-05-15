@@ -59,7 +59,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
         new_data = convert_to_graph(X, n_neighbours = 50,features='none',standardize=True)
         new_data.y = torch.from_numpy(y_true)
         for model_name in ['PCA','LaplacianEigenmap','Isomap','TSNE','UMAP','DenseMAP']:
-            mod, res = experiment(model_name, new_data,new_data.x,
+            mod, res, embeds = experiment(model_name, new_data,new_data.x,
                                 new_data.y, None,
                                 patience=20, epochs=200,
                                 n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
@@ -73,7 +73,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                 alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
                                 name_file="blob-test",subsampling=None)
             results += [res]
-            out = mod.get_embedding(new_data)
+            out = embeds
             embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)]  =  {
                                             'model': model_name, 
                                             'alpha': alpha,
