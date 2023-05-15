@@ -1,0 +1,12 @@
+/bin/bash: warning: shell level (1000) too high, resetting to 1
+
+EnvironmentNameNotFound: Could not find conda environment: pytorch_geom3.9
+You can list all discoverable environments with `conda info --envs`.
+
+
+sbatch: Verify job submission ...
+sbatch: Using a shared partition ...
+sbatch: Partition: caslake
+sbatch: QOS-Flag: caslake
+sbatch: Account: pi-cdonnat
+sbatch: Verification: ***PASSED***
