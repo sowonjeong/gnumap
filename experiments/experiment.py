@@ -138,4 +138,4 @@ def experiment(model_name, data,X,
                  gnn_type
     ]
 
-    return(model, results)
+    return(model, results, embeds)
