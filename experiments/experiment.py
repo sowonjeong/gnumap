@@ -19,6 +19,7 @@ from torch_geometric.utils import remove_self_loops, negative_sampling
 from torch_geometric.utils import add_remaining_self_loops
 from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scipy_sparse_matrix
 import sklearn.manifold as manifold
+from sklearn.decomposition import PCA
 import umap
 
 sys.path.append('../')
@@ -87,7 +88,7 @@ def experiment(model_name, data,X,
         embeds = model.get_embedding(data)
     
     elif model_name == 'PCA':
-        embeds = manifold.PCA(n_components = 2).fit_transform(StandardScaler().fit_transform(X))
+        embeds = PCA(n_components = 2).fit_transform(StandardScaler().fit_transform(X))
     elif model_name == 'LaplacianEigenmap':
         embeds = manifold.SpectralEmbedding(n_components = 2,n_neighbors = 5).fit_transform(StandardScaler().fit_transform(X))
     elif model_name == 'Isomap':
