@@ -88,17 +88,23 @@ def experiment(model_name, data,X,
         embeds = model.get_embedding(data)
     
     elif model_name == 'PCA':
-        embeds = PCA(n_components = 2).fit_transform(StandardScaler().fit_transform(X))
+        model =  PCA(n_components = 2)
+        embeds = model.fit_transform(StandardScaler().fit_transform(X))
     elif model_name == 'LaplacianEigenmap':
-        embeds = manifold.SpectralEmbedding(n_components = 2,n_neighbors = 5).fit_transform(StandardScaler().fit_transform(X))
+        model = manifold.SpectralEmbedding(n_components = 2,n_neighbors = 5)
+        embeds = model.fit_transform(StandardScaler().fit_transform(X))
     elif model_name == 'Isomap':
-        embeds = manifold.Isomap(n_components = 2).fit_transform(StandardScaler().fit_transform(X))
+        model = manifold.Isomap(n_components = 2)
+        embeds = model.fit_transform(StandardScaler().fit_transform(X))
     elif model_name == 'TSNE':
-        embeds = manifold.TSNE(n_components = 2, learning_rate  = 'auto', init = 'random', perplexity = perplexity).fit_transform(X)
+        model = manifold.TSNE(n_components = 2, learning_rate  = 'auto', init = 'random', perplexity = perplexity)
+        embeds = model.fit_transform(X)
     elif model_name == 'UMAP':
-        embeds = umap.UMAP(random_state=random_state, n_neighbors = n, min_dist = min_dist).fit_transform(X)
+        model = umap.UMAP(random_state=random_state, n_neighbors = n, min_dist = min_dist)
+        embeds = model.fit_transform(X)
     elif model_name == 'DenseMAP':
-        embeds = umap.UMAP(random_state=random_state, densmap = True, n_neighbors = n, min_dist = min_dist).fit_transform(X)
+        model = umap.UMAP(random_state=random_state, densmap = True, n_neighbors = n, min_dist = min_dist)
+        embeds = model.fit_transform(X)
     else:
         raise ValueError("Model unknown!!")
 
