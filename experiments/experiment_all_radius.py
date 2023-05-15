@@ -76,7 +76,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                 name_file="blob-test",subsampling=None)
                     results += [res]
                     out = mod.get_embedding(new_data)
-                    embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)+'radius_'+rad[k]]  =  {
+                    embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)+'trial_'+str(i)]  =  {
                                                     'model': model_name, 
                                                     'alpha': alpha,
                                                     'gnn_type': gnn_type,   
