@@ -90,8 +90,8 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    with open(os.getcwd() + name + '_results.pkl', 'wb') as file:
+   #with open(os.getcwd() + name + '_results.pkl', 'wb') as file:
         # A new  file will be created
-        pickle.dump(embeddings, file)
+    #    pickle.dump(embeddings, file)
 
     print(results)
