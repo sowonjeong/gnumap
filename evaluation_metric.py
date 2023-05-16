@@ -30,6 +30,7 @@ from torch_geometric.utils import to_dense_adj
 from diffusion_map_np import diffusion_dist
 from umap_functions import *
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
@@ -608,6 +609,19 @@ def svm_eval(X, y, n_splits=10, **kwargs):
         acc = clf.score(X[test_index], y[test_index])
         sum_acc += acc
     avg_acc = sum_acc/max_acc
+    return avg_acc
+
+def logistic_eval(X, y, n_splits=10, **kwargs):
+    X = StandardScaler().fit_transform(X)
+    skf = StratifiedKFold(n_splits=n_splits)
+    sum_acc = 0
+    n_acc = n_splits
+    for train_index, test_index in skf.split(X, y):
+        clf = LogisticRegression(**kwargs)
+        clf.fit(X[train_index], y[train_index])
+        acc =clf.score(X[test_index], y[test_index]) # R^2 of prediction value 
+        sum_acc += acc
+    avg_acc = sum_acc/n_acc
     return avg_acc
 
 

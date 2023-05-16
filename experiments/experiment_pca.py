@@ -50,14 +50,17 @@ dim = 256
 gnn_type = 'symmetric'
 alpha = 0.5
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    if name in ['Blob','Circles','Moons','Cora','Pubmed']:
+        classification = True
+    else: 
+        classification = False
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
             factor = 0.2, noise = 0.05,
             random_state = 0, radius = False, epsilon = 0.5, 
             SBMtype = 'lazy')
-        new_data = convert_to_graph(X, n_neighbours = 50,features='none',standardize=True)
-        new_data.y = torch.from_numpy(y_true)
+        new_data = G
         for model_name in ['PCA','LaplacianEigenmap','Isomap','TSNE','UMAP','DenseMAP']:
             mod, res, embeds = experiment(model_name, new_data,new_data.x,
                                 new_data.y, None,
@@ -68,7 +71,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                 norm='normalize', edr=edr, fmr=fmr,
                                 proj="nonlinear", pred_hid=512, proj_hid_dim=dim,
                                 dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-                                npoints = 500, n_neighbors = 50, classification = True, 
+                                npoints = 500, n_neighbors = 50, classification = classification, 
                                 densmap = False, random_state = i, n = 15, perplexity = 30, 
                                 alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
                                 name_file="blob-test",subsampling=None)

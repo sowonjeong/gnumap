@@ -48,6 +48,10 @@ edr = 0.2
 fmr = 0.5
 dim = 256
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    if name in ['Blob','Circles','Moons','Cora','Pubmed']:
+        classification = True
+    else: 
+        classification = False
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
@@ -68,7 +72,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                 norm='normalize', edr=edr, fmr=fmr,
                                 proj="nonlinear", pred_hid=512, proj_hid_dim=dim,
                                 dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-                                npoints = 500, n_neighbors = 50, classification = True, 
+                                npoints = 500, n_neighbors = 50, classification = classification,
                                 densmap = False, random_state = i, n = 15, perplexity = 30, 
                                 alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
                                 name_file="blob-test",subsampling=None)
