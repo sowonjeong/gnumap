@@ -43,12 +43,11 @@ def experiment(model_name, data,X,
                norm='normalize', edr=0.5, fmr=0.2,
                proj="standard", pred_hid=512, proj_hid_dim=512,
                dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-               npoints = 500, n_neighbors = 5, classification = True, 
+               npoints = 500, n_neighbors = 50, classification = True,
                densmap = False, random_state = 42, n = 15, perplexity = 30, 
                alpha = 0.5, beta = 0.1, gnn_type = 'symmetric', 
                name_file="1",subsampling=None):
-
-    num_classes = int(data.y.max().item()) + 1
+    # num_classes = int(data.y.max().item()) + 1
     if model_name == 'DGI':
         model = train_dgi(data, hid_dim=proj_hid_dim, out_dim=out_dim,
                           n_layers=n_layers,
@@ -107,7 +106,6 @@ def experiment(model_name, data,X,
         embeds = model.fit_transform(X)
     else:
         raise ValueError("Model unknown!!")
-
 
     sp, acc, local, density = eval_all(data, data.x, embeds, data.y, n_points = npoints, n_neighbors = n_neighbors, classification = classification)
     print("done with the embedding evaluation")
