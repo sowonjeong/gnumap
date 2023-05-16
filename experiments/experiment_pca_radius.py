@@ -41,8 +41,7 @@ from experiments.experiment import *
 from evaluation_metric import *
 
 
-results = []
-embeddings = {}
+
 tau = 0.5
 edr = 0.2
 fmr = 0.5
@@ -54,6 +53,8 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
         classification = True
     else: 
         classification = False
+    results = []
+    embeddings = {}
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],

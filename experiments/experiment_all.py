@@ -41,13 +41,14 @@ from experiments.experiment import *
 from evaluation_metric import *
 
 
-results = []
-embeddings = {}
+
 tau = 0.5
 edr = 0.2
 fmr = 0.5
 dim = 256
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    results = []
+    embeddings = {}
     if name in ['Blob','Circles','Moons','Cora','Pubmed']:
         classification = True
     else: 
