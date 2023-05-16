@@ -58,8 +58,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
             factor = 0.2, noise = 0.05,
             random_state = 0, radius = False, epsilon = 0.5, 
             SBMtype = 'lazy')
-        new_data = convert_to_graph(X, n_neighbours = 50,features='none',standardize=True)
-        new_data.y = torch.from_numpy(y_true)
+        new_data = G
         for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
             for gnn_type in ['symmetric', 'RW']:
                 for alpha in np.arange(0,1.1,0.1):
