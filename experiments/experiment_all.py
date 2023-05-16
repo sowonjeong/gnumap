@@ -56,7 +56,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
             factor = 0.2, noise = 0.05,
-            random_state = 0, radius = False, epsilon = 0.5, 
+            random_state = i, radius = False, epsilon = 0.5, 
             SBMtype = 'lazy')
         new_data = G
         for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
