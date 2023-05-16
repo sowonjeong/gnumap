@@ -47,20 +47,22 @@ tau = 0.5
 edr = 0.2
 fmr = 0.5
 dim = 256
-rad = [0.1, 0.2, 0.5, 1.0]
-
+gnn_type = 'symmetric'
+alpha = 0.5
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    if name in ['Blob','Circles','Moons','Cora','Pubmed']:
+        classification = True
+    else: 
+        classification = False
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
             factor = 0.2, noise = 0.05,
-            random_state = 0, radius = True, epsilon = 0.5, 
+            random_state = 0, radius = False, epsilon = 0.5, 
             SBMtype = 'lazy')
         new_data = G
-        for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
-            for gnn_type in ['symmetric', 'RW']:
-                for alpha in np.arange(0,1.1,0.1):
-                    mod, res, out  = experiment(model_name, new_data,new_data.x,
+        for model_name in ['PCA','LaplacianEigenmap','Isomap','TSNE','UMAP','DenseMAP']:
+            mod, res, embeds = experiment(model_name, new_data,new_data.x,
                                 new_data.y, None,
                                 patience=20, epochs=200,
                                 n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
@@ -69,29 +71,29 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                 norm='normalize', edr=edr, fmr=fmr,
                                 proj="nonlinear", pred_hid=512, proj_hid_dim=dim,
                                 dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-                                npoints = 500, n_neighbors = 50, classification = True, 
+                                npoints = 500, n_neighbors = 50, classification = classification, 
                                 densmap = False, random_state = i, n = 15, perplexity = 30, 
                                 alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
                                 name_file="blob-test",subsampling=None)
-                    results += [res]
-                    # out = mod.get_embedding(new_data)
-                    embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)+'trial_'+str(i)]  =  {
-                                                    'model': model_name, 
-                                                    'alpha': alpha,
-                                                    'gnn_type': gnn_type,   
-                                                    'embedding' : out,
-                                                    'alpha': alpha}
-    file_path = os.getcwd() + '/' + name + '_gnn_radius_results.csv'
+            results += [res]
+            out = embeds
+            embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)]  =  {
+                                            'model': model_name, 
+                                            'alpha': alpha,
+                                            'gnn_type': gnn_type,   
+                                            'embedding' : out,
+                                            'alpha': alpha}
+    file_path = os.getcwd() + '/' + name + '_traditional_radius_results.csv'
 
     pd.DataFrame(np.array(results),
-                    columns =['model', 'method',
+                    columns =[  'model', 'method',
                         'dim', 'neighbours', 'n_layers', 'norm','min_dist',
                             'dre1', 'drf1', 'lr', 'edr', 'fmr',
                         'tau', 'lambd','pred_hid','proj_hid_dim',
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    with open(os.getcwd() + name + '_gnn_results.pkl', 'wb') as file:
+    with open(os.getcwd() + name + '_traditional_radius_results.pkl', 'wb') as file:
         # A new  file will be created
         pickle.dump(embeddings, file)
 
