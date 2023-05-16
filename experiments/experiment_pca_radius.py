@@ -63,8 +63,8 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
             SBMtype = 'lazy')
         new_data = G
         for model_name in ['PCA','LaplacianEigenmap','Isomap','TSNE','UMAP','DenseMAP']:
-            mod, res, embeds = experiment(model_name, new_data,new_data.x,
-                                new_data.y, None,
+            mod, res, embeds = experiment(model_name, new_data,X,
+                                y_true, None,
                                 patience=20, epochs=200,
                                 n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
                                 wd2=0.0, tau=tau, lambd=1e-4, min_dist=0.1,
@@ -94,8 +94,6 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    with open(os.getcwd() + name + '_traditional_radius_results.pkl', 'wb') as file:
-        # A new  file will be created
-        pickle.dump(embeddings, file)
+    pickle.dump(embeddings, open(os.getcwd() +'/'+name + '_gnn_results.pkl', 'wb'))
 
     print(results)

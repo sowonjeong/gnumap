@@ -107,7 +107,7 @@ def experiment(model_name, data,X,
     else:
         raise ValueError("Model unknown!!")
 
-    sp, acc, local, density = eval_all(data, data.x, embeds, data.y, n_points = npoints, n_neighbors = n_neighbors, classification = classification)
+    sp, acc, local, density = eval_all(data, X, embeds, target, n_points = npoints, n_neighbors = n_neighbors, classification = classification)
     print("done with the embedding evaluation")
 
 

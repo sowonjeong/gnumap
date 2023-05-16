@@ -94,6 +94,6 @@ def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standar
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
     else:
-        raise ValueError("Model unknown!!")
+        raise ValueError("Data unknown!!")
 
     return(X, y_true, G)
