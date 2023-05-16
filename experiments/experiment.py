@@ -88,13 +88,13 @@ def experiment(model_name, data,X,
     
     elif model_name == 'PCA':
         model =  PCA(n_components = 2)
-        embeds = model.fit_transform(StandardScaler().fit_transform(X))
+        embeds = model.fit_transform(X) # StandardScaler().fit_transform(X) --already standardized when converting graphs
     elif model_name == 'LaplacianEigenmap':
         model = manifold.SpectralEmbedding(n_components = 2,n_neighbors = 5)
-        embeds = model.fit_transform(StandardScaler().fit_transform(X))
+        embeds = model.fit_transform(X)
     elif model_name == 'Isomap':
         model = manifold.Isomap(n_components = 2)
-        embeds = model.fit_transform(StandardScaler().fit_transform(X))
+        embeds = model.fit_transform(X)
     elif model_name == 'TSNE':
         model = manifold.TSNE(n_components = 2, learning_rate  = 'auto', init = 'random', perplexity = perplexity)
         embeds = model.fit_transform(X)

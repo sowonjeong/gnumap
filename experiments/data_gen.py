@@ -52,7 +52,7 @@ def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standar
         G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Sphere':
-        X, y_true = create_sphere(r = 1)
+        X, y_true = create_sphere(r = 1, size = n_samples)
         G = convert_to_graph(X, n_neighbours = n_neighbours,features=features,standardize=standardize, eps = radius, epsilon = epsilon)
         G.y = torch.from_numpy(y_true)
     elif name == 'Circles':

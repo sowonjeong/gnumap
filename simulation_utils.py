@@ -36,18 +36,15 @@ def make_roll(c=0.6, v=4, omega=12, n_samples = 2000, n_neighbours = 30,
                         edge_weight=edge_weights/M)
     return(X, t, new_data, u)
 
-def create_sphere(r, resolution=360):
+def create_sphere(r, size = 500):
     '''
     create sphere with center (0,0,0) and radius r
     '''
-    phi = np.linspace(0, 2*np.pi, 2*resolution)
-    theta = np.linspace(0, np.pi, resolution)
+    theta = np.random.uniform(0, np.pi, size = size)
+    phi = np.random.uniform(0,2*np.pi,size = size)
 
-    theta, phi = np.meshgrid(theta, phi)
+    x = r*np.cos(theta)*np.sin(phi)
+    y = r*np.sin(theta)*np.sin(phi)
+    z = r*np.cos(phi)
 
-    r_xy = r*np.sin(theta)
-    x = np.cos(phi) * r_xy
-    y = np.sin(phi) * r_xy
-    z = r * np.cos(theta)
-
-    return np.stack([x,y,z]), z
+    return np.stack([x,y,z]).T, z
