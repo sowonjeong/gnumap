@@ -83,7 +83,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                             'gnn_type': gnn_type,   
                                             'embedding' : out,
                                             'alpha': alpha}
-    file_path = os.getcwd() + '/' + name + '_results.csv'
+    file_path = os.getcwd() + '/' + name + '_traditional_results.csv'
 
     pd.DataFrame(np.array(results),
                     columns =[  'model', 'method',
@@ -93,7 +93,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    with open(os.getcwd() + name + '_results.pkl', 'wb') as file:
+    with open(os.getcwd() + name + '_traditional_results.pkl', 'wb') as file:
         # A new  file will be created
         pickle.dump(embeddings, file)
 

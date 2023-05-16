@@ -84,7 +84,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                                     'gnn_type': gnn_type,   
                                                     'embedding' : out,
                                                     'alpha': alpha}
-    file_path = os.getcwd() + '/' + name + '_results.csv'
+    file_path = os.getcwd() + '/' + name + '_gnn_results.csv'
 
     pd.DataFrame(np.array(results),
                     columns =[  'model', 'method',
