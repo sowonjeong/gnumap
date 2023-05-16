@@ -50,6 +50,10 @@ dim = 256
 rad = [0.1, 0.2, 0.5, 1.0]
 
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    if name in ['Blob','Circles','Moons','Cora','Pubmed']:
+        classification = True
+    else: 
+        classification = False
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
