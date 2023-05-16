@@ -1,6 +1,0 @@
-/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_isolated_nodes' is deprecated, use 'has_isolated_nodes' instead
-  warnings.warn(out)
-/home/cdonnat/.conda/envs/pytorch_geom3.9/lib/python3.9/site-packages/torch_geometric/deprecation.py:12: UserWarning: 'contains_self_loops' is deprecated, use 'has_self_loops' instead
-  warnings.warn(out)
-/home/cdonnat/.local/lib/python3.9/site-packages/joblib/externals/loky/process_executor.py:702: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
-  warnings.warn(
