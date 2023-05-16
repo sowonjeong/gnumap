@@ -4,7 +4,7 @@
 *.ipynb
 *.ipynb
 *.pyc
-# *.csv
+*.csv
 *.pkl
 *.pyc
 *.pkl
