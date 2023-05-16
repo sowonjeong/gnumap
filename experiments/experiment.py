@@ -99,10 +99,10 @@ def experiment(model_name, data,X,
         model = manifold.TSNE(n_components = 2, learning_rate  = 'auto', init = 'random', perplexity = perplexity)
         embeds = model.fit_transform(X)
     elif model_name == 'UMAP':
-        model = umap.UMAP(random_state=random_state, n_neighbors = n, min_dist = min_dist)
+        model = umap.UMAP(n_components = 2, random_state=random_state, n_neighbors = n, min_dist = min_dist)
         embeds = model.fit_transform(X)
     elif model_name == 'DenseMAP':
-        model = umap.UMAP(random_state=random_state, densmap = True, n_neighbors = n, min_dist = min_dist)
+        model = umap.UMAP(n_components = 2, random_state=random_state, densmap = True, n_neighbors = n, min_dist = min_dist)
         embeds = model.fit_transform(X)
     else:
         raise ValueError("Model unknown!!")
