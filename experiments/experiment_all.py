@@ -43,8 +43,8 @@ from evaluation_metric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='MVGRL')
-parser.add_argument('--name, type=str, default='Blob')
-parser.add_argument('--name_file', type=str, default='test')
+parser.add_argument('--name', type=str, default='Blob')
+parser.add_argument('--filename', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
 parser.add_argument('--epochs', type=int, default=500)
 parser.add_argument('--n_experiments', type=int, default=1)
@@ -77,6 +77,8 @@ parser.add_argument('--result_folder', type=str, default=“/results/“)
 parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
+np.random.set_seed(args.seed)
+torch.manual_seed(args.seed)
 
 
 tau = args.tau
