@@ -1,8 +1,11 @@
 import pandas as pd
 from torch_geometric.data import Data
 import torch
+import sys, os
+# sys.path.append('../')
+
 def readSBM(type = 'lazy', features = None):
-    path = '/Users/sowonjeong/Documents/GitHub/gnumap/SBM/'
+    path = os.path.dirname(os.getcwd()) +'/SBM/'
     if type == 'lazy':
         data = pd.read_csv(path + "lazySBM.csv")
         y = pd.read_csv(path + "lazy_y.csv")
