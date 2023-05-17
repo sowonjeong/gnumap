@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_scatter import scatter_add
 import torch_geometric.transforms as T
-from torch_geometric.datasets import Planetoid
+# from torch_geometric.datasets import Planetoid
 from torch_geometric.data import Data
 from torch_geometric.transforms import RandomLinkSplit, RandomNodeSplit, NormalizeFeatures
 from torch_geometric.utils import remove_self_loops, negative_sampling
