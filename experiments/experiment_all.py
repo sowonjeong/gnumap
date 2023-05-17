@@ -101,7 +101,7 @@ for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
         for alpha in np.arange(0,1.1,0.1):
             mod, res, out = experiment(model_name, new_data,X,
                         y_true, None,
-                        patience=args.patience, epochs=args.epoch,
+                        patience=args.patience, epochs=args.epochs,
                         n_layers=args.n_layers, out_dim=args.out_dim, lr1=args.lr1, lr2=args.lr2, 
                         wd1=args.wd1, wd2=args.wd2, tau=args.tau, lambd=1e-4, min_dist=0.1,
                         method='heat', n_neighbours=15,
