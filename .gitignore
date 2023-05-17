@@ -5,12 +5,7 @@
 *.ipynb
 *.pyc
 # *.csv
-*.pkl
-*.pyc
-*.pkl
-*.pyc
-*.pyc
-.DS_Store
+# *.pkl
 *.pyc
 .DS_Store
 logs/*
