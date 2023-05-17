@@ -66,14 +66,14 @@ parser.add_argument('--beta', type=float, default=1) #
 parser.add_argument('--patience', type=int, default=20)
 parser.add_argument('--edr', type=float, default=0.5)
 parser.add_argument('--fmr', type=float, default=0.2)
-parser.add_argument('--proj', type=str, default=“standard”)
+parser.add_argument('--proj', type=str, default="standard")
 parser.add_argument('--training_rate', type=float, default=0.85)
 parser.add_argument('--pred_hid', type=int, default=512)
 parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_folder', type=str, default=“/results/“)
+parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
