@@ -20,7 +20,9 @@ def readSBM(type = 'lazy', features = None):
     
     if features == 'ones':
         new_data = Data(x=torch.ones(500, 500), y = torch.Tensor(y.values).T, edge_index=torch.Tensor(data.values).T)
+        new_data.edge_weight = torch.ones(new_data.edge_index.shape[1])
     else:
         new_data = Data(x=torch.eye(500), y = torch.Tensor(y.values).T, edge_index=torch.Tensor(data.values).T)
+        new_data.edge_weight = torch.ones(new_data.edge_index.shape[1])
 
     return new_data.x, new_data.y, new_data
