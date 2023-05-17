@@ -41,7 +41,6 @@ from experiments.experiment import *
 from evaluation_metric import *
 
 
-
 tau = 0.5
 edr = 0.2
 fmr = 0.5
@@ -63,8 +62,8 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
         for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
             for gnn_type in ['symmetric', 'RW']:
                 for alpha in np.arange(0,1.1,0.1):
-                    mod, res, out = experiment(model_name, new_data,new_data.x,
-                                new_data.y, None,
+                    mod, res, out = experiment(model_name, new_data,X,
+                                y_true, None,
                                 patience=20, epochs=200,
                                 n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
                                 wd2=0.0, tau=tau, lambd=1e-4, min_dist=0.1,
@@ -94,8 +93,6 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-   #with open(os.getcwd() + name + '_results.pkl', 'wb') as file:
-        # A new  file will be created
-    #    pickle.dump(embeddings, file)
+    pickle.dump(embeddings, open(os.getcwd() +'/'+name + '_gnn_results.pkl', 'wb'))
 
     print(results)
