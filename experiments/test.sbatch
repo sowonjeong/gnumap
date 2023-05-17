@@ -4,7 +4,7 @@
 #SBATCH --output=logs/array_%A_%a.out
 #SBATCH --error=logs/array_%A_%a.err
 #SBATCH --account=pi-cdonnat
-#SBATCH --time=5:00:00:00
+#SBATCH --time=5-00:00:00
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1 
