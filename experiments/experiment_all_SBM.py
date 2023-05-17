@@ -45,19 +45,16 @@ tau = 0.5
 edr = 0.2
 fmr = 0.5
 dim = 256
-for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+for name in ['lazy','dense','custom']:
     results = []
     embeddings = {}
-    if name in ['Blob','Circles','Moons','Cora','Pubmed']:
-        classification = True
-    else: 
-        classification = False
+    classification = True
     for i in np.arange(50):
-        X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
+        X, y_true, G = data_set('SBM', n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
             factor = 0.2, noise = 0.05,
             random_state = i, radius = False, epsilon = 0.5, 
-            SBMtype = 'lazy')
+            SBMtype = name)
         new_data = G
         for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
             for gnn_type in ['symmetric', 'RW']:
@@ -83,7 +80,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                                     'gnn_type': gnn_type,   
                                                     'embedding' : out,
                                                     'alpha': alpha}
-    file_path = os.getcwd() + '/' + name + '_gnn_results.csv'
+    file_path = os.getcwd() + '/SBM_' + name + '_gnn_results.csv'
 
     pd.DataFrame(np.array(results),
                     columns =[  'model', 'method',
@@ -93,6 +90,6 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    pickle.dump(embeddings, open(os.getcwd() +'/'+name + '_gnn_results.pkl', 'wb'))
+    pickle.dump(embeddings, open(os.getcwd() +'/SBM_'+name + '_gnn_results.pkl', 'wb'))
 
     print(results)
