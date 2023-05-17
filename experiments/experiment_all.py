@@ -77,7 +77,7 @@ parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) #
 args = parser.parse_args()
 
-np.random.set_seed(args.seed)
+np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 
 
@@ -135,6 +135,6 @@ pd.DataFrame(np.array(results),
                     'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-pickle.dump(embeddings, open(os.getcwd() +'/'+name + '_gnn_results.pkl', 'wb'))
+pickle.dump(embeddings, open(os.getcwd() +'/'+name +  args.filename + '_gnn_results.pkl', 'wb'))
 
 print(results)
