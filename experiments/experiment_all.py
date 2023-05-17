@@ -42,15 +42,13 @@ from evaluation_metric import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', type=str, default='MVGRL')
 parser.add_argument('--name', type=str, default='Blob')
 parser.add_argument('--filename', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
-parser.add_argument('--epochs', type=int, default=500)
+parser.add_argument('--epochs', type=int, default=200)
 parser.add_argument('--n_experiments', type=int, default=1)
 parser.add_argument('--n_layers', type=int, default=2)
-parser.add_argument('--out_dim', type=int, default=16) #512
-parser.add_argument('--sample_size', type=int, default=2000)
+parser.add_argument('--out_dim', type=int, default=2) #512
 parser.add_argument('--batch', type=int, default=2)
 parser.add_argument('--lr1', type=float, default=1e-3) #
 parser.add_argument('--lr2', type=float, default=1e-2)
@@ -66,25 +64,22 @@ parser.add_argument('--beta', type=float, default=1) #
 parser.add_argument('--patience', type=int, default=20)
 parser.add_argument('--edr', type=float, default=0.5)
 parser.add_argument('--fmr', type=float, default=0.2)
-parser.add_argument('--proj', type=str, default="standard")
-parser.add_argument('--training_rate', type=float, default=0.85)
-parser.add_argument('--pred_hid', type=int, default=512)
+parser.add_argument('--proj', type=str, default="nonlinear-hid")
+parser.add_argument('--pred_hid', type=int, default=256)
 parser.add_argument('--dre1', type=float, default=0.2)
 parser.add_argument('--dre2', type=float, default=0.2)
 parser.add_argument('--drf1', type=float, default=0.4)
 parser.add_argument('--drf2', type=float, default=0.4)
 parser.add_argument('--result_folder', type=str, default="/results/")
-parser.add_argument('--seed', type=int, default=12345) #
+parser.add_argument('--seed', type=int, default=12345) 
+parser.add_argument('--npoints', type=int, default=500)
+parser.add_argument('--num_neighbor', type=int, default=50) # graph construction
 args = parser.parse_args()
 
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 
 
-tau = args.tau
-edr = args.edr
-fmr = args.fmr
-dim = args.out_dim
 name = args.name
 
 results = []
@@ -94,47 +89,47 @@ if name in ['Blob','Circles','Moons','Cora','Pubmed']:
     classification = True
 else: 
     classification = False
-for i in np.arange(50):
-    X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
-        centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
-        factor = 0.2, noise = 0.05,
-        random_state = i, radius = False, epsilon = 0.5, 
-        SBMtype = 'lazy')
-    new_data = G
-    for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
-        for gnn_type in ['symmetric', 'RW']:
-            for alpha in np.arange(0,1.1,0.1):
-                mod, res, out = experiment(model_name, new_data,X,
-                            y_true, None,
-                            patience=20, epochs=200,
-                            n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
-                            wd2=0.0, tau=tau, lambd=1e-4, min_dist=0.1,
-                            method='heat', n_neighbours=15,
-                            norm='normalize', edr=edr, fmr=fmr,
-                            proj="nonlinear", pred_hid=512, proj_hid_dim=dim,
-                            dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-                            npoints = 500, n_neighbors = 50, classification = classification,
-                            densmap = False, random_state = i, n = 15, perplexity = 30, 
-                            alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
-                            name_file="blob-test",subsampling=None)
-                results += [res]
-                # out = mod.get_embedding(new_data)
-                embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)]  =  {
-                                                'model': model_name, 
-                                                'alpha': alpha,
-                                                'gnn_type': gnn_type,   
-                                                'embedding' : out,
-                                                'alpha': alpha}
-file_path = os.getcwd() + '/' + name + args.filename  +  '_gnn_results.csv'
+
+X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
+    centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
+    factor = 0.2, noise = 0.05,
+    random_state = args.seed, radius = False, epsilon = 0.5, 
+    SBMtype = 'lazy')
+new_data = G
+for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
+    for gnn_type in ['symmetric', 'RW']:
+        for alpha in np.arange(0,1.1,0.1):
+            mod, res, out = experiment(model_name, new_data,X,
+                        y_true, None,
+                        patience=args.patience, epochs=args.epoch,
+                        n_layers=args.n_layers, out_dim=args.out_dim, lr1=args.lr1, lr2=args.lr2, 
+                        wd1=args.wd1, wd2=args.wd2, tau=args.tau, lambd=1e-4, min_dist=0.1,
+                        method='heat', n_neighbours=15,
+                        norm='normalize', edr=args.edr, fmr=args.fmr,
+                        proj=args.proj, pred_hid=args.pred_hid, proj_hid_dim=args.pred_hid,
+                        dre1=args.dre1, dre2=args.dre2, drf1=args.drf1, drf2=args.drf2,
+                        npoints = args.npoints, n_neighbors = args.num_neighbor, classification = classification,
+                        densmap = False, random_state = args.seed, n = 15, perplexity = 30, 
+                        alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
+                        name_file=args.filename,subsampling=None)
+            results += [res]
+            # out = mod.get_embedding(new_data)
+            embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)]  =  {
+                                            'model': model_name, 
+                                            'alpha': alpha,
+                                            'gnn_type': gnn_type,   
+                                            'embedding' : out,
+                                            'alpha': alpha}
+file_path = os.getcwd() + '/' + name + '_gnn_results_' + args.filename + '.csv'
 
 pd.DataFrame(np.array(results),
                 columns =[  'model', 'method',
                     'dim', 'neighbours', 'n_layers', 'norm','min_dist',
-                        'dre1', 'drf1', 'lr', 'edr', 'fmr',
+                    'dre1', 'drf1', 'lr', 'edr', 'fmr',
                     'tau', 'lambd','pred_hid','proj_hid_dim',
                     'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-pickle.dump(embeddings, open(os.getcwd() +'/'+name +  args.filename + '_gnn_results.pkl', 'wb'))
+pickle.dump(embeddings, open(os.getcwd() +'/'+name +  + '_gnn_results_' + args.filename +'.pkl', 'wb'))
 
 print(results)
