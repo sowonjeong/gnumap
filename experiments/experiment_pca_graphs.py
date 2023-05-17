@@ -47,7 +47,7 @@ fmr = 0.5
 dim = 256
 gnn_type = 'symmetric'
 alpha = 0.5
-for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+for name in ['Cora','Pubmed']:
     results = []
     embeddings = {}
     if name in ['Blob','Circles','Moons','Cora','Pubmed']:
