@@ -41,11 +41,50 @@ from experiments.experiment import *
 from evaluation_metric import *
 
 
-tau = 0.5
-edr = 0.2
-fmr = 0.5
-dim = 256
-for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+parser = argparse.ArgumentParser()
+parser.add_argument('--model', type=str, default='MVGRL')
+parser.add_argument('--name, type=str, default='Blob')
+parser.add_argument('--name_file', type=str, default='test')
+parser.add_argument('--split', type=str, default='PublicSplit')
+parser.add_argument('--epochs', type=int, default=500)
+parser.add_argument('--n_experiments', type=int, default=1)
+parser.add_argument('--n_layers', type=int, default=2)
+parser.add_argument('--out_dim', type=int, default=16) #512
+parser.add_argument('--sample_size', type=int, default=2000)
+parser.add_argument('--batch', type=int, default=2)
+parser.add_argument('--lr1', type=float, default=1e-3) #
+parser.add_argument('--lr2', type=float, default=1e-2)
+parser.add_argument('--wd1', type=float, default=0.0)
+parser.add_argument('--wd2', type=float, default=0.0)
+parser.add_argument('--tau', type=float, default=0.5) #
+parser.add_argument('--lambd', type=float, default=1e-4) #
+parser.add_argument('--min_dist', type=float, default=0.1) #
+parser.add_argument('--n_neighbours', type=int, default=15) #
+parser.add_argument('--method', type=str, default='heat') #
+parser.add_argument('--norm', type=str, default='normalize') #
+parser.add_argument('--beta', type=float, default=1) #
+parser.add_argument('--patience', type=int, default=20)
+parser.add_argument('--edr', type=float, default=0.5)
+parser.add_argument('--fmr', type=float, default=0.2)
+parser.add_argument('--proj', type=str, default=“standard”)
+parser.add_argument('--training_rate', type=float, default=0.85)
+parser.add_argument('--pred_hid', type=int, default=512)
+parser.add_argument('--dre1', type=float, default=0.2)
+parser.add_argument('--dre2', type=float, default=0.2)
+parser.add_argument('--drf1', type=float, default=0.4)
+parser.add_argument('--drf2', type=float, default=0.4)
+parser.add_argument('--result_folder', type=str, default=“/results/“)
+parser.add_argument('--seed', type=int, default=12345) #
+args = parser.parse_args()
+
+
+
+tau = args.tau
+edr = args.edr
+fmr = args.fmr
+dim = args.out_dim
+name = args.name
+for name in ['Blob', 'Sphere', 'Circles', 'Moons', 'Swissroll', 'Scurve', 'Cora', 'Pubmed']:
     results = []
     embeddings = {}
     if name in ['Blob','Circles','Moons','Cora','Pubmed']:
