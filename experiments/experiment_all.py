@@ -74,6 +74,8 @@ parser.add_argument('--result_folder', type=str, default="/results/")
 parser.add_argument('--seed', type=int, default=12345) 
 parser.add_argument('--npoints', type=int, default=500)
 parser.add_argument('--num_neighbor', type=int, default=50) # graph construction
+parser.add_argument('--radius-based', type=str, default=False) # graph construction
+parser.add_argument('--radius', type=float, default=0.5) # graph construction
 args = parser.parse_args()
 
 np.random.seed(args.seed)
@@ -93,7 +95,7 @@ else:
 X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
     centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
     factor = 0.2, noise = 0.05,
-    random_state = args.seed, radius = False, epsilon = 0.5, 
+    random_state = args.seed, radius = args.radius_based, epsilon = args.radius, 
     SBMtype = 'lazy')
 new_data = G
 for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
@@ -120,7 +122,7 @@ for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
                                             'gnn_type': gnn_type,   
                                             'embedding' : out,
                                             'alpha': alpha}
-file_path = os.getcwd() + '/' + name + '_gnn_results_' + args.filename + '.csv'
+file_path = os.getcwd() + '/results/' + name +'_' + args.radius_based + '_gnn_results_' + args.filename + '.csv'
 
 pd.DataFrame(np.array(results),
                 columns =[  'model', 'method',
@@ -130,6 +132,6 @@ pd.DataFrame(np.array(results),
                     'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-pickle.dump(embeddings, open(os.getcwd() +'/'+name +  + '_gnn_results_' + args.filename +'.pkl', 'wb'))
+pickle.dump(embeddings, open(os.getcwd() +'/results/'+name +'_' + args.radius_based + '_gnn_results_' + args.filename +'.pkl', 'wb'))
 
 print(results)
