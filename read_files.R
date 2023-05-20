@@ -31,12 +31,13 @@ scurve <-
 
 
 
-df = blob
+df = sphere
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
   group_by(model, alpha, gnn_type)%>%
   summarise_all(list(mean = ~mean(.), sd = ~sd(.)))
+  #write.csv(.,file = "sphere.csv")
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
@@ -46,9 +47,9 @@ df %>%
   ggplot(aes(x=alpha, y = sp_mean, group=model))+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
   geom_line(aes(color=model))+
-  geom_point()+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))
+  facet_grid(cols = vars(gnn_type))+
+  xlab(expression(alpha)) + ylab("global structure(unsupervised)")
 
 
 df %>%
@@ -59,10 +60,10 @@ df %>%
   ggplot(aes(x=alpha, y = acc_mean, group=model))+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
   geom_line(aes(color=model))+
-  geom_point()+
+  #geom_point()+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))
-
+  facet_grid(cols = vars(gnn_type))+
+  xlab(expression(alpha)) + ylab("global structure(supervised)")
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
@@ -72,9 +73,10 @@ df %>%
   ggplot(aes(x=alpha, y = local_mean, group=model))+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
   geom_line(aes(color=model))+
-  geom_point()+
+  #geom_point()+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))
+  facet_grid(cols = vars(gnn_type))+
+  xlab(expression(alpha)) + ylab("local structure")
 
 
 
@@ -86,7 +88,7 @@ df %>%
   ggplot(aes(x=alpha, y = density_mean, group=model))+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
   geom_line(aes(color=model))+
-  geom_point()+
+  #geom_point()+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
   facet_grid(cols = vars(gnn_type))
 
