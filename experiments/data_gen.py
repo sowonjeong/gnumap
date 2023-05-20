@@ -83,16 +83,18 @@ def data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standar
         dataset = Planetoid(root='Planetoid', name='Cora', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
-
+        G.edge_weight = torch.ones(G.edge_index.shape[1])
     elif name == 'Pubmed':
         dataset = Planetoid(root='Planetoid', name='Pubmed', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
+        G.edge_weight = torch.ones(G.edge_index.shape[1])
 
     elif name == 'Citeseer':
         dataset = Planetoid(root='Planetoid', name='Citeseer', transform=NormalizeFeatures())
         G = dataset[0]  # Get the first graph object.
         X, y_true = G.x, G.y
+        G.edge_weight = torch.ones(G.edge_index.shape[1])
     else:
         raise ValueError("Data unknown!!")
 
