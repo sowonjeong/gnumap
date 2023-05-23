@@ -26,4 +26,4 @@ result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/gnumap/experiments
 
-python experiment_all.py --name $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID  --radius-based True
+python experiment_all.py --name $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID  --radius-based False

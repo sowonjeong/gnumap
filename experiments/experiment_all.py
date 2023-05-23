@@ -122,7 +122,7 @@ for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
                                             'gnn_type': gnn_type,   
                                             'embedding' : out,
                                             'alpha': alpha}
-file_path = os.getcwd() + '/results/' + name +'_' + args.radius_based + '_gnn_results_' + args.filename + '.csv'
+file_path = os.getcwd() + '/results/' + name +'_' + str(args.radius_based) + '_gnn_results_' + args.filename + '.csv'
 
 pd.DataFrame(np.array(results),
                 columns =[  'model', 'method',
@@ -132,6 +132,6 @@ pd.DataFrame(np.array(results),
                     'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-pickle.dump(embeddings, open(os.getcwd() +'/results/'+name +'_' + args.radius_based + '_gnn_results_' + args.filename +'.pkl', 'wb'))
+pickle.dump(embeddings, open(os.getcwd() +'/results/'+name +'_' + str(args.radius_based) + '_gnn_results_' + args.filename +'.pkl', 'wb'))
 
 print(results)
