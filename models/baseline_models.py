@@ -2,9 +2,9 @@ from numbers import Number
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv
-
-from models.aggregation import GAPPNP
+# from torch_geometric.nn import GCNConv
+from models.aggregation import *
+# from models.aggregation import GAPPNP
 
 class LogReg(nn.Module):
     def __init__(self, hid_dim, out_dim):
@@ -20,24 +20,27 @@ def weights_init(m):
         nn.init.xavier_uniform_(m.weight.data)
 
 class GCN(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers,dropout_rate, norm = True):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers,dropout_rate, normalized= True, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
         super().__init__()
         self.n_layers = n_layers
         self.p = dropout_rate
+        self.normalized = normalized
         self.convs = nn.ModuleList()
         if n_layers > 1:
-            self.convs.append(GCNConv(in_dim, hid_dim))
+            self.convs.append(GCNConv(in_dim, hid_dim, gnn_type = gnn_type, alpha = alpha, beta = beta))
             for i in range(n_layers - 2):
-                self.convs.append(GCNConv(hid_dim, hid_dim))
-            self.convs.append(GCNConv(hid_dim, out_dim))
+                self.convs.append(GCNConv(hid_dim, hid_dim, gnn_type = gnn_type, alpha = alpha, beta = beta))
+            self.convs.append(GCNConv(hid_dim, out_dim, gnn_type = gnn_type, alpha = alpha, beta = beta))
         else:
-            self.convs.append(GCNConv(in_dim, out_dim))
+            self.convs.append(GCNConv(in_dim, out_dim, gnn_type = gnn_type, alpha = alpha, beta = beta))
 
     def forward(self, x, edge_index, edge_weight = None):
         for i in range(self.n_layers - 1):
             x = F.relu(self.convs[i](x, edge_index, edge_weight)) # nn.PReLU
             x = F.dropout(x, p = self.p)
-        x = self.convs[-1](x, edge_index)
+            if self.normalized is True:
+                x = F.normalize(x)
+        x = self.convs[-1].float()(x.float(), edge_index, edge_weight)
         return x
 
 

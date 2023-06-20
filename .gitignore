@@ -4,13 +4,8 @@
 *.ipynb
 *.ipynb
 *.pyc
-*.csv
-*.pkl
-*.pyc
-*.pkl
-*.pyc
-*.pyc
-.DS_Store
+# *.csv
+# *.pkl
 *.pyc
 .DS_Store
 logs/*

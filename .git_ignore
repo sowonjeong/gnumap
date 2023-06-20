@@ -7,5 +7,6 @@ experiments/Planetoid/
 #notebooks/references.md
 #notebooks/
 results/
-experiments/logs/
+#experiments/logs/
 models/__pycache__/
+.vscode/

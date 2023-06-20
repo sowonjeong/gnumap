@@ -16,10 +16,11 @@ from functools import wraps
 from typing import Optional, Tuple
 from torch_geometric.utils.num_nodes import maybe_num_nodes
 
-from sklearn.model_selection import StratifiedKFold, LeaveOneOut
+from sklearn.svm import SVC, LinearSVC
+from sklearn.model_selection import StratifiedKFold, LeaveOneOut, KFold
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import scale, StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.kernel_approximation import Nystroem
 from sklearn.pipeline import make_pipeline
@@ -27,6 +28,14 @@ from collections import Counter
 from numpy.random import default_rng
 from torch_geometric.utils import to_dense_adj
 from diffusion_map_np import diffusion_dist
+from umap_functions import *
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
+from scipy.sparse.csgraph import shortest_path
+from scipy.sparse.csgraph import dijkstra
+from torch_geometric.utils import to_scipy_sparse_matrix
+from scipy.sparse import csr_matrix
 
 
 
@@ -108,7 +117,14 @@ def neighbor_kept_ratio_eval(G, X_new, n_neighbors=30):
     nn_ld.fit(X_new)
     # Construct a k-neighbors graph, where 1 indicates a neighbor relationship
     # and 0 means otherwise, resulting in a graph of the shape n * n
-    graph_hd = to_dense_adj(G.edge_index).detach() # no self-loops in original graph
+    if G.__class__ == torch_geometric.data.data.Data:
+        graph_hd = to_dense_adj(G.edge_index).detach() # no self-loops in original graph
+    else:
+        nn_hd = NearestNeighbors(n_neighbors=n_neighbors+1)
+        nn_hd.fit(G)
+        grph_hd = nn_hd.kneighbors_graph(G).toarray()
+        graph_hd -= np.eye(G.num_nodes) # Removing diagonal
+        graph_hd = torch.tensor(graph_hd, dtype= torch.float32)  
     graph_ld = nn_ld.kneighbors_graph(X_new).toarray()
     graph_ld -= np.eye(G.num_nodes) # Removing diagonal
     graph_ld = torch.tensor(graph_ld, dtype= torch.float32)
@@ -228,10 +244,8 @@ def knn_eval_plot(G , out, n_neighbors = [3,10,20,50,100]):
     return df
     
 
+'''
 def spearman_correlation_eval(X, X_new, n_points=1000, random_seed=100, type = 'diffusion'):
-    '''Evaluate the global structure of an embedding via spearman correlation in
-    distance matrix, following https://www.nature.com/articles/s41467-019-13056-x
-    '''
     # Fix the random seed to ensure reproducability
     rng = np.random.default_rng(seed=random_seed)
     dataset_size = X.shape[0]
@@ -245,6 +259,26 @@ def spearman_correlation_eval(X, X_new, n_points=1000, random_seed=100, type = '
     else:
         dist_high = distance_matrix(X[sample_index], X[sample_index])
     dist_low = distance_matrix(X_new[sample_index], X_new[sample_index])
+    dist_high = dist_high.reshape([-1])
+    dist_low = dist_low.reshape([-1])
+
+    # Calculate the correlation
+    corr, pval = scipy.stats.spearmanr(dist_high, dist_low)
+    return dist_high, dist_low, corr, pval
+'''
+
+def spearman_correlation_eval(G, X_new, random_seed=100): 
+    '''Evaluate the global structure of an embedding via spearman correlation in
+    distance matrix, following https://www.nature.com/articles/s41467-019-13056-x
+    '''
+    # Fix the random seed to ensure reproducability
+    rng = np.random.default_rng(seed=random_seed)
+    dataset_size = G.x.shape[0]
+
+    ind1, ind2 = torch.triu_indices(dataset_size, dataset_size, 1)
+    dist_high = shortest_path(to_scipy_sparse_matrix(G.edge_index),directed = False)[ind1,ind2]
+    dist_high[np.isinf(dist_high)] = np.max(dist_high[~np.isinf(dist_high)])*2
+    dist_low = distance_matrix(X_new, X_new)[ind1,ind2]
     dist_high = dist_high.reshape([-1])
     dist_low = dist_low.reshape([-1])
 
@@ -529,3 +563,101 @@ def eval_reduction_large(dataset_name, methods, metric=0):
             np.save(f'./results/{dataset_name}_{method}_svmaccs.npy', svm_accs)
         print('---------')
     print('Finished Successfully')
+
+def prob_low_dim(a,b,Y):
+    """
+    Compute matrix of probabilities q_ij in low-dimensional space
+    """
+    inv_distances = np.power(1 + a * np.square(euclidean_distances(Y, Y))**b, -1)
+    return inv_distances
+
+def eval_density_preserve(X, X_news, sigma = 1.0, min_dist = 0.1):
+    P = prob_high_dim(sigma = sigma, dist = euclidean_distances(X,X))
+    _a, _b = find_ab_params(spread = sigma, min_dist = min_dist)
+    Q = prob_low_dim(_a,_b,X_news)
+    P = torch.tensor(P, dtype = torch.float)
+    Q = torch.tensor(Q, dtype = torch.float)
+    x_dist = torch.tensor(euclidean_distances(X,X), dtype = torch.float)
+    y_dist = torch.tensor(euclidean_distances(X_news,X_news), dtype = torch.float)
+    p_sum = 1/torch.sum(P, dim = 1)
+    q_sum = 1/torch.sum(Q, dim = 1)
+    R_p = p_sum * torch.sum(torch.mul(P,x_dist),dim = 0)
+    R_q = q_sum * torch.sum(torch.mul(Q,y_dist),dim = 0)
+    corr,_ = scipy.stats.pearsonr(R_p, R_q)
+    return corr
+
+def svm_eval(X, y, n_splits=10, **kwargs):
+    '''
+    This is a function that is used to evaluate the lower dimension embedding.
+    An accuracy is calculated by an SVM with rbf kernel.
+    Input:
+        X: A numpy array with the shape [N, k]. The lower dimension embedding
+           of some dataset. Expected to have some clusters.
+        y: A numpy array with the shape [N, 1]. The labels of the original
+           dataset.
+        kwargs: Any keyword argument that is send into the SVM.
+    Output:
+        acc: The (avg) accuracy generated by an SVM with rbf kernel.
+    '''
+    X = StandardScaler().fit_transform(X)
+    skf = StratifiedKFold(n_splits=n_splits)
+    sum_acc = 0
+    max_acc = n_splits
+    for train_index, test_index in skf.split(X, y):
+        clf = SVC(**kwargs)
+        clf.fit(X[train_index], y[train_index])
+        acc = clf.score(X[test_index], y[test_index])
+        sum_acc += acc
+    avg_acc = sum_acc/max_acc
+    return avg_acc
+
+def logistic_eval(X, y, n_splits=10, **kwargs):
+    X = StandardScaler().fit_transform(X)
+    skf = StratifiedKFold(n_splits=n_splits)
+    sum_acc = 0
+    n_acc = n_splits
+    for train_index, test_index in skf.split(X, y):
+        clf = LogisticRegression(**kwargs)
+        clf.fit(X[train_index], y[train_index])
+        acc =clf.score(X[test_index], y[test_index]) # R^2 of prediction value 
+        sum_acc += acc
+    avg_acc = sum_acc/n_acc
+    return avg_acc
+
+
+
+def regression_eval(X, y, n_splits=10, **kwargs):
+    '''
+    This is a function that is used to evaluate the lower dimension embedding.
+    An accuracy is calculated by an SVM with rbf kernel.
+    Input:
+        X: A numpy array with the shape [N, k]. The lower dimension embedding
+           of some dataset. Expected to have some clusters.
+        y: A numpy array with the shape [N, 1]. The labels of the original
+           dataset.
+        kwargs: Any keyword argument that is send into the linear regression.
+    Output:
+        acc: The (avg) accuracy generated by an linear regression, adjusted R^2
+    '''
+    X = StandardScaler().fit_transform(X)
+    skf = KFold(n_splits=n_splits)
+    sum_acc = 0
+    n_acc = n_splits
+    for train_index, test_index in skf.split(X):
+        clf = LinearRegression(**kwargs)
+        clf.fit(X[train_index], y[train_index])
+        #acc = 1 - ( 1-clf.score(X[test_index], y[test_index]) ) * ( len(y[test_index]) - 1 ) / ( len(y[test_index]) - X.shape[1] - 1 )
+        acc =clf.score(X[test_index], y[test_index]) # R^2 of prediction value 
+        sum_acc += acc
+    avg_acc = sum_acc/n_acc
+    return avg_acc
+
+def eval_all(G, X, Y, target, n_points = 500, n_neighbors = 5, classification = True):
+    _,_,sp,_ = spearman_correlation_eval(G, Y)
+    if classification is True:
+        acc = svm_eval(Y, target)
+    else:
+        acc = regression_eval(Y, target)
+    local = neighbor_kept_ratio_eval(G,Y, n_neighbors = n_neighbors).detach().numpy()
+    density = eval_density_preserve(X, Y)
+    return sp, acc, local, density

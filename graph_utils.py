@@ -6,7 +6,15 @@ from torch_geometric.utils import to_scipy_sparse_matrix, from_scipy_sparse_matr
 from torch_geometric.utils import add_remaining_self_loops
 import torch_geometric.transforms as T
 from umap_functions import *
-
+from typing import Optional, Tuple
+from torch_geometric.utils.num_nodes import maybe_num_nodes
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import kneighbors_graph, radius_neighbors_graph
+from torch_geometric.data import Data
+from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
+from scipy.sparse.csgraph import shortest_path
+from scipy.sparse.csgraph import dijkstra
+from scipy.sparse import csr_matrix
 
 def get_weights(data, neighbours=15, method = 'laplacian', beta=1,
                 alpha=0.5, power = 3):
@@ -94,3 +102,47 @@ def transform_edge_weights(edge_index, edge_weight, num_nodes, n_neighbours = 15
     edge_index = torch.vstack([torch.from_numpy(np.array(rows)),
                           torch.from_numpy(np.array(cols))]).long()
     return(edge_index, edge_weights)
+
+## Modify original deg function so that they can have >1 dimensional input
+def deg(index, num_nodes: Optional[int] = None,           
+        dtype: Optional[torch.dtype] = None):
+    r"""Computes the (unweighted) degree of a given one-dimensional index tensor.
+    Args:
+    index (LongTensor): Index tensor.
+    num_nodes (int, optional): The number of nodes, *i.e.*
+    :obj:`max_val + 1` of :attr:`index`. (default: :obj:`None`)
+    dtype (:obj:`torch.dtype`, optional): The desired data type of the
+    returned tensor.\n\n    :rtype: :class:`Tensor`\n    """
+    if index.shape[0] != 1: # modify input 
+        index = index[0] 
+    N = maybe_num_nodes(index, num_nodes)
+    out = torch.zeros((N, ), dtype=dtype, device=index.device)
+    one = torch.ones((index.size(0), ), dtype=out.dtype, device=out.device)
+    return out.scatter_add_(0, index, one)
+
+def convert_to_graph(X, n_neighbours = 5,features=None,standardize=True, epsilon = None, eps = False):
+    n = X.shape[0]
+    if standardize:
+        preproc = StandardScaler()
+        X = preproc.fit_transform(X)
+    if eps:
+        A = radius_neighbors_graph(X, radius = epsilon, mode='distance', include_self=False) # edge weight is given by distance
+    else:
+        A = kneighbors_graph(X, n_neighbours, mode='distance', include_self=False) # edge weight is given by distance
+    edge_index, edge_weights = from_scipy_sparse_matrix(A)
+    edge_index, edge_weights = to_undirected(edge_index, edge_weights)
+    rho = torch.min(edge_weights)
+    if epsilon is None:
+        epsilon = torch.max(edge_weights)
+    # M = torch.max(edge_weights)
+    if features == 'coordinates':
+        new_data = Data(x=torch.from_numpy(X).float(),
+                        edge_index=edge_index,
+                        edge_weight=torch.exp(-(edge_weights-rho)/epsilon)) # heat kernel
+    elif features == 'ones':
+        new_data = Data(x=torch.ones(n,n), edge_index=edge_index, # 
+                        edge_weight=torch.exp(-(edge_weights-rho)/epsilon))
+    else:
+        new_data = Data(x=torch.eye(n), edge_index=edge_index, # 
+                        edge_weight=torch.exp(-(edge_weights-rho)/epsilon))
+    return new_data

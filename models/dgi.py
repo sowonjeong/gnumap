@@ -37,9 +37,9 @@ class Readout(nn.Module):
         return torch.mean(h, 1, keepdim=True)
 
 class DGI(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers, dropout_rate, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
         super().__init__()
-        self.encoder = GCN(in_dim, hid_dim, out_dim, n_layers)
+        self.encoder = GCN(in_dim, hid_dim, out_dim, n_layers, dropout_rate, gnn_type = gnn_type, alpha = alpha, beta = beta)
         self.read = Readout()
         self.sigm = nn.Sigmoid()
         self.disc = Discriminator(out_dim)
@@ -54,3 +54,5 @@ class DGI(nn.Module):
         c = self.sigm(self.read(h1))
         ret = self.disc(c, h1, h2)
         return ret
+
+# %%

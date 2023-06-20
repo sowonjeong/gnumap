@@ -14,10 +14,10 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class CCA_SSG(nn.Module):
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp = False):
+    def __init__(self, in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp = False, dropout_rate = 0.5, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
         super().__init__()
         if not use_mlp:
-            self.backbone = GCN(in_dim, hid_dim, out_dim, n_layers)
+            self.backbone = GCN(in_dim, hid_dim, out_dim, n_layers, dropout_rate, gnn_type = gnn_type, alpha = alpha, beta = beta)
         else:
             self.backbone = MLP(in_dim, hid_dim, out_dim)
         self.lambd = lambd

@@ -36,8 +36,8 @@ def init_weights(m):
 
 
 
-def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
-              epochs=200, lr=1e-3, name_file="1", device=None):
+def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate = 0.5,  patience=20,
+              epochs=200, lr=1e-3, name_file="1", device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
 
     log_dir = '/log_dir/log_dir_DGI_' + str(out_dim)+ '/'
     if device is None:
@@ -49,7 +49,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     best_t = 0
     ##### Train DGI model #####
     print("=== train DGI model ===")
-    model = DGI(in_dim, hid_dim, out_dim, n_layers)
+    model = DGI(in_dim, hid_dim, out_dim, n_layers, dropout_rate, gnn_type = gnn_type, alpha = alpha, beta = beta)
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
     loss_fn1 = nn.BCEWithLogitsLoss()
@@ -95,7 +95,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, patience=20,
     print('Loading {}th epoch'.format(best_t))
     model.load_state_dict(torch.load(os.getcwd()   + '/results/best_dgi_dim'
                                      + str(out_dim) + '_' + name_file +  '.pkl'))
-    return(model)
+    return model
 
 
 def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
@@ -309,7 +309,8 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
 
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                 epochs=100, wd=1e-5, lr=1e-3, fmr=0.2, edr =0.5,
-                proj="nonlinear-hid", name_file="test", device=None):
+                proj="nonlinear-hid", name_file="test", device=None,
+                gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -319,10 +320,10 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         n_layers = n_layers
         tau = tau
         N = data.num_nodes
-
+        loss_vals = []
         ##### Train GRACE model #####
         print("=== train GRACE model ===")
-        model = GRACE(in_dim, hid_dim, proj_hid_dim, n_layers, tau)
+        model = GRACE(in_dim, hid_dim, proj_hid_dim, n_layers, tau, gnn_type = gnn_type, alpha = alpha, beta = beta)
         model = model.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
         #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='GRACE_'+ str(channels) +
@@ -331,14 +332,15 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         def train_grace_one_epoch(model, data, fmr, edr, proj):
                 model.train()
                 optimizer.zero_grad()
-                new_data1 = random_aug(data, fmr, edr)
-                new_data2 = random_aug(data, fmr, edr)
+                new_data1,_ = random_aug(data, fmr, edr)
+                new_data2,_ = random_aug(data, fmr, edr)
                 new_data1 = new_data1.to(dev)
                 new_data2 = new_data2.to(dev)
                 z1, z2 = model(new_data1, new_data2)
                 loss = model.loss(z1, z2, layer=proj)
                 loss.backward()
                 optimizer.step()
+                loss_vals.append(loss.detach().numpy())
                 return loss.item()
         #tracker.start()
         for epoch in range(epochs):
@@ -346,23 +348,23 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                                           edr, proj)
             print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         #tracker.stop()
-        return(model)
+        return(model, loss_vals)
 
 
 def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
                   fmr=0.2, edr =0.5, name_file="test",
-                  device=None):
+                  device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    loss_vals = []
     in_dim = data.num_features
     hid_dim =  hid_dim
     out_dim = channels
     N = data.num_nodes
     ##### Train the SelfGCon model #####
     print("=== train CCa model model ===")
-    model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False) #
+    model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False, gnn_type = gnn_type, alpha = alpha, beta = beta) #
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
     #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
@@ -372,32 +374,33 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
     def train_cca_one_epoch(model, data):
         model.train()
         optimizer.zero_grad()
-        new_data1 = random_aug(data, fmr, edr)
-        new_data2 = random_aug(data, fmr, edr)
+        new_data1,_ = random_aug(data, fmr, edr)
+        new_data2,_ = random_aug(data, fmr, edr)
         new_data1 = new_data1.to(device)
         new_data2 = new_data2.to(device)
         z1, z2 = model(new_data1, new_data2)
         loss = model.loss(z1, z2)
         loss.backward()
         optimizer.step()
+        loss_vals.append(loss.detach().numpy())
         return loss.item()
     #tracker.start()
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
-        # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+        print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     #tracker.stop()
-    return(model)
+    return(model, loss_vals)
 
 
-def train_bgrl(data, channels, lambd=1e-5,
+def train_bgrl(data, hid_dim, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
                   fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,
                   drf1=0.2, drf2=0.2, dre1=0.4, dre2=0.4, name_file="test",
-                  device=None):
+                  device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     in_dim = data.num_features
-    hid_dim = channels
+    # hid_dim = channels
     out_dim = channels
     n_layers = n_layers
 
@@ -406,7 +409,7 @@ def train_bgrl(data, channels, lambd=1e-5,
 
     ##### Train the BGRL model #####
     print("=== train BGRL model ===")
-    model = BGRL(in_dim, hid_dim, out_dim, n_layers, pred_hid)
+    model = BGRL(in_dim, hid_dim, out_dim, n_layers, pred_hid, gnn_type = gnn_type, alpha = alpha, beta = beta)
     optimizer = torch.optim.AdamW(params=model.parameters(), lr=lr, weight_decay= wd)
     s = lambda epoch: epoch / 1000 if epoch < 1000 \
                     else ( 1 + np.cos((epoch-1000) * np.pi / (epochs - 1000))) * 0.5
@@ -421,8 +424,8 @@ def train_bgrl(data, channels, lambd=1e-5,
     def train_bgrl_one_epoch(model, data):
         model.train()
         optimizer.zero_grad()
-        new_data1 = random_aug(data, drf1, dre1)
-        new_data2 = random_aug(data, drf2, dre2)
+        new_data1,edge_mask = random_aug(data, drf1, dre1)
+        new_data2,edge_mask = random_aug(data, drf2, dre2)
 
         z1, z2, loss = model(new_data1, new_data2)
 
@@ -440,12 +443,12 @@ def train_bgrl(data, channels, lambd=1e-5,
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     return(model)
 
-def train_vgnae():
+def train_vgnae(data, hid_channels, out_channels, n_lay = 2, alpha = 0.1, non_linear = 'relu', normalize = True):
     model = DeepVGAEX(data.x.size()[1], out_channels, out_channels,
-                         n_layers=n_lay, normalize=args.normalize,
+                         n_layers=n_lay, normalize=normalize,
                          h_dims_reconstructiony = [out_channels, out_channels],
                          y_dim=alpha, dropout=0.5,
-                         lambda_y =0.5/alpha, activation=args.non_linear).to(device)
+                         lambda_y =0.5/alpha, activation=non_linear).to(device)
     w = torch.randn(size= (data.num_features, alpha)).float()
     y_randoms = torch.mm(data.x, w)
     # move to GPU (if available)
