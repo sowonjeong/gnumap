@@ -29,66 +29,91 @@ scurve <-
   list.files(pattern = "^Scurve_False_gnn_results_4481340_[0-9]+\\.csv$", full.names=TRUE) %>% 
   map_df(~read.csv(.))
 
+cora <-
+  list.files(pattern = "^Cora_False_gnn_results_4715015_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  map_df(~read.csv(.))
 
+citeseer <-
+  list.files(pattern = "^Citeseer_False_gnn_results_4860351_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  map_df(~read.csv(.))
 
-df = sphere
+df = blob
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
   group_by(model, alpha, gnn_type)%>%
-  summarise_all(list(mean = ~mean(.), sd = ~sd(.)))
-  #write.csv(.,file = "sphere.csv")
-
-df %>%
-  select(model, alpha, gnn_type, sp,acc, local, density)%>%
-  group_by(model, alpha, gnn_type)%>%
-  #filter(gnn_type=="symmetric")%>%
   summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
-  ggplot(aes(x=alpha, y = sp_mean, group=model))+
+  write.csv(.,file = "scurve.csv")
+
+df %>%
+  select(model, alpha, gnn_type, sp,acc, local, density)%>%
+  mutate_at(vars(alpha),list(factor)) %>%
+  #filter(gnn_type=="symmetric")%>%
+  #summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
+  ggplot(aes(x=alpha, y = sp, color = gnn_type))+
+  geom_boxplot(notch = TRUE)+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
-  geom_line(aes(color=model))+
+  #geom_line(aes(color=model))+
+  #geom_point(aes(color=model), size = 0.5)+
+  theme_bw()+
+  #geom_smooth(aes(color=model))+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))+
+  facet_grid(cols = vars(model))+
   xlab(expression(alpha)) + ylab("global structure(unsupervised)")
 
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
-  group_by(model, alpha, gnn_type)%>%
-  #filter(gnn_type=="symmetric")%>%
-  summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
-  ggplot(aes(x=alpha, y = acc_mean, group=model))+
+  mutate_at(vars(alpha),list(factor)) %>%
+  filter(model=="CCA-SSG")%>%
+  #summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
+  ggplot(aes(x=alpha, y = sp, color = gnn_type))+
+  geom_boxplot(notch = TRUE)+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
-  geom_line(aes(color=model))+
-  #geom_point()+
+  #geom_line(aes(color=model))+
+  #geom_point(aes(color=model), size = 0.5)+
+  theme_bw()+
+  #geom_smooth(aes(color=model))+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))+
+  facet_grid(cols = vars(model))+
   xlab(expression(alpha)) + ylab("global structure(supervised)")
 
+a = df %>%
+  select(model, alpha, gnn_type, sp,acc, local, density)%>%
+  mutate_at(vars(alpha),list(factor))%>%
+  filter(model=="CCA-SSG", gnn_type=="symmetric")
+  
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
-  group_by(model, alpha, gnn_type)%>%
+  mutate_at(vars(alpha),list(factor)) %>%
   #filter(gnn_type=="symmetric")%>%
-  summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
-  ggplot(aes(x=alpha, y = local_mean, group=model))+
+  #summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
+  ggplot(aes(x=alpha, y = local, color = gnn_type))+
+  geom_boxplot(notch = TRUE)+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
-  geom_line(aes(color=model))+
-  #geom_point()+
+  #geom_line(aes(color=model))+
+  #geom_point(aes(color=model), size = 0.5)+
+  theme_bw()+
+  #geom_smooth(aes(color=model))+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
-  facet_grid(cols = vars(gnn_type))+
+  facet_grid(cols = vars(model))+
   xlab(expression(alpha)) + ylab("local structure")
 
 
 
 df %>%
   select(model, alpha, gnn_type, sp,acc, local, density)%>%
-  group_by(model, alpha, gnn_type)%>%
+  #group_by(model, alpha, gnn_type)%>%
   #filter(gnn_type=="symmetric")%>%
-  summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
-  ggplot(aes(x=alpha, y = density_mean, group=model))+
+  #summarise_all(list(mean = ~mean(.), sd = ~sd(.)))%>%
+  ggplot(aes(x=alpha, y = density, group=model))+
   #geom_errorbar(aes(ymin = sp_mean-sp_sd, ymax = sp_mean+sp_sd), width=1.0, position = position_dodge(0.05))+
-  geom_line(aes(color=model))+
-  #geom_point()+
-  #scale_color_brewer(palette="Paired")+theme_minimal()+
+  #geom_line(aes(color=model))+
+  #geom_point(aes(color=model), size = 0.5)+
+  geom_boxplot()+
+  theme_bw()+
+  #geom_smooth(aes(color=model))+
+  #geom_jitter(aes(color=model))+
+  scale_color_brewer(palette="Paired")+theme_minimal()+
   facet_grid(cols = vars(gnn_type))
 

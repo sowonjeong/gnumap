@@ -59,7 +59,21 @@ customedgelist <- sample_edgelist(custom_dcsbm)
 lazyedgelist <- sample_edgelist(lazy_dcsbm)
 denseedgelist <- sample_edgelist(dense_lazy_dcsbm)
 
+lazy_y = lazy_dcsbm[['z']]
+levels(lazy_y) = c(1:5)
+
+custom_y = custom_dcsbm[['z']]
+levels(custom_y) = c(1:5)
+
+dense_y = dense_lazy_dcsbm[['z']]
+levels(dense_y) = c(1:5)
+
+
 setwd('/Users/sowonjeong/Documents/GitHub/gnumap/SBM/')
 write.csv(customedgelist, "customSBM.csv", row.names = FALSE)
 write.csv(lazyedgelist, "lazySBM.csv", row.names = FALSE)
 write.csv(denseedgelist,"denseSBM.csv", row.names = FALSE)
+
+write.csv(custom_y, "custom_y.csv", row.names = FALSE)
+write.csv(lazy_y, "lazy_y.csv", row.names = FALSE)
+write.csv(dense_y, "dense_y.csv", row.names = FALSE)
