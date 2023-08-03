@@ -48,7 +48,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--n_layers', type=int, default=2)
 parser.add_argument('--noise', type=float, default=0.01)
 args = parser.parse_args()
-FILE_NAME = "~/Downloads/results_experiments_again_"  + str(args.n_layers) + '_' + str(args.noise) +  ".csv"
+FILE_NAME = "~/Downloads/results_experiments_new_"  + str(args.n_layers) + '_' + str(args.noise) +  ".csv"
 DICT_NAME_APP =  "shapes_new" + str(args.n_layers) + '_' + str(args.noise)
 # parser.add_argument('--embeddings', type=str, default="/results/MVGRL_node_classification_embeddings.csv")
 
@@ -83,26 +83,45 @@ for exp in range(50):
                             edge_index=edge_index,
                             edge_weight=edge_weights)
 
-            start_time = time.time()
-            model = train_dgi(moon_data, 128, 2, args.n_layers, patience=20,
-                 epochs=500, lr=0.01, name_file=DICT_NAME_APP)
-            out = model.get_embedding(moon_data).numpy()
-            tot_time = time.time() - start_time
-            u = out
-            clf.fit(u, y)
-            cv_results = cross_validate(reg, u, y, cv=5)
-            results+= [[exp, dataset_type, args.noise, 'dgi', np.nan, np.nan, np.nan,
-                        clf.best_score_, np.mean(cv_results['test_score']), np.std(cv_results['test_score']), tot_time]]
-            pd.DataFrame(np.array(results),
-                                    columns=['exp', 'dataset', 'noise', 'method',
-                                            'edr', 'tau', 'lambd', 'clf_best',
-                                            'linear_score', 'sd_linear_score', 'time']).to_csv(FILE_NAME)
-
+            # start_time = time.time()
+            # model = train_dgi(moon_data, 128, 2, args.n_layers, patience=20,
+            #      epochs=500, lr=0.01, name_file=DICT_NAME_APP)
+            # out = model.get_embedding(moon_data).numpy()
+            # tot_time = time.time() - start_time
+            # u = out
+            # clf.fit(u, y)
+            # cv_results = cross_validate(reg, u, y, cv=5)
+            # results+= [[exp, dataset_type, args.noise, 'dgi', np.nan, np.nan, np.nan,
+            #             clf.best_score_, np.mean(cv_results['test_score']), np.std(cv_results['test_score']), tot_time]]
+            # pd.DataFrame(np.array(results),
+            #                         columns=['exp', 'dataset', 'noise', 'method',
+            #                                 'edr', 'tau', 'lambd', 'clf_best',
+            #                                 'linear_score', 'sd_linear_score', 'time']).to_csv(FILE_NAME)
+            #
 
 
             for edr in [0.5]:
-                for tau in [1e-2, 1e-1, 0.2, 0.5]:
+                for tau in [ 0.2, 0.5]:
                     if tau > 1e-1:
+                        start_time = time.time()
+                        model_grace = train_grace(moon_data, 128, 2, args.n_layers,
+                                                  tau=tau,
+                                                  proj="dbn",
+                                                  epochs=500, lr=0.01, fmr=0.2,
+                                                  edr =0.5, name_file=DICT_NAME_APP + 'dbn')
+                        out = model_grace.get_embedding(moon_data).numpy()
+                        tot_time = time.time() - start_time
+                        u = out
+                        clf.fit(u, y)
+                        cv_results = cross_validate(reg, u, y, cv=5)
+                        results+= [[exp, dataset_type, args.noise, 'grace_dbn', edr, tau,  np.nan,
+                                    clf.best_score_, np.mean(cv_results['test_score']), np.std(cv_results['test_score']), tot_time]]
+                        pd.DataFrame(np.array(results),
+                                                columns=['exp', 'dataset', 'noise', 'method',
+                                                        'edr', 'tau', 'lambd', 'clf_best',
+                                                        'linear_score', 'sd_linear_score', 'time']).to_csv(FILE_NAME)
+                        print("dbn done")
+
                         start_time = time.time()
                         model_grace = train_grace(moon_data, 128, 2, args.n_layers,
                                                   tau=tau,
@@ -138,6 +157,7 @@ for exp in range(50):
                                                 columns=['exp', 'dataset', 'noise', 'method',
                                                         'edr', 'tau', 'lambd', 'clf_best',
                                                         'linear_score', 'sd_linear_score', 'time']).to_csv(FILE_NAME)
+
 
                     start_time = time.time()
                     model = train_clgr(moon_data,

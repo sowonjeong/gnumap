@@ -47,7 +47,8 @@ class GNN(nn.Module):
                  alpha_res: float=0, alpha: float=0.5,
                  beta: float=1., gnn_type: str = 'symmetric',
                  norm: str='normalize',
-                 must_propagate=None,
+                 separate_neighbors: bool=True,
+                 must_propagate: bool=None,
                  lambd_corr: float = 0):
         super().__init__()
         self.input_dim = input_dim
@@ -59,6 +60,7 @@ class GNN(nn.Module):
         self.alpha = alpha
         self.beta= beta
         self.must_propagate = must_propagate
+        self.separate_neighbors = separate_neighbors
         self.propagate = GAPPNP(K=1, alpha_res=self.alpha_res,
                                 alpha = self.alpha,
                                 gnn_type=self.gnn_type,
@@ -97,12 +99,17 @@ class GNN(nn.Module):
 
         if self.n_layers == 1:
             _fc_list = [nn.Linear(self.input_dim, self.output_dim)]
+            _fc_list_n = [nn.Linear(self.input_dim, self.output_dim)]
         else:
             _fc_list = [nn.Linear(self.input_dim, self.hidden_dim[0])]
+            _fc_list_n = [nn.Linear(self.input_dim, self.hidden_dim[0])]
             for i in range(1, self.n_layers - 1):
                 _fc_list.append(nn.Linear(self.hidden_dim[i - 1], self.hidden_dim[i]))
+                _fc_list_n.append(nn.Linear(self.hidden_dim[i - 1], self.hidden_dim[i]))
             _fc_list.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
+            _fc_list_n.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
         self.fc = nn.ModuleList(_fc_list)
+        self.fc_n = nn.ModuleList(_fc_list_n)
         self.to(self.device)
 
     @staticmethod
@@ -125,10 +132,17 @@ class GNN(nn.Module):
                     h = 10 * (h - h.min(0)[0].reshape([1,-1]))/ (h.max(0)[0].reshape([1,-1])-h.min(0)[0].reshape([1,-1]))
 
             else:
+                ### Concatenate representation and new one
                 h = self.fc[c](h)
                 h = F.dropout(h, p=0.5, training=self.training)
-                if self.must_propagate[c]:
+                if self.separate_neighbors: 
+                    neighbors = self.fc_n[c](h)
+                    neighbors = F.dropout(neighbors, p=0.5, training=self.training)
+                if self.must_propagate[c] and self.separate_neighbors == False:
                     h = self.propagate(h, edge_index)
+                elif self.separate_neighbors:
+                    neighbors = self.propagate(neighbors, edge_index)
+                    h += neighbors
                 if self.norm == 'normalize':
                     h = F.normalize(h, p=2, dim=1)
                 elif self.norm == 'standardize':
@@ -138,6 +152,7 @@ class GNN(nn.Module):
                 elif self.norm == 'col_uniform':
                     h = 10 * (h - h.min(0)[0].reshape([1,-1]))/ (h.max(0)[0].reshape([1,-1])-h.min(0)[0].reshape([1,-1]))
                 h = self._act_f[c](h)
+                
         if self.norm == 'standardize_last':
             h = (h - h.mean(0)) / h.std(0)
         return h
@@ -184,12 +199,17 @@ class genMLP(nn.Module):
 
         if self.n_layers == 1:
             _fc_list = [nn.Linear(self.input_dim, self.output_dim)]
+            _fc_list_n = [nn.Linear(self.input_dim, self.output_dim)]
         else:
             _fc_list = [nn.Linear(self.input_dim, self.hidden_dim[0])]
+            _fc_list_n = [nn.Linear(self.input_dim, self.hidden_dim[0])]
             for i in range(1, self.n_layers - 1):
                 _fc_list.append(nn.Linear(self.hidden_dim[i - 1], self.hidden_dim[i]))
+                _fc_list_n.append(nn.Linear(self.hidden_dim[i - 1], self.hidden_dim[i]))
             _fc_list.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
+            _fc_list_n.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
         self.fc = nn.ModuleList(_fc_list)
+        self.fc_n = nn.ModuleList(_fc_list_n)
         self.to(self.device)
     @staticmethod
     def xtanh(x, alpha=.1):

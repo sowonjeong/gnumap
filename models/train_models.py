@@ -389,6 +389,45 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
     return(model)
 
 
+def train_entropy_ssg(data,  hid_dim, channels, lambd=1e-5,
+                  n_layers=2, epochs=100, lr=1e-3,
+                  fmr=0.2, edr =0.5, name_file="test",
+                  device=None):
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    in_dim = data.num_features
+    hid_dim =  hid_dim
+    out_dim = channels
+    N = data.num_nodes
+    ##### Train the SelfGCon model #####
+    print("=== train CCa model model ===")
+    model = Entropy_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False) #
+    model = model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
+    #tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
+    #            '_lambda' + str(lambd) +
+    #            '_edr' + str(edr) + '_fmr'  +str(fmr) + '_' +  name_file)
+
+    def train_entropy_one_epoch(model, data):
+        model.train()
+        optimizer.zero_grad()
+        new_data1 = random_aug(data, fmr, edr)
+        new_data2 = random_aug(data, fmr, edr)
+        new_data1 = new_data1.to(device)
+        new_data2 = new_data2.to(device)
+        z1, z2 = model(new_data1, new_data2)
+        loss = model.loss(z1, z2)
+        loss.backward()
+        optimizer.step()
+        return loss.item()
+    #tracker.start()
+    for epoch in range(epochs):
+        loss = train_entropy_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
+        # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+    #tracker.stop()
+    return(model)
+
 def train_bgrl(data, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
                   fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,

@@ -38,7 +38,7 @@ def experiment(model_name, data,
                rand_data,
                diff, target, device,
                patience=20, epochs=500,
-               n_layers=2, out_dim=16, lr1=1e-3, lr2=1e-2, wd1=0.0,
+               n_layers=2, hid_dim=16, out_dim=16, lr1=1e-3, lr2=1e-2, wd1=0.0,
                wd2=0.0, tau=0.5, lambd=1e-4, min_dist=0.1,
                method='heat', n_neighbours=15,
                beta=1, norm='normalize', edr=0.5, fmr=0.2,
@@ -48,7 +48,7 @@ def experiment(model_name, data,
 
     num_classes = int(data.y.max().item()) + 1
     if model_name == 'DGI':
-        model = train_dgi(data, hid_dim=out_dim, out_dim=out_dim,
+        model = train_dgi(data, hid_dim=hid_dim, out_dim=out_dim,
                           n_layers=n_layers,
                           patience=patience,
                           epochs=epochs, lr=lr1,
@@ -88,7 +88,16 @@ def experiment(model_name, data,
                               subsampling=subsampling)
         embeds = model(data.x, data.edge_index)
     elif model_name == 'CCA-SSG':
-        model =  train_cca_ssg(data, channels=out_dim,
+        model =  train_cca_ssg(data, hid_dim=hid_dim,
+                               channels=out_dim,
+                               lambd=lambd,
+                               n_layers=n_layers,
+                               epochs=epochs, lr=lr1,
+                               fmr=fmr, edr=edr, name_file=name_file)
+        embeds = model.get_embedding(data)
+    elif model_name == 'Entropy-SSG':
+        model =  train_entropy_ssg(data, hid_dim=hid_dim,
+                               channels=out_dim,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr1,

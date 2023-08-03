@@ -4,7 +4,8 @@ from torch.nn import Parameter
 
 
 class DBN(nn.Module):
-    def __init__(self, num_features, num_groups=32, num_channels=0, dim=4, eps=1e-5, momentum=0.1, affine=True, mode=0,
+    def __init__(self, num_features, num_groups=32, num_channels=0, dim=4,
+                eps=1e-5, momentum=0.1, affine=True, mode=0,
                  *args, **kwargs):
         super(DBN, self).__init__()
         if num_channels > 0:
