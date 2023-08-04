@@ -8,14 +8,14 @@
 # *.pkl
 *.pyc
 .DS_Store
-<<<<<<< HEAD
 
 
 experiments/__pycache__/*
 .DS_Store
 __pycache__/
-=======
 logs/*
 log_dir/*
 experiments/logs/*
->>>>>>> 1f985053edf43af60e8d16ed6400b5f3c7385e35
+experiments/results/*
+experiments/model_weights/*
+notebooks/*

@@ -21,14 +21,14 @@ from torch_geometric.utils import to_scipy_sparse_matrix, to_networkx, from_scip
 
 sys.path.append('../')
 from data_utils import *
-from edge_prediction import edge_prediction
+from metrics.edge_prediction import edge_prediction
 from graph_utils import get_weights, transform_edge_weights
-from label_classification import label_classification
+from metrics.label_classification import label_classification
 from models.baseline_models import *
 from models.train_models import *
-from node_prediction import node_prediction
+from metrics.node_prediction import node_prediction
 from train_utils import *
-from umap_functions import *
+from gnumap.umap_functions import *
 from experiments.experiment import experiment
 
 
@@ -94,17 +94,13 @@ if args.dataset in ['cs', 'physics']:
     if  args.model in ['MVGRL', 'GNUMAP']:
         diff_dataset = Coauthor(args.dataset, 'public', transform=diff_transform)
         diff = diff_dataset[0]
-if args.dataset in ['Computers', 'Photo']:
-    dataset = Amazon("/Users/ilgeehong/Desktop/SemGCon/", args.dataset, transform=transform)
-    data = dataset[0]
-    if  args.model in ['MVGRL', 'GNUMAP']:
-            diff_dataset = Amazon("/Users/cdonnat/Dp/SemGCon/", args.dataset, transform=diff_transform)
-            diff = diff_dataset[0]
+
 
 dataset_print(dataset)
 data_print(data)
 
-file_path = os.getcwd() +  args.result_folder + 'CCA-SSG_results_' + args.dataset + '_'  + args.name_file + '.csv'
+file_path = os.getcwd() +  args.result_folder + \
+      args.model + '_results_' + args.dataset + '_'  + args.name_file + '.csv'
 embeds = None
 val_ratio = (1.0 - args.training_rate) / 3
 test_ratio = (1.0 - args.training_rate) / 3 * 2
@@ -129,7 +125,7 @@ for dim in [16, 32, 64, 128, 256, 512]:
         for fmr in [0. , 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
             for lambd in [1e-6, 5 * 1e-5, 1e-5, 5 * 1e-4, 1e-4, 1e-3, 5 * 1e-3,
                           1e-2,5 * 1e-2, 1e-1,5 * 1e-2, 1e0]:
-                _, res = experiment(model_name='CCA-SSG', data=data,
+                _, res = experiment(model_name=args.model, data=data,
                            train_data=train_data, val_data=val_data, test_data=test_data,
                            rand_data = rand_data,
                            diff = diff, target = target, device=device,

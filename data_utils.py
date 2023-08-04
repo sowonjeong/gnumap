@@ -12,6 +12,7 @@ def delete_undirected_edges(edge_index, p):
     sample = sorted(edges + reverse_edges)
     return torch.tensor(sample).t().contiguous()
 
+
 def add_undirected_edges(edge_index, edge_num, node_total = 2708):
     edges = torch.clone(edge_index).t().numpy()
     edges = set(map(frozenset, edges))
@@ -23,12 +24,14 @@ def add_undirected_edges(edge_index, edge_num, node_total = 2708):
     sample = sorted(edges + reverse_edges)
     return torch.tensor(sample).t().contiguous()
 
+
 def dataset_print(dataset):
     print(f'Dataset: {dataset}:')
     print('======================')
     print(f'Number of graphs: {len(dataset)}')
     print(f'Number of features: {dataset.num_features}')
     print(f'Number of classes: {dataset.num_classes}')
+
 
 def data_print(data):
     print(data)

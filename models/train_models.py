@@ -25,7 +25,7 @@ import scipy
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from codecarbon import OfflineEmissionsTracker
-from umap_functions import *
+from gnumap.umap_functions import *
 
 
 def init_weights(m):
@@ -83,7 +83,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate = 0.5,  patience=20
             best_t = epoch
             cnt_wait = 0
             torch.save(model.state_dict(), os.getcwd()  +
-                                           '/results/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
+                                           '/experiments/model_weights/best_dgi_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
 
@@ -93,7 +93,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate = 0.5,  patience=20
     #tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd()   + '/results/best_dgi_dim'
+    model.load_state_dict(torch.load(os.getcwd()   + '/experiments/model_weights/best_dgi_dim'
                                      + str(out_dim) + '_' + name_file +  '.pkl'))
     return model
 
@@ -144,7 +144,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             best_t = epoch
             cnt_wait = 0
             torch.save(model.state_dict(), os.getcwd()  +
-                       '/results/best_mvgrl_dim' + str(out_dim) + '_' + name_file +  '.pkl')
+                       '/experiments/model_weights/best_mvgrl_dim' + str(out_dim) + '_' + name_file +  '.pkl')
         else:
             cnt_wait += 1
         if cnt_wait == patience:
@@ -152,7 +152,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
             break
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd()  + '/results/best_mvgrl_dim' +
+    model.load_state_dict(torch.load(os.getcwd()  + '/experiments/model_weights/best_mvgrl_dim' +
                                      str(out_dim) + '_' + name_file +  '.pkl'))
     return(model)
 
@@ -290,7 +290,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), os.getcwd()  + '/results/best_gnumap_'
+            torch.save(model.state_dict(), os.getcwd()  + '/experiments/model_weights/best_gnumap_'
                                           + str(method) + '_neigh' + str(neighbours)
                                           + '_dim' + str(dim) + '_' + name_file +  '.pkl')
         else:
@@ -301,7 +301,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         #print("Time epoch after saving", time.time()-tic_epoch)
     #tracker.stop()
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(os.getcwd()  + '/results/best_gnumap_' +
+    model.load_state_dict(torch.load(os.getcwd()  + '/experiments/model_weights/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     return(model,target_graph_index)
@@ -431,6 +431,7 @@ def train_entropy_ssg(data,  hid_dim, channels, lambd=1e-5,
     #tracker.stop()
     return(model)
 
+
 def train_bgrl(data, channels, lambd=1e-5,
                   n_layers=2, epochs=100, lr=1e-3,
                   fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,
@@ -481,6 +482,7 @@ def train_bgrl(data, channels, lambd=1e-5,
         loss = train_bgrl_one_epoch(model, data)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     return(model)
+
 
 def train_vgnae(data, hid_channels, out_channels, n_lay = 2, alpha = 0.1, non_linear = 'relu', normalize = True):
     model = DeepVGAEX(data.x.size()[1], out_channels, out_channels,
@@ -583,7 +585,7 @@ def train_clgr(data,  hid_dim, channels,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), os.getcwd()  + '/results/best_clgr_'
+            torch.save(model.state_dict(), os.getcwd()  + '/experiments/model_weights/best_clgr_'
                                            + name_file +  '.pkl')
         else:
             cnt_wait += 1
@@ -591,7 +593,7 @@ def train_clgr(data,  hid_dim, channels,
             print('Early stopping at epoch {}!'.format(epoch))
             break
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load( os.getcwd()  + '/results/best_clgr_'
+    model.load_state_dict(torch.load( os.getcwd()  + '/experiments/model_weights/best_clgr_'
                                            + name_file +  '.pkl'))
     #tracker.stop()
     return(model)
