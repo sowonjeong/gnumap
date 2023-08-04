@@ -4,6 +4,8 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+import pandas as pd
+from frechetdist import frdist
 import numba
 import scipy.stats
 from scipy.spatial.kdtree import distance_matrix
@@ -20,7 +22,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import StratifiedKFold, LeaveOneOut, KFold
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.preprocessing import scale, StandardScaler, MaxMinScaler
+from sklearn.preprocessing import scale, StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
 from sklearn.kernel_approximation import Nystroem
 from sklearn.pipeline import make_pipeline
@@ -655,29 +657,34 @@ def eval_all(G, X, target, Y, dataset = "Blobs"):
     _,_, sp_true, _ = spearman_correlation_numpy(target, Y)
     if dataset in ["Trefoil", "Helix", "Swissroll"]:
         #### Have to standardize everything
+        t_series = pd.Series(G.y)
+        # Define bins
+        bins = pd.cut(t_series, 4)
+        clusters =  pd.Categorical(bins).codes
+
         global_dist = {'frechet': frdist(MinMaxScaler().fit_transform(target), 
-                                         MinMaxScaler().fit_transform(embeds)),
+                                         MinMaxScaler().fit_transform(Y)),
                        'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - \
-                                                             MinMaxScaler().fit_transform(embeds)).mean(),
-                       'acc': np.nan}
+                                                             MinMaxScaler().fit_transform(Y)).mean(),
+                       'acc': svm_eval(Y, clusters)}
     elif dataset in [""]:
         global_dist = {'frechet': np.nan,
                        'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - MinMaxScaler().fit_transform(embeds)).mean(),
                        'acc': np.nan}
     else:
         global_dist = {'frechet': frdist(MinMaxScaler().fit_transform(target), 
-                             MinMaxScaler().fit_transform(embeds)),
+                             MinMaxScaler().fit_transform(Y)),
                        'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - MinMaxScaler().fit_transform(embeds)).mean(),
                        'acc': np.nan}
     global_dist['spearman'] = sp
     global_dist['spearman_true'] = sp_true
-    local = [None] * 6
-    for i, n_neighbors in enumerate([1, 3, 5, 10, 20, 30]):
+    local = [None] * 7
+    for i, n_neighbors in enumerate([1, 3, 5, 10, 20, 30, 50]):
         local[i] = neighbor_kept_ratio_eval(G, Y, n_neighbors = n_neighbors).detach().numpy()
     density = eval_density_preserve(X, Y)
     ### try another density evaluation metric
-    hist, xedges, yedges = np.histogram2d(MinMaxScaler().fit_transform(embeds)[:,0], 
-                                          MinMaxScaler().fit_transform(embeds)[:,1], bins=(25, 25))
+    hist, xedges, yedges = np.histogram2d(MinMaxScaler().fit_transform(Y)[:,0], 
+                                          MinMaxScaler().fit_transform(Y)[:,1], bins=(25, 25))
     max_hist = np.max(hist)/X.shape[0]
     min_hist = np.min(hist[np.where(hist>0)])/X.shape[0]
     mean_hist = np.mean(hist[np.where(hist>0)])/X.shape[0]
@@ -694,7 +701,7 @@ def eval_all(G, X, target, Y, dataset = "Blobs"):
                   'length': length,
                    'cor_hist': cor_hist
                  }
-    for i in range(len(local)):
-        local_dist[f'local_{i}'] = np.float64(local[i])
+    for i, u in enumerate([1, 3, 5, 10, 20, 30, 50]):
+        local_dist[f'local_{u}'] = np.float64(local[i])
     
     return global_dist, local_dist

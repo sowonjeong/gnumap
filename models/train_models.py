@@ -15,7 +15,7 @@ from models.dgi import DGI
 from models.mvgrl import MVGRL
 from models.grace import GRACE
 from models.baseline_models import GNN
-from models.cca_ssg import CCA_SSG
+from models.cca_ssg import CCA_SSG, Entropy_SSG
 from models.bgrl import BGRL
 from models.data_augmentation import *
 from models.clgr import CLGR
@@ -432,16 +432,14 @@ def train_entropy_ssg(data,  hid_dim, channels, lambd=1e-5,
     return(model)
 
 
-def train_bgrl(data, channels, lambd=1e-5,
-                  n_layers=2, epochs=100, lr=1e-3,
-                  fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,
-                  drf1=0.2, drf2=0.2, dre1=0.4, dre2=0.4, name_file="test",
-                  device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
+def train_bgrl(data, hid_dim, out_dim, lambd=1e-5,
+                n_layers=2, epochs=100, lr=1e-3,
+                fmr=0.2, edr =0.5, pred_hid=512, wd=1e-5,
+                drf1=0.2, drf2=0.2, dre1=0.4, dre2=0.4, name_file="test",
+                device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     in_dim = data.num_features
-    # hid_dim = channels
-    out_dim = channels
     n_layers = n_layers
 
     num_class = int(data.y.max().item()) + 1

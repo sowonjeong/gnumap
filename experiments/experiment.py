@@ -32,8 +32,7 @@ from metrics.evaluation_metrics import *
 from gnumap.umap_functions import *
 
 
-def experiment(model_name, data, X,
-               target, device,
+def experiment(model_name, data, X, target, device,
                patience=20, epochs=500,
                n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
                tau=0.5, lambd=1e-4, min_dist=0.1,edr=0.5, fmr=0.2,
@@ -75,8 +74,7 @@ def experiment(model_name, data, X,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr,
-                               fmr=fmr, edr=edr, name_file=name_file,
-                               alpha = alpha, beta = beta, gnn_type = gnn_type)
+                               fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(data)
 
     elif model_name == 'BGRL':
@@ -87,8 +85,7 @@ def experiment(model_name, data, X,
                             fmr=fmr, edr=edr,
                             pred_hid=pred_hid,  wd=wd,
                             drf1=fmr, drf2=fmr, dre1=edr,
-                            dre2=edr,name_file=name_file,
-                            alpha = alpha, beta = beta, gnn_type = gnn_type)
+                            dre2=edr,name_file=name_file)
         embeds = model.get_embedding(data)
     elif model_name == "GNUMAP":
         raise ValueError("Not implemented yet!!")   
@@ -110,6 +107,7 @@ def experiment(model_name, data, X,
     elif model_name == 'UMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, n_neighbors = n, min_dist = min_dist)
         embeds = model.fit_transform(X)
+
     elif model_name == 'DenseMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, 
                           densmap = True, n_neighbors = n, min_dist = min_dist)
