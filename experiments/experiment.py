@@ -32,54 +32,54 @@ from metrics.evaluation_metrics import *
 from gnumap.umap_functions import *
 
 
-def experiment(model_name, data, X_ambient, X_manifold, 
+def experiment(model_name, G, X_ambient, X_manifold, 
                cluster_labels,
                patience=20, epochs=500,
                n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
                tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.5, fmr=0.2,
-               proj="standard", pred_hid=512, 
-               npoints = 500, n_neighbors = 15, classification = True,
+               proj="standard", pred_hid=12,
+               n_neighbors = 15, dataset="Blobs",
                random_state = 42, perplexity = 30, 
                alpha = 0.5, beta = 0.1, gnn_type = 'symmetric', 
-               name_file="1", subsampling=None):
+               name_file="1"):
    
     # num_classes = int(data.y.max().item()) + 1
     if model_name == 'DGI':
-        model = train_dgi(data, hid_dim=hid_dim, out_dim=out_dim,
+        model = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
                           n_layers=n_layers,
                           patience=patience,
                           epochs=epochs, lr=lr,
                           name_file=name_file,
                           alpha = alpha, beta = beta, gnn_type = gnn_type)
-        embeds = model.get_embedding(data)
+        embeds = model.get_embedding(G)
 
     elif model_name == 'GRACE':
-        model, loss =  train_grace(data, channels=hid_dim, proj_hid_dim=out_dim,
+        model, loss =  train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                              tau=tau,
                              epochs=epochs, lr=lr, wd=wd,
                              fmr=fmr, edr=edr, proj=proj, name_file=name_file,
                              alpha = alpha, beta = beta, gnn_type = gnn_type)
-        embeds = model.get_embedding(data)
+        embeds = model.get_embedding(G)
 
     elif model_name == 'CCA-SSG':
-        model =  train_cca_ssg(data, hid_dim=hid_dim,
+        model =  train_cca_ssg(G, hid_dim=hid_dim,
                                channels=out_dim,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr,
                                fmr=fmr, edr=edr, name_file=name_file)
-        embeds = model.get_embedding(data)
+        embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
-        model =  train_entropy_ssg(data, hid_dim=hid_dim,
+        model =  train_entropy_ssg(G, hid_dim=hid_dim,
                                channels=out_dim,
                                lambd=lambd,
                                n_layers=n_layers,
                                epochs=epochs, lr=lr,
                                fmr=fmr, edr=edr, name_file=name_file)
-        embeds = model.get_embedding(data)
+        embeds = model.get_embedding(G)
 
     elif model_name == 'BGRL':
-        model =  train_bgrl(data, hid_dim, out_dim, 
+        model =  train_bgrl(G, hid_dim, out_dim, 
                             lambd=lambd,
                             n_layers=n_layers,
                             epochs=epochs, lr=lr,
@@ -87,7 +87,7 @@ def experiment(model_name, data, X_ambient, X_manifold,
                             pred_hid=pred_hid,  wd=wd,
                             drf1=fmr, drf2=fmr, dre1=edr,
                             dre2=edr,name_file=name_file)
-        embeds = model.get_embedding(data)
+        embeds = model.get_embedding(G)
     elif model_name == "GNUMAP":
         raise ValueError("Not implemented yet!!")   
     elif model_name == "SpaGCN":
@@ -118,7 +118,7 @@ def experiment(model_name, data, X_ambient, X_manifold,
     else:
         raise ValueError("Model unknown!!")
 
-    global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,  dataset = "Blobs")
+    global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,  dataset = dataset)
     print("done with the embedding evaluation")
     
     results = {**global_metrics, **local_metrics}

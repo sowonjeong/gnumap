@@ -71,7 +71,7 @@ np.random.seed(args.seed)
 X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples = 1000, 
                                                           features = 'none', standardize = True, 
                                                           centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
-                                                          factor = 0.2, noise = args.noise, random_state = args.seed, 
+                                                          ratio_circles = 0.2, noise = args.noise, random_state = args.seed, 
                                                           radius_knn = args.radius_knn, bw = args.bw, 
                                                           SBMtype = 'lazy')
 
@@ -83,10 +83,9 @@ for model_name in ['DGI','BGRL']:
                             n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
                             hid_dim=args.hid_dim, lr=args.lr, wd=0,
                             tau=np.nan, lambd=np.nan,  alpha = 0.5, beta = 1, 
-                            gnn_type = 'symmetric')
+                            gnn_type = 'symmetric', dataset = args.name)
     results[name +'_' + model_name] = res
     pd.DataFrame.from_dict(results).to_csv(file_path)
-    
 
 for model_name in ['GRACE', 'GNUMAP', 'CCA-SSG']:
     for gnn_type in ['symmetric', 'RW']:
@@ -98,11 +97,10 @@ for model_name in ['GRACE', 'GNUMAP', 'CCA-SSG']:
                                             n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
                                             hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
                                             tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                            proj="standard", pred_hid=args.hid_dim, 
-                                            npoints = 500, n_neighbors = 15,
+                                            proj="standard", pred_hid=args.hid_dim,  n_neighbors = 15,
                                             random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
                                             gnn_type = gnn_type, 
-                                            name_file="logsGRACE " + name , subsampling=None)
+                                            name_file="logsGRACE " + name , dataset = args.name)
                     results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_tau_' + str(tau)] = res
             elif model_name == 'CCA-SSG':
                 for lambd in [1e-3, 5 *1e-2, 1e-2, 5 *1e-1, 1e-1, 1.]:
@@ -112,10 +110,10 @@ for model_name in ['GRACE', 'GNUMAP', 'CCA-SSG']:
                                             hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
                                             tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
                                             proj="standard", pred_hid=args.hid_dim, 
-                                            npoints = 500, n_neighbors = 15,
+                                            n_neighbors = 15,
                                             random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
                                             gnn_type = gnn_type, 
-                                            name_file="logsCCA-SSG " + name , subsampling=None)
+                                            name_file="logsCCA-SSG " + name, dataset = args.name)
                     results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_lambd_' + str(lambd)] = res
             else:
                 mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
@@ -123,21 +121,16 @@ for model_name in ['GRACE', 'GNUMAP', 'CCA-SSG']:
                                             n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
                                             hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
                                             tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                            proj="standard", pred_hid=args.hid_dim, 
-                                            npoints = 500, n_neighbors = 15,
+                                            proj="standard", pred_hid=args.hid_dim,  n_neighbors = np.nan,
                                             random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
                                             gnn_type = gnn_type, 
-                                            name_file="logsGNUMAP " + name , subsampling=None)
+                                            name_file="logsGNUMAP " + name, dataset = args.name)
                 results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_lambd_' + str(lambd)] = res
                 pd.DataFrame.from_dict(results).to_csv(file_path)
 
 
 for model_name in ['PCA','LaplacianEigenmap', 'Isomap', 'TSNE', 'UMAP', 'DenseMAP']:
     mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                            patience=20, epochs=args.epoch, 
-                            n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
-                            hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                            tau=np.nan, lambd=np.nan,  alpha = 0.5, beta = 1, 
-                            gnn_type = 'symmetric')
+                               out_dim=X_manifold.shape[1], dataset = args.name)
     results[name +'_' + model_name] = res
     pd.DataFrame.from_dict(results).to_csv(file_path)
