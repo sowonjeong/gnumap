@@ -51,8 +51,9 @@ parser.add_argument('--n_layers', type=int, default=2)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--hid_dim', type=int, default=2) #512
 parser.add_argument('--epoch', type=int, default=500)
-parser.add_argument('--num_neighbor', type=int, default=50) # graph construction
-parser.add_argument('--radius_knn', type=float, default=0) # graph construction
+parser.add_argument('--a', type=float, default=1.) # data construction
+parser.add_argument('--b', type=float, default=1.) # data construction
+parser.add_argument('--radius_knn', type=float, default=0.1) # graph construction
 parser.add_argument('--bw', type=float, default=1.) # graph construction
 args = parser.parse_args()
 
@@ -73,7 +74,9 @@ X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples =
                                                           centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
                                                           ratio_circles = 0.2, noise = args.noise, random_state = args.seed, 
                                                           radius_knn = args.radius_knn, bw = args.bw, 
-                                                          SBMtype = 'lazy')
+                                                          SBMtype = 'lazy',
+                                                          a = args.a,
+                                                          b=args.b)
 
 
 results = {}
