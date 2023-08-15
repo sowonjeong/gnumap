@@ -22,6 +22,8 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import StratifiedKFold, LeaveOneOut, KFold
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+
 from sklearn.preprocessing import scale, StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
 from sklearn.kernel_approximation import Nystroem
@@ -29,6 +31,7 @@ from sklearn.pipeline import make_pipeline
 from collections import Counter
 from numpy.random import default_rng
 
+from scipy.spatial.distance import pdist
 from torch_geometric.utils import to_dense_adj
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
@@ -121,7 +124,7 @@ def neighbor_kept_ratio_eval(G, X_new, n_neighbors=30):
     # Construct a k-neighbors graph, where 1 indicates a neighbor relationship
     # and 0 means otherwise, resulting in a graph of the shape n * n
     if G.__class__ == torch_geometric.data.data.Data:
-        graph_hd = to_dense_adj(G.edge_index).detach() # no self-loops in original graph
+        graph_hd = to_dense_adj(G.edge_index, max_num_nodes=G.x.shape[0]).detach() # no self-loops in original graph
     else:
         nn_hd = NearestNeighbors(n_neighbors=n_neighbors+1)
         nn_hd.fit(G)
@@ -256,7 +259,7 @@ def spearman_correlation_eval(G, X_new, random_seed=100):
     dataset_size = G.x.shape[0]
 
     ind1, ind2 = torch.triu_indices(dataset_size, dataset_size, 1)
-    dist_high = shortest_path(to_scipy_sparse_matrix(G.edge_index),directed = False)[ind1,ind2]
+    dist_high = shortest_path(to_scipy_sparse_matrix(G.edge_index, num_nodes=G.x.shape[0]),directed = False)[ind1,ind2]
     dist_high[np.isinf(dist_high)] = np.max(dist_high[~np.isinf(dist_high)])*2
     dist_low = distance_matrix(X_new, X_new)[ind1,ind2]
     dist_high = dist_high.reshape([-1])
@@ -624,6 +627,7 @@ def logistic_eval(X, y, n_splits=10, **kwargs):
 
 
 
+
 def regression_eval(X, y, n_splits=10, **kwargs):
     '''
     This is a function that is used to evaluate the lower dimension embedding.
@@ -651,57 +655,71 @@ def regression_eval(X, y, n_splits=10, **kwargs):
     return avg_acc
 
 
-def eval_all(G, X, target, Y, dataset = "Blobs"):
+def eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
+             dataset = "Blobs"):
     ### Global metrics
-    _,_,sp,_ = spearman_correlation_eval(G, Y)
-    _,_, sp_true, _ = spearman_correlation_numpy(target, Y)
-    if dataset in ["Trefoil", "Helix", "Swissroll"]:
-        #### Have to standardize everything
-        t_series = pd.Series(G.y)
-        # Define bins
-        bins = pd.cut(t_series, 4)
-        clusters =  pd.Categorical(bins).codes
+    _,_,sp,_ = spearman_correlation_eval(G, embeds)
+    X_manifold = MinMaxScaler().fit_transform(X_manifold)
+    X_ambient = MinMaxScaler().fit_transform(X_ambient)
+    embeds = MinMaxScaler().fit_transform(embeds)
+    if dataset in ["Trefoil", "Helix", "Swissroll", "Sphere", "Helix",
+                   "Swissroll", "Moons", "Circles"]:
+        _,_, sp_manifold, _ = spearman_correlation_numpy(X_manifold, embeds)
+        fr_dist =  frdist(X_manifold, embeds)
+        curve_dist = np.square(X_manifold -  embeds).mean()
 
-        global_dist = {'frechet': frdist(MinMaxScaler().fit_transform(target), 
-                                         MinMaxScaler().fit_transform(Y)),
-                       'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - \
-                                                             MinMaxScaler().fit_transform(Y)).mean(),
-                       'acc': svm_eval(Y, clusters)}
-    elif dataset in [""]:
-        global_dist = {'frechet': np.nan,
-                       'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - MinMaxScaler().fit_transform(embeds)).mean(),
-                       'acc': np.nan}
-    else:
-        global_dist = {'frechet': frdist(MinMaxScaler().fit_transform(target), 
-                             MinMaxScaler().fit_transform(Y)),
-                       'distance_between_curves': np.square(MinMaxScaler().fit_transform(target) - MinMaxScaler().fit_transform(embeds)).mean(),
-                       'acc': np.nan}
-    global_dist['spearman'] = sp
-    global_dist['spearman_true'] = sp_true
-    local = [None] * 7
+    elif dataset in ["Blobs"]:
+        sp_manifold = np.nan
+        fr_dist =  np.nan
+        curve_dist = np.nan
+
+
+    global_dist = {'frechet': fr_dist,
+                    'distance_between_curves': curve_dist,
+                    'acc': svm_eval(embeds, np.array(cluster_labels)),
+                    'acc_linear': logistic_eval(embeds, np.array(cluster_labels), n_splits=10, penalty="None"),
+                    'acc_X': svm_eval(X_ambient,np.array(cluster_labels)),
+                    'acc_linear_X': logistic_eval(X_ambient, np.array(cluster_labels), n_splits=10, penalty="None"),
+                    'silhouette_embeds': silhouette_score(embeds, np.array(cluster_labels)),
+                    'silhouette_X': silhouette_score(X_ambient, np.array(cluster_labels)),
+                    'calinski_harabasz_score_embeds': calinski_harabasz_score(embeds, np.array(cluster_labels)),
+                    'calinski_harabasz_score_embeds':calinski_harabasz_score(X_ambient, np.array(cluster_labels)), 
+                    'davies_bouldin_score_embeds': davies_bouldin_score(embeds, np.array(cluster_labels)),
+                    'davies_bouldin_score_X': davies_bouldin_score(X_ambient, np.array(cluster_labels)),
+                    'spearman_graph': sp,
+                    'spearman_manifold': sp_manifold}
+
+
+
+    local = {}
     for i, n_neighbors in enumerate([1, 3, 5, 10, 20, 30, 50]):
-        local[i] = neighbor_kept_ratio_eval(G, Y, n_neighbors = n_neighbors).detach().numpy()
-    density = eval_density_preserve(X, Y)
-    ### try another density evaluation metric
-    hist, xedges, yedges = np.histogram2d(MinMaxScaler().fit_transform(Y)[:,0], 
-                                          MinMaxScaler().fit_transform(Y)[:,1], bins=(25, 25))
-    max_hist = np.max(hist)/X.shape[0]
-    min_hist = np.min(hist[np.where(hist>0)])/X.shape[0]
-    mean_hist = np.mean(hist[np.where(hist>0)])/X.shape[0]
-    width = np.max(np.where(hist>0)[0]) - np.min(np.where(hist>0)[0])
-    length = np.max(np.where(hist>0)[1]) - np.min(np.where(hist>0)[1])
+        local['neighbor_'  + str(n_neighbors)] = float(neighbor_kept_ratio_eval(G, embeds, 
+                                                                                n_neighbors = n_neighbors).detach().numpy())
+    density = eval_density_preserve(X_manifold, embeds)
+    ### try another density evaluation metric by cluster
+    average_distance_manifold = [None] * len(np.unique(cluster_labels))
+    average_distance_embeds = [None] * len(np.unique(cluster_labels))
+    for u, c in enumerate(np.unique(cluster_labels)):
+        distances = pdist(X_manifold[np.where(cluster_labels == c)[0], :])
+        average_distance_manifold[u] = np.mean(distances)
+        distances_embeds = pdist(embeds[np.where(cluster_labels == c)[0], :])
+        average_distance_embeds[u] = np.mean(distances_embeds)
+        
+    average_distance_manifold = np.array(average_distance_manifold)[~np.isnan(average_distance_manifold)]
+    average_distance_embeds = np.array(average_distance_embeds)[~np.isnan(average_distance_embeds)]
     
-    true_hist,_,_= np.histogram2d(MinMaxScaler().fit_transform(target)[:,0], 
-                                          MinMaxScaler().fit_transform(target)[:,1], bins=(25, 25))
-    cor_hist, _ = scipy.stats.spearmanr(true_hist.flatten(), hist.flatten())
-    local_dist = {'max_hist': max_hist,
-                  'min_hist': min_hist,
-                  'mean_hist': mean_hist,
-                  'width': width,
-                  'length': length,
-                   'cor_hist': cor_hist
-                 }
-    for i, u in enumerate([1, 3, 5, 10, 20, 30, 50]):
-        local_dist[f'local_{u}'] = np.float64(local[i])
-    
-    return global_dist, local_dist
+    local['average_density_X'] = np.mean(average_distance_manifold[~np.isnan(average_distance_manifold)])
+    local['average_density_embeds'] = np.mean(average_distance_embeds)
+    local['min_density_X'] = np.min(average_distance_manifold)
+    local['min_density_embeds'] = np.min(average_distance_embeds)
+    local['max_density_X'] = np.max(average_distance_manifold)
+    local['max_density_embeds'] = np.max(average_distance_embeds)
+    local['median_density_X'] = np.median(average_distance_manifold)
+    local['median_density_embeds'] = np.median(average_distance_embeds)
+    local['q25_density_X'] = np.quantile(average_distance_manifold, 0.25)
+    local['q25_density_embeds'] = np.quantile(average_distance_embeds, 0.25)
+    local['q75_density_X'] = np.quantile(average_distance_manifold, 0.75)
+    local['q75_density_embeds'] = np.quantile(average_distance_embeds, 0.75)
+    local['corr_density'] = np.corrcoef(average_distance_manifold, average_distance_embeds)[0,1]
+
+    return global_dist, local

@@ -34,11 +34,11 @@ from sklearn.datasets import *
 sys.path.append('../')
 from models.baseline_models import *
 from models.train_models import *
-from umap_functions import *
+from gnumap.umap_functions import *
 from graph_utils import *
 from experiments.create_dataset import *
 from experiments.experiment import *
-from evaluation_metric import *
+from metrics.evaluation_metrics import *
 
 
 results = []

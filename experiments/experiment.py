@@ -35,10 +35,10 @@ from gnumap.umap_functions import *
 def experiment(model_name, data, X, target, device,
                patience=20, epochs=500,
                n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
-               tau=0.5, lambd=1e-4, min_dist=0.1,edr=0.5, fmr=0.2,
+               tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.5, fmr=0.2,
                proj="standard", pred_hid=512, 
-               npoints = 500, n_neighbors = 50, classification = True,
-               random_state = 42, n = 15, perplexity = 30, 
+               npoints = 500, n_neighbors = 15, classification = True,
+               random_state = 42, perplexity = 30, 
                alpha = 0.5, beta = 0.1, gnn_type = 'symmetric', 
                name_file="1", subsampling=None):
    
@@ -95,7 +95,7 @@ def experiment(model_name, data, X, target, device,
         model =  PCA(n_components = 2)
         embeds = model.fit_transform(X) # StandardScaler().fit_transform(X) --already standardized when converting graphs
     elif model_name == 'LaplacianEigenmap':
-        model = manifold.SpectralEmbedding(n_components = 2,n_neighbors = 5)
+        model = manifold.SpectralEmbedding(n_components = 2,n_neighbors = n_neighbors)
         embeds = model.fit_transform(X)
     elif model_name == 'Isomap':
         model = manifold.Isomap(n_components = 2)
@@ -105,17 +105,19 @@ def experiment(model_name, data, X, target, device,
                               init = 'random', perplexity = perplexity)
         embeds = model.fit_transform(X)
     elif model_name == 'UMAP':
-        model = umap.UMAP(n_components = 2, random_state=random_state, n_neighbors = n, min_dist = min_dist)
+        model = umap.UMAP(n_components = 2, random_state=random_state, 
+                          n_neighbors = n_neighbors, min_dist = min_dist)
         embeds = model.fit_transform(X)
 
     elif model_name == 'DenseMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, 
-                          densmap = True, n_neighbors = n, min_dist = min_dist)
+                          densmap = True, n_neighbors = n_neighbors, 
+                          min_dist = min_dist)
         embeds = model.fit_transform(X)
     else:
         raise ValueError("Model unknown!!")
 
-    sp, acc, local, density = eval_all(data, X, embeds, target, n_points = npoints, n_neighbors = n_neighbors, classification = classification)
+    sp, acc, local, density = eval_all(data, X, embeds, target, n_points = npoints, classification = classification)
     print("done with the embedding evaluation")
 
 

@@ -84,10 +84,6 @@ diff = None
 if args.dataset in ['Cora', 'CiteSeer', 'PubMed']:
     dataset = Planetoid(root='Planetoid', name=args.dataset, transform=transform)
     data = dataset[0]
-    if args.model in ['MVGRL', 'GNUMAP']:
-        diff_dataset = Planetoid(root='Planetoid', name=args.dataset,
-                                 transform=diff_transform)
-        diff = diff_dataset[0]
 if args.dataset in ['cs', 'physics']:
     dataset = Coauthor(args.dataset, 'public', transform=transform)
     data = dataset[0]

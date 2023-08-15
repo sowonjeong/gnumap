@@ -44,7 +44,9 @@ def set_requires_grad(model, val):
 
 class BGRL(nn.Module):
 
-    def __init__(self, in_dim, hid_dim, out_dim, n_layers, pred_hid, moving_average_decay=0.99, epochs=1000, dropout_rate = 0.5,alpha = 0.5, beta = 1.0, gnn_type = 'symmetric'):
+    def __init__(self, in_dim, hid_dim, out_dim, 
+                 n_layers, pred_hid, moving_average_decay=0.99, epochs=1000, 
+                 dropout_rate = 0.5,alpha = 0.5, beta = 1.0, gnn_type = 'symmetric'):
         super().__init__()
         self.student_encoder = GCN(in_dim, hid_dim, out_dim, n_layers, dropout_rate, alpha = alpha, beta = beta, gnn_type = 'gnn_type')
         self.teacher_encoder = copy.deepcopy(self.student_encoder)

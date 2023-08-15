@@ -34,12 +34,11 @@ from sklearn.datasets import *
 sys.path.append('../')
 from models.baseline_models import *
 from models.train_models import *
-from umap_functions import *
+from gnumap.umap_functions import *
 from graph_utils import *
 from experiments.create_dataset import *
 from experiments.experiment import *
-from evaluation_metric import *
-
+from metrics.evaluation_metrics import *
 
 
 tau = 0.5
@@ -49,17 +48,17 @@ dim = 256
 gnn_type = 'symmetric'
 alpha = 0.5
 for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubmed']:
+    results = []
+    embeddings = {}
     if name in ['Blob','Circles','Moons','Cora','Pubmed']:
         classification = True
     else: 
         classification = False
-    results = []
-    embeddings = {}
     for i in np.arange(50):
         X, y_true, G = data_set(name, n_samples = 500, n_neighbours = 50,features = 'none', standardize = True, 
             centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
             factor = 0.2, noise = 0.05,
-            random_state = i, radius = True, epsilon = 0.5, 
+            random_state = i, radius = False, epsilon = 0.5, 
             SBMtype = 'lazy')
         new_data = G
         for model_name in ['PCA','LaplacianEigenmap','Isomap','TSNE','UMAP','DenseMAP']:
@@ -84,7 +83,7 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                                             'gnn_type': gnn_type,   
                                             'embedding' : out,
                                             'alpha': alpha}
-    file_path = os.getcwd() + '/' + name + '_traditional_radius_results.csv'
+    file_path = os.getcwd() + '/' + name + '_traditional_results.csv'
 
     pd.DataFrame(np.array(results),
                     columns =[  'model', 'method',
@@ -94,6 +93,6 @@ for name in ['Blob','Sphere','Circles','Moons','Swissroll','Scurve','Cora','Pubm
                         'sp','acc','local','density','alpha','beta','gnn_type']).to_csv(file_path)
 
 
-    pickle.dump(embeddings, open(os.getcwd() +'/'+name + 'traditional_results.pkl', 'wb'))
+    pickle.dump(embeddings, open(os.getcwd() +'/'+name + '_traditional_results.pkl', 'wb'))
 
     print(results)
