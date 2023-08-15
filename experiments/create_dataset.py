@@ -22,7 +22,7 @@ from experiments.simulation_utils import *
 def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none', 
                    standardize=True, centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
                    ratio_circles = 0.2, noise = 0.05, 
-                   a =1, b=1, n_bins = 10, random_state = 0, radius_knn = 0, bw = 1,
+                   a=1, b=1, n_bins = 10, random_state = 0, radius_knn = 0, bw = 1,
                    SBMtype = 'lazy', nb_loops=5, radius_tube=4, radius_torus=10):
 
     if name == 'Blobs':
@@ -65,8 +65,10 @@ def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',
         G.y = torch.from_numpy(cluster_labels)
         
     elif name == "Helix":
-         X_ambient, X_manifold, cluster_labels = create_helix(size = n_samples, a = a, b=b, noise= noise, n_bins = n_bins,
-                                                                radius_torus=radius_torus, radius_tube=radius_tube, nb_loops=nb_loops)
+        X_ambient, X_manifold, cluster_labels = create_helix(size = n_samples, a = a, b=b, 
+                                                             noise= noise, n_bins = n_bins,
+                                                             radius_torus=radius_torus, 
+                                                             radius_tube=radius_tube, nb_loops=nb_loops)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
                              radius_knn = radius_knn, bw = bw)
         G.y = torch.from_numpy(cluster_labels)

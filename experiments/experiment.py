@@ -32,7 +32,8 @@ from metrics.evaluation_metrics import *
 from gnumap.umap_functions import *
 
 
-def experiment(model_name, data, X, target, device,
+def experiment(model_name, data, X_ambient, X_manifold, 
+               cluster_labels,
                patience=20, epochs=500,
                n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
                tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.5, fmr=0.2,
@@ -93,53 +94,47 @@ def experiment(model_name, data, X, target, device,
         raise ValueError("Not implemented yet!!")
     elif model_name == 'PCA':
         model =  PCA(n_components = 2)
-        embeds = model.fit_transform(X) # StandardScaler().fit_transform(X) --already standardized when converting graphs
+        embeds = model.fit_transform(X_ambient) # StandardScaler().fit_transform(X) --already standardized when converting graphs
     elif model_name == 'LaplacianEigenmap':
         model = manifold.SpectralEmbedding(n_components = 2,n_neighbors = n_neighbors)
-        embeds = model.fit_transform(X)
+        embeds = model.fit_transform(X_ambient)
     elif model_name == 'Isomap':
         model = manifold.Isomap(n_components = 2)
-        embeds = model.fit_transform(X)
+        embeds = model.fit_transform(X_ambient)
     elif model_name == 'TSNE':
         model = manifold.TSNE(n_components = 2, learning_rate  = 'auto', 
                               init = 'random', perplexity = perplexity)
-        embeds = model.fit_transform(X)
+        embeds = model.fit_transform(X_ambient)
     elif model_name == 'UMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, 
                           n_neighbors = n_neighbors, min_dist = min_dist)
-        embeds = model.fit_transform(X)
+        embeds = model.fit_transform(X_ambient)
 
     elif model_name == 'DenseMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, 
                           densmap = True, n_neighbors = n_neighbors, 
                           min_dist = min_dist)
-        embeds = model.fit_transform(X)
+        embeds = model.fit_transform(X_ambient)
     else:
         raise ValueError("Model unknown!!")
 
-    sp, acc, local, density = eval_all(data, X, embeds, target, n_points = npoints, classification = classification)
+    global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,  dataset = "Blobs")
     print("done with the embedding evaluation")
-
-
-    results = [  model_name,
-                 out_dim,
-                 hid_dim,
-                 n_neighbors,
-                 n_layers,
-                 min_dist,
-                 lr,
-                 edr,
-                 fmr,
-                 tau,
-                 lambd,
-                 pred_hid,
-                 sp,
-                 acc,
-                 local,
-                 density,
-                 alpha,
-                 beta,
-                 gnn_type
-    ]
+    
+    results = {**global_metrics, **local_metrics}
+    results['model_name'] = model_name
+    results['out_dim'] = out_dim
+    results['hid_dim'] = hid_dim
+    results['n_neighbors'] = n_neighbors
+    results['min_dist'] = min_dist
+    results['lr'] = lr
+    results['edr'] = edr
+    results['fmr'] = fmr
+    results['tau'] = tau
+    results['lambd'] = lambd
+    results['pred_hid'] = pred_hid
+    results['alpha_gnn'] = alpha
+    results['beta_gnn'] = beta
+    results['gnn_type'] = gnn_type
 
     return(model, results, embeds)
