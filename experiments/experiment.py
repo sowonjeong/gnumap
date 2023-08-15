@@ -29,6 +29,7 @@ from metrics.label_classification import label_classification
 from models.baseline_models import *
 from models.train_models import *
 from metrics.evaluation_metrics import *
+from spagcn_test import *
 from gnumap.umap_functions import *
 
 
@@ -110,6 +111,10 @@ def experiment(model_name, data, X, target, device,
 
     elif model_name == 'DenseMAP':
         model = umap.UMAP(n_components = 2, random_state=random_state, 
+                          densmap = True, n_neighbors = n, min_dist = min_dist)
+        embeds = model.fit_transform(X)
+    elif model_name == 'SpaGCN':
+        model = umap.UMAP(n_components = 2, random_state=random_state,
                           densmap = True, n_neighbors = n, min_dist = min_dist)
         embeds = model.fit_transform(X)
     else:
