@@ -114,9 +114,9 @@ def experiment(model_name, data, X, target, device,
                           densmap = True, n_neighbors = n, min_dist = min_dist)
         embeds = model.fit_transform(X)
     elif model_name == 'SpaGCN':
-        model = umap.UMAP(n_components = 2, random_state=random_state,
-                          densmap = True, n_neighbors = n, min_dist = min_dist)
-        embeds = model.fit_transform(X)
+        model = GC_DEC(in_dim=A.shape[0])
+        model.fit(A, edge_index)
+        embeds = model.predict(A, edge_index)[0]
     else:
         raise ValueError("Model unknown!!")
 

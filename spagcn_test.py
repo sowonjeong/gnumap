@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from experiments.simulation_utils import make_roll
 import random
-
+# QUESTION: create_dataset.py X_true=np.nan
 random.seed(12345)
 N_NEIGHBOURS = 20
 # target and u difference in simulation_utils.py?
@@ -46,7 +46,8 @@ A = torch.eye(X.shape[0])
 model = GCN(in_dim=2000, hid_dim=20, out_dim=3, n_layers=2, dropout_rate=0.2)
 model(A, edge_index)
 
-# QUESTION: n_clusters=1 ok? Also related to cluster_labels mentioned in Slack message
+# QUESTION: n_clusters=1 ok? n_bins in create, b_bins create_dataset
+# a,b
 class GC_DEC(nn.Module):
     def __init__(self, in_dim, nhid=20, n_clusters=1, alpha=0.2):
         super(GC_DEC, self).__init__()
