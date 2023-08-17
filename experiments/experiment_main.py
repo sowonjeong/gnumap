@@ -42,39 +42,18 @@ from metrics.evaluation_metrics import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', type=str, default='Blob')
+parser.add_argument('--name', type=str, default='Blobs')
 parser.add_argument('--filename', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
 parser.add_argument('--epochs', type=int, default=200)
-parser.add_argument('--n_experiments', type=int, default=1)
+parser.add_argument('--noise', type=float, default=0)
 parser.add_argument('--n_layers', type=int, default=2)
-parser.add_argument('--out_dim', type=int, default=2) #512
-parser.add_argument('--batch', type=int, default=2)
-parser.add_argument('--lr1', type=float, default=1e-3) #
-parser.add_argument('--lr2', type=float, default=1e-2)
-parser.add_argument('--wd1', type=float, default=0.0)
-parser.add_argument('--wd2', type=float, default=0.0)
-parser.add_argument('--tau', type=float, default=0.5) #
-parser.add_argument('--lambd', type=float, default=1e-4) #
-parser.add_argument('--min_dist', type=float, default=0.1) #
-parser.add_argument('--n_neighbours', type=int, default=15) #
-parser.add_argument('--method', type=str, default='heat') #
-parser.add_argument('--norm', type=str, default='normalize') #
-parser.add_argument('--beta', type=float, default=1) #
-parser.add_argument('--patience', type=int, default=20)
-parser.add_argument('--edr', type=float, default=0.5)
-parser.add_argument('--fmr', type=float, default=0.2)
-parser.add_argument('--proj', type=str, default="nonlinear-hid")
-parser.add_argument('--pred_hid', type=int, default=256)
-parser.add_argument('--dre1', type=float, default=0.2)
-parser.add_argument('--dre2', type=float, default=0.2)
-parser.add_argument('--drf1', type=float, default=0.4)
-parser.add_argument('--drf2', type=float, default=0.4)
-parser.add_argument('--result_folder', type=str, default="/results/")
-parser.add_argument('--seed', type=int, default=12345) 
-parser.add_argument('--npoints', type=int, default=500)
-parser.add_argument('--num_neighbor', type=int, default=50) # graph construction
-parser.add_argument('--radius_knn', type=float, default=0) # graph construction
+parser.add_argument('--lr', type=float, default=0.005)
+parser.add_argument('--hid_dim', type=int, default=2) #512
+parser.add_argument('--epoch', type=int, default=500)
+parser.add_argument('--a', type=float, default=1.) # data construction
+parser.add_argument('--b', type=float, default=1.) # data construction
+parser.add_argument('--radius_knn', type=float, default=0.1) # graph construction
 parser.add_argument('--bw', type=float, default=1.) # graph construction
 args = parser.parse_args()
 
@@ -84,55 +63,77 @@ torch.manual_seed(args.seed)
 
 name = args.name
 
-results = []
-embeddings = {}
+results = {}
+file_path = os.getcwd() + '/results/' + name +'_' + str(args.radius_based) + '_gnn_results.csv'
 
-if name in ['Blob', 'Circles', 'Moons', 'Cora', 'Pubmed']:
-    classification = True
-else: 
-    classification = False
 
-X, y_true, G = create_dataset(name, n_samples = 500, n_neighbours = 50,
-                              features = 'none', standardize = True, 
-                              centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
-                              factor = 0.2, noise = 0.05,
-                              random_state = args.seed, 
-                              radius_knn = args.radius_knn, bw = args.bw, 
-                              SBMtype = 'lazy')
-new_data = G
-for model_name in ['GRACE','DGI','BGRL','CCA-SSG']:
+
+np.random.seed(args.seed)
+X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples = 1000, 
+                                                          features = 'none', standardize = True, 
+                                                          centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
+                                                          ratio_circles = 0.2, noise = args.noise, random_state = args.seed, 
+                                                          radius_knn = args.radius_knn, bw = args.bw, 
+                                                          SBMtype = 'lazy',
+                                                          a = args.a,
+                                                          b=args.b)
+
+
+results = {}
+for model_name in ['DGI','BGRL']:
+    mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                            patience=20, epochs=args.epoch, 
+                            n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
+                            hid_dim=args.hid_dim, lr=args.lr, wd=0,
+                            tau=np.nan, lambd=np.nan,  alpha = 0.5, beta = 1, 
+                            gnn_type = 'symmetric', dataset = args.name)
+    results[name +'_' + model_name] = res
+    pd.DataFrame.from_dict(results).to_csv(file_path)
+
+for model_name in ['GRACE', 'GNUMAP', 'CCA-SSG']:
     for gnn_type in ['symmetric', 'RW']:
         for alpha in np.arange(0,1.1,0.1):
-            mod, res, out = experiment(model_name, new_data,X,
-                        y_true, None,
-                        patience=args.patience, 
-                        epochs=args.epochs,
-                        n_layers=args.n_layers, out_dim=args.out_dim, lr1=args.lr1, lr2=args.lr2, 
-                        wd1=args.wd1, wd2=args.wd2, tau=args.tau, lambd=1e-4, min_dist=0.1,
-                        method='heat', n_neighbours=15,
-                        norm='normalize', edr=args.edr, fmr=args.fmr,
-                        proj=args.proj, pred_hid=args.pred_hid, proj_hid_dim=args.pred_hid,
-                        dre1=args.dre1, dre2=args.dre2, drf1=args.drf1, drf2=args.drf2,
-                        npoints = args.npoints, n_neighbors = args.num_neighbor, classification = classification,
-                        densmap = False, random_state = args.seed, n = 15, perplexity = 30, 
-                        alpha = alpha, beta = 1.0, gnn_type = gnn_type, 
-                        name_file=args.filename,subsampling=None)
-            results += [res]
-            # out = mod.get_embedding(new_data)
-            embeddings[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha)]  =  {
-                                            'model': model_name, 
-                                            'alpha': alpha,
-                                            'gnn_type': gnn_type,   
-                                            'embedding' : out,
-                                            'alpha': alpha}
-file_path = os.getcwd() + '/results/' + name +'_' + str(args.radius_based) + '_gnn_results_' + args.filename + '.csv'
+            if model_name == "GRACE":
+                for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
+                    mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                            patience=20, epochs=args.epoch,
+                                            n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
+                                            hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                            tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                            proj="standard", pred_hid=args.hid_dim,  n_neighbors = 15,
+                                            random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
+                                            gnn_type = gnn_type, 
+                                            name_file="logsGRACE " + name , dataset = args.name)
+                    results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_tau_' + str(tau)] = res
+            elif model_name == 'CCA-SSG':
+                for lambd in [1e-3, 5 *1e-2, 1e-2, 5 *1e-1, 1e-1, 1.]:
+                    mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                            patience=20, epochs=args.epoch,
+                                            n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
+                                            hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                            tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                            proj="standard", pred_hid=args.hid_dim, 
+                                            n_neighbors = 15,
+                                            random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
+                                            gnn_type = gnn_type, 
+                                            name_file="logsCCA-SSG " + name, dataset = args.name)
+                    results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_lambd_' + str(lambd)] = res
+            else:
+                mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                            patience=20, epochs=args.epoch,
+                                            n_layers=args.n_layers, out_dim=X_manifold.shape[1], 
+                                            hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                            tau=tau, lambd=1e-4, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                            proj="standard", pred_hid=args.hid_dim,  n_neighbors = np.nan,
+                                            random_state = 42, perplexity = 30, alpha = alpha, beta = 1, 
+                                            gnn_type = gnn_type, 
+                                            name_file="logsGNUMAP " + name, dataset = args.name)
+                results[name + '_' + model_name + '_' + gnn_type + '_' + str(alpha) +  '_lambd_' + str(lambd)] = res
+                pd.DataFrame.from_dict(results).to_csv(file_path)
 
-pd.DataFrame(np.array(results),
-                columns =['model', 'method', 'dim', 'neighbours', 'n_layers', 'norm','min_dist',
-                          'dre1', 'drf1', 'lr', 'edr', 'fmr', 'tau', 'lambd', 'pred_hid', 'proj_hid_dim',
-                          'sp', 'acc', 'local', 'density', 'alpha', 'beta', 'gnn_type']).to_csv(file_path)
 
-
-pickle.dump(embeddings, open(os.getcwd() +'/results/'+name +'_' + str(args.radius_based) + '_gnn_results_' + args.filename +'.pkl', 'wb'))
-
-print(results)
+for model_name in ['PCA','LaplacianEigenmap', 'Isomap', 'TSNE', 'UMAP', 'DenseMAP']:
+    mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                               out_dim=X_manifold.shape[1], dataset = args.name)
+    results[name +'_' + model_name] = res
+    pd.DataFrame.from_dict(results).to_csv(file_path)
