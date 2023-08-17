@@ -36,7 +36,7 @@ from models.baseline_models import *
 from models.train_models import *
 from umap_functions import *
 from graph_utils import *
-from experiments.data_gen import *
+from experiments.create_dataset import *
 from experiments.experiment import *
 from evaluation_metric import *
 
