@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from experiments.simulation_utils import make_roll
 import random
-# QUESTION: create_dataset.py X_true=np.nan
 random.seed(12345)
 N_NEIGHBOURS = 20
 # target and u difference in simulation_utils.py?
@@ -40,20 +39,21 @@ from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 A_dist = kneighbors_graph(X, N_NEIGHBOURS, mode='distance', include_self=False) # adjacency matrix
 edge_index, edge_weights = from_scipy_sparse_matrix(A_dist)
 edge_index, edge_weights = to_undirected(edge_index, edge_weights)
+
 # INPUT 2: input features: identity matrix
 A = torch.eye(X.shape[0])
 
-model = GCN(in_dim=2000, hid_dim=20, out_dim=3, n_layers=2, dropout_rate=0.2)
-model(A, edge_index)
 
-# QUESTION: n_clusters=1 ok? n_bins in create, b_bins create_dataset
-# a,b
+###TODO: n_clusters pipeline
+###TODO: a,b
+### Question: SIMPLE_GC_DEC
+
+
 class GC_DEC(nn.Module):
-    def __init__(self, in_dim, nhid=20, n_clusters=1, alpha=0.2):
+    def __init__(self, in_dim=2000, nhid=50, n_clusters=10, alpha=0.2, out_dim=2):
         super(GC_DEC, self).__init__()
-        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=3, n_layers=2, dropout_rate=0.2)
-        # TODO: Need accurate hid_dim reflecting SpaGCN. Put 20 here for now.
-        self.mu = Parameter(torch.Tensor(n_clusters, 3)) # for now
+        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0.2)
+        self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
         self.n_clusters = n_clusters
         self.alpha = alpha
 
@@ -69,6 +69,7 @@ class GC_DEC(nn.Module):
             return torch.mean(torch.sum(target * torch.log(target / (pred + 1e-6)), dim=1))
 
         loss = kld(p, q)
+        print(loss)
         return loss
 
     def target_distribution(self, q):
@@ -78,7 +79,7 @@ class GC_DEC(nn.Module):
         p = p / torch.sum(p, dim=1, keepdim=True)
         return p
 
-    def fit(self, x, adj, lr=0.001, max_epochs=10, update_interval=5, weight_decay=5e-4, opt="adam", init="kmeans",
+    def fit(self, x, adj, lr=0.001, max_epochs=500, update_interval=5, weight_decay=5e-4, opt="sgd", init="kmeans",
             n_neighbors=10, res=0.4):
         self.trajectory = []
         print("Initializing cluster centers.")
@@ -132,69 +133,47 @@ class GC_DEC(nn.Module):
         z, q = self(torch.Tensor(x), torch.Tensor(adj))
         return z, q
 
-# QUESTION: dropout=0.5? Some models in train_models.py
 model = GC_DEC(in_dim=A.shape[0])
 model.fit(A, edge_index)
 spagcn_embedding = model.predict(A, edge_index)[0]
 
+"""
+# Assuming spagcn_embedding contains the 3D points
+spagcn_embedding_np = spagcn_embedding.detach().numpy()
+
+# Extract x, y, and z coordinates
+x_coords = spagcn_embedding_np[:, 0]
+y_coords = spagcn_embedding_np[:, 1]
+z_coords = spagcn_embedding_np[:, 2]
+
+# Set up color mapping according to x_coords
+colors = np.linspace(0, 1, len(x_coords))  # Assuming each point has a corresponding color value
+cmap = plt.get_cmap('Spectral')  # Use the 'Spectral' colormap
+
+# Create a 3D scatter plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Create the scatter plot with color mapping
+scatter = ax.scatter(x_coords, y_coords, z_coords, c=colors, cmap=cmap)
+
+# Set labels for the axes
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Add colorbar to show the color mapping
+cbar = plt.colorbar(scatter)
+cbar.set_label('Color Value')
+
+# Set the plot title
+plt.title('3D Scatter Plot of SpaGCN Embedding with Color Mapping')
+
+plt.show()  # Display the plot
+"""
 ########################################################
 ########################################################
-"""
-# from evaluation_metric import *
-# def experiment(model_name, data, X,
-#                target, device,
-#                patience=20, epochs=500,
-#                n_layers=2, out_dim=2, lr1=1e-3, lr2=1e-2, wd1=0.0,
-#                wd2=0.0, tau=0.5, lambd=1e-4, min_dist=0.1,
-#                method='heat', n_neighbours=15,
-#                norm='normalize', edr=0.5, fmr=0.2,
-#                proj="standard", pred_hid=512, proj_hid_dim=512,
-#                dre1=0.2, dre2=0.2, drf1=0.4, drf2=0.4,
-#                npoints=500, n_neighbors=50, classification=True,
-#                densmap=False, random_state=42, n=15, perplexity=30,
-#                alpha=0.5, beta=0.1, gnn_type='symmetric',
-#                name_file="1", subsampling=None):
-#     # num_classes = int(data.y.max().item()) + 1
-#
-#     if model_name == 'SpaGCN':
-#         model = GC_DEC(n_components=2)
-#         embeds = model.fit_transform(
-#             X)  # StandardScaler().fit_transform(X) --already standardized when converting graphs
-#
-#     else:
-#         raise ValueError("Model unknown!!")
-#
-#     sp, acc, local, density = eval_all(data, X, embeds, target, n_points=npoints, n_neighbors=n_neighbors,
-#                                        classification=classification)
-#     print("done with the embedding evaluation")
-#
-#     results = [model_name,
-#                method,
-#                out_dim,
-#                n_neighbors,
-#                n_layers,
-#                norm,
-#                min_dist,
-#                dre1,
-#                drf1,
-#                lr1,
-#                edr,
-#                fmr,
-#                tau,
-#                lambd,
-#                pred_hid,
-#                proj_hid_dim,
-#                sp,
-#                acc,
-#                local,
-#                density,
-#                alpha,
-#                beta,
-#                gnn_type
-#                ]
-#
-#     return (model, results, embeds)
-"""
+
 end_time = time.time()
 
 elapsed_time = end_time - start_time
