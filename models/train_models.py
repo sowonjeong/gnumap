@@ -486,7 +486,7 @@ def train_vgnae(data, hid_channels, out_channels, n_lay = 2, alpha = 0.1, non_li
     model = DeepVGAEX(data.x.size()[1], out_channels, out_channels,
                          n_layers=n_lay, normalize=normalize,
                          h_dims_reconstructiony = [out_channels, out_channels],
-                         y_dim=alpha, dropout=0.5,
+                         y_dim=alpha, dropdropout=0.5,
                          lambda_y =0.5/alpha, activation=non_linear).to(device)
     w = torch.randn(size= (data.num_features, alpha)).float()
     y_randoms = torch.mm(data.x, w)
