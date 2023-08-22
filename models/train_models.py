@@ -35,9 +35,13 @@ def init_weights(m):
         m.bias.data.fill_(0.1)
 
 
-
 def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate = 0.5,  patience=20,
               epochs=200, lr=1e-3, name_file="1", device=None, gnn_type = "symmetric", alpha = 0.5, beta = 1.0):
+
+    #TODO
+    directory_path = "/Users/jiheeyou/Desktop/gnumap/experiments/experiments/model_weights"
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
 
     log_dir = '/log_dir/log_dir_DGI_' + str(out_dim)+ '/'
     if device is None:
@@ -304,7 +308,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
     model.load_state_dict(torch.load(os.getcwd()  + '/experiments/model_weights/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
-    return(model,target_graph_index)
+    return model
 
 
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
@@ -348,7 +352,7 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
                                           edr, proj)
             print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         #tracker.stop()
-        return(model, loss_vals)
+        return model
 
 
 def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
@@ -389,7 +393,7 @@ def train_cca_ssg(data,  hid_dim, channels, lambd=1e-5,
         loss = train_cca_one_epoch(model, data) #train_semi(model, data, num_per_class, pos_idx)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     #tracker.stop()
-    return(model, loss_vals)
+    return model
 
 
 def train_entropy_ssg(data,  hid_dim, channels, lambd=1e-5,

@@ -1,4 +1,3 @@
-temp_model_name = "UMAP"
 import csv
 import argparse
 from carbontracker.tracker import CarbonTracker
@@ -32,7 +31,7 @@ from models.baseline_models import *
 from models.train_models import *
 from metrics.evaluation_metrics import *
 from gnumap.umap_functions import *
-from spagcn_test import *
+from models.spagcn import *
 from experiments.create_dataset import *
 
 parser = argparse.ArgumentParser()
@@ -51,30 +50,6 @@ parser.add_argument('--radius_knn', type=float, default=0.1)  # graph constructi
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
 args = parser.parse_args()
 
-n_samples = 1000
-X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples=n_samples,
-                                                          features='none', standardize=True,
-                                                          centers=4, cluster_std=[0.1, 0.1, 1.0, 1.0],
-                                                          ratio_circles=0.2, noise=args.noise, random_state=12345,
-                                                          radius_knn=args.radius_knn, bw=args.bw,
-                                                          SBMtype='lazy',
-                                                          a=args.a,
-                                                          b=args.b)
-
-
-# To visualize 3d
-# x = X_ambient[:, 0]
-# y = X_ambient[:, 1]
-# z = X_ambient[:, 2]
-# fig = plt.figure()
-# ax = plt.axes(projection='3d')
-# ax.scatter3D(x, y, z, c=target, cmap='Spectral')
-# plt.show()
-
-# 2d doesn't work
-# x = X_ambient[:, 0]
-# y = X_ambient[:, 1]
-# plt.scatter(x, y, c=target, cmap='Spectral')
 
 def experiment(model_name, G, X_ambient, X_manifold,
                cluster_labels,
@@ -133,12 +108,13 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.get_embedding(G)
     elif model_name == "GNUMAP":
         raise ValueError("Not implemented yet!!")
-    elif model_name == "SpaGCN":
+    elif model_name == "SPAGCN":
         edge_index = G.edge_index
-        A = torch.eye(n_samples)  # identity feature matrix
-        model = GC_DEC(in_dim=n_samples, out_dim=out_dim)
+        A = torch.eye(X_ambient.shape[0])  # identity feature matrix
+        model = SPAGCN(in_dim=X_ambient.shape[0], out_dim=out_dim, n_neighbors=n_neighbors)
         model.fit(A, edge_index)
         embeds = model.predict(A, edge_index)[0]
+        embeds = embeds.detach().numpy()
     elif model_name == 'PCA':
         model = PCA(n_components=2)
         embeds = model.fit_transform(
@@ -166,7 +142,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     else:
         raise ValueError("Model unknown!!")
     # QUESTION: A lot of penalty
-    # embeds.detach().numpy() for spagcn
+
     global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
                                              dataset=dataset)
     print("done with the embedding evaluation")
@@ -187,38 +163,4 @@ def experiment(model_name, G, X_ambient, X_manifold,
     results['beta_gnn'] = beta
     results['gnn_type'] = gnn_type
 
-    """
-    keys = results.keys()
-    values = results.values()
-
-    # Check if the file exists
-    file_exists = os.path.isfile('data.csv')
-
-    # Set mode based on file existence
-    mode = 'a' if file_exists else 'w'
-
-    # Write the data to the CSV file
-    with open('data.csv', mode=mode, newline='') as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(keys)
-        writer.writerow(values)
-        """
-
     return (model, results, embeds)
-
-
-for i in range(5):
-    model, results, embeds = experiment(temp_model_name, G, X_ambient, X_manifold, cluster_labels,
-                                        patience=20, epochs=args.epoch,
-                                        n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                        hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                                        tau=np.nan, lambd=np.nan, alpha=0.5, beta=1,
-                                        gnn_type='symmetric', dataset=args.name)
-
-plt.figure()
-#embeds = embeds.detach().numpy()
-print(embeds)
-plt.scatter(*embeds.T, s=10, c=cluster_labels, alpha=0.5, cmap='Spectral')
-plt.title(temp_model_name)
-plt.show()
