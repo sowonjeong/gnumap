@@ -34,21 +34,20 @@ from gnumap.umap_functions import *
 from models.spagcn import *
 from experiments.create_dataset import *
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--name', type=str, default='Blobs')
-parser.add_argument('--filename', type=str, default='test')
-parser.add_argument('--split', type=str, default='PublicSplit')
-parser.add_argument('--epochs', type=int, default=200)
-parser.add_argument('--noise', type=float, default=0)
-parser.add_argument('--n_layers', type=int, default=2)
-parser.add_argument('--lr', type=float, default=0.005)
-parser.add_argument('--hid_dim', type=int, default=2)  # 512
-parser.add_argument('--epoch', type=int, default=500)
-parser.add_argument('--a', type=float, default=1.)  # data construction
-parser.add_argument('--b', type=float, default=1.)  # data construction
-parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
-parser.add_argument('--bw', type=float, default=1.)  # graph construction
-args = parser.parse_args()
+import logging
+# Configure logging settings
+logging.basicConfig(filename='viz.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+def visualize_dataset(X, cluster_labels, title, file_name, save=True):
+    plt.figure()
+    plt.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
+    plt.title(title)
+    if save:
+        save_path = os.path.join(os.getcwd(), 'results', file_name)
+        plt.savefig(save_path, format='png', dpi=300)
+    else:
+        plt.show()
 
 
 def experiment(model_name, G, X_ambient, X_manifold,
@@ -56,12 +55,13 @@ def experiment(model_name, G, X_ambient, X_manifold,
                patience=20, epochs=500,
                n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
                tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.5, fmr=0.2,
-               proj="standard", pred_hid=12,
-               n_neighbors=15, dataset="Blobs",
+               proj="standard", pred_hid=512,
+               n_neighbors=15, dataset='Blobs',
                random_state=42, perplexity=30,
                alpha=0.5, beta=0.1, gnn_type='symmetric',
                name_file="1"):
     # num_classes = int(data.y.max().item()) + 1
+
     if model_name == 'DGI':
         model = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
                           n_layers=n_layers,
@@ -72,7 +72,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.get_embedding(G)
 
     elif model_name == 'GRACE':
-        model, loss = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
+        model = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                   tau=tau,
                                   epochs=epochs, lr=lr, wd=wd,
                                   fmr=fmr, edr=edr, proj=proj, name_file=name_file,
@@ -107,7 +107,10 @@ def experiment(model_name, G, X_ambient, X_manifold,
                            dre2=edr, name_file=name_file)
         embeds = model.get_embedding(G)
     elif model_name == "GNUMAP":
-        raise ValueError("Not implemented yet!!")
+        model = train_gnumap(G, hid_dim, out_dim,
+                           n_layers=n_layers,
+                           epochs=epochs, lr=lr, wd=wd)
+        embeds = model.get_embedding(G) ##??
     elif model_name == "SPAGCN":
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
@@ -141,7 +144,13 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.fit_transform(X_ambient)
     else:
         raise ValueError("Model unknown!!")
-    # QUESTION: A lot of penalty
+
+    file_name = (
+        f"{model_name}_{dataset}_tau_{tau}_lambda_{lambd}_gnn_type_{gnn_type}_"
+        f"alpha_{alpha}_beta_{beta}.png"
+    )
+    visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name, save=True)
+    logging.info(file_name)
 
     global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
                                              dataset=dataset)
@@ -162,5 +171,6 @@ def experiment(model_name, G, X_ambient, X_manifold,
     results['alpha_gnn'] = alpha
     results['beta_gnn'] = beta
     results['gnn_type'] = gnn_type
+
 
     return (model, results, embeds)
