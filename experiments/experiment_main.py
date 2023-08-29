@@ -53,10 +53,10 @@ parser.add_argument('--a', type=float, default=1.)  # data construction
 parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
-parser.add_argument('--jcsv', type=float, default=False)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
-                                                'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
-                    help='List of models to run')
+# parser.add_argument('--jcsv', type=float, default=True)  # make csv?
+# parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN', 'UMAP',
+#                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
+#                     help='List of models to run')
 args = parser.parse_args()
 
 import logging
@@ -131,8 +131,7 @@ for model_name in args.jm:
         results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"] = res
 
 
-# 'GNUMAP',
-    elif model_name in ['GRACE','CCA-SSG', 'SPAGCN']:
+    elif model_name in ['GRACE','CCA-SSG', 'SPAGCN','GNUMAP']:
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0, 1.1, 0.1):
                 for beta in np.arange(0, 1.1, 0.1):
@@ -169,7 +168,7 @@ for model_name in args.jm:
                                                          hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                          tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
                                                          gnn_type=gnn_type, dataset=args.name)
-                            results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                            results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                         elif model_name == 'GNUMAP':
                             for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
                                 mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,

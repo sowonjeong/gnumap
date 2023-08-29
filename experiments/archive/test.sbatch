@@ -11,7 +11,7 @@
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=5000 #10G
 #SBATCH --mail-type=ALL  # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=sowonjeong@rcc.uchicago.edu  # mail notification for the job
+#SBATCH --mail-user=jiheeyou@rcc.uchicago.edu  # mail notification for the job
 
 
 # Print the task id.
@@ -26,4 +26,4 @@ result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/gnumap/experiments
 
-python experiment_all.py --name $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID  --radius-based False
+python experiment_main.py --name $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID  --radius-based False

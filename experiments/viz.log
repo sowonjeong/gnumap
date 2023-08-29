@@ -2157,3 +2157,17 @@
 2023-08-28 07:44:03,511 - INFO - GRACE_Circles_tau_0.1_lambda_0.5_gnn_type_symmetric_alpha_0.5_beta_0.0.png
 2023-08-28 07:44:23,854 - INFO - GRACE_Circles_tau_0.2_lambda_0.5_gnn_type_symmetric_alpha_0.5_beta_0.0.png
 2023-08-28 07:44:42,622 - INFO - GRACE_Circles_tau_0.5_lambda_0.5_gnn_type_symmetric_alpha_0.5_beta_0.0.png
+2023-08-28 19:46:50,892 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-28 19:46:52,423 - INFO - SPAGCN_Circles_tau_nan_lambda_0.001_gnn_type_symmetric_alpha_0.0_beta_0.0.png
+2023-08-28 19:55:21,824 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-28 19:55:21,825 - INFO - ------------------- END EXPERIMENT ----------------------
+2023-08-28 19:57:24,222 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 12:27:10,551 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 12:28:30,194 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 12:38:06,925 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 12:38:12,159 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.0.png
+2023-08-29 12:38:28,606 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_RW_alpha_0.0_beta_0.0.png
+2023-08-29 12:38:58,226 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 12:40:23,170 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 15:05:50,581 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-29 15:07:27,861 - INFO - ------------------ START EXPERIMENT ---------------------
