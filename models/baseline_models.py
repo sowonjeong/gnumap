@@ -140,7 +140,10 @@ class GNN(nn.Module):
                 ### Concatenate representation and new one
                 h = self.fc[c](h)
                 h = F.dropout(h, p=0.5, training=self.training)
-                if self.separate_neighbors: 
+                if self.separate_neighbors:
+                    print(c)
+                    print(h.shape)
+                    print(self.fc_n[0])
                     neighbors = self.fc_n[c](h)
                     neighbors = F.dropout(neighbors, p=0.5, training=self.training)
                 if self.must_propagate[c] and self.separate_neighbors == False:
