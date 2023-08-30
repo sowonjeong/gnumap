@@ -53,7 +53,7 @@ parser.add_argument('--a', type=float, default=1.)  # data construction
 parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
-parser.add_argument('--seed', type=float, default=1)
+parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
 parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
                                                 'UMAP', 'DenseMAP',
