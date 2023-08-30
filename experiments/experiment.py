@@ -35,17 +35,28 @@ from models.spagcn import *
 from experiments.create_dataset import *
 
 import logging
+
 # Configure logging settings
 logging.basicConfig(filename='viz.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def visualize_dataset(X, cluster_labels, title, file_name, save=True):
-    plt.figure()
-    plt.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
-    plt.title(title)
+    fig = plt.figure()
+    ax = fig.gca()
+
+    if X is not None:
+        ax.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
+        ax.set_title(title)
+    else:
+        fig.patch.set_facecolor('black')
+        ax.set_facecolor('black')
+        logging.info(f'LOSS NAN: {file_name}')
+
     if save:
         save_path = os.path.join(os.getcwd(), 'results', file_name)
-        plt.savefig(save_path, format='png', dpi=300)
+        plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
+        logging.info(file_name)
     else:
         plt.show()
 
@@ -72,12 +83,15 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.get_embedding(G)
 
     elif model_name == 'GRACE':
-        model = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
+        model, loss = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                   tau=tau,
                                   epochs=epochs, lr=lr, wd=wd,
                                   fmr=fmr, edr=edr, proj=proj, name_file=name_file,
                                   alpha=alpha, beta=beta, gnn_type=gnn_type)
-        embeds = model.get_embedding(G)
+        if np.isnan(loss):
+            embeds = None
+        else:
+            embeds = model.get_embedding(G)
 
     elif model_name == 'CCA-SSG':
         model = train_cca_ssg(G, hid_dim=hid_dim,
@@ -108,9 +122,9 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.get_embedding(G)
     elif model_name == "GNUMAP":
         model = train_gnumap(G, hid_dim, out_dim,
-                           n_layers=n_layers,
-                           epochs=epochs, lr=lr, wd=wd)
-        embeds = model.get_embedding(G) ##??
+                             n_layers=n_layers,
+                             epochs=epochs, lr=lr, wd=wd)
+        embeds = model.get_embedding(G)
     elif model_name == "SPAGCN":
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
@@ -150,27 +164,28 @@ def experiment(model_name, G, X_ambient, X_manifold,
         f"alpha_{alpha}_beta_{beta}.png"
     )
     visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name, save=True)
-    logging.info(file_name)
 
-    global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
-                                             dataset=dataset)
-    print("done with the embedding evaluation")
+    if embeds is None:
+        results = None
+    else:
+        global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
+                                                 dataset=dataset)
+        print("done with the embedding evaluation")
 
-    results = {**global_metrics, **local_metrics}
-    results['model_name'] = model_name
-    results['out_dim'] = out_dim
-    results['hid_dim'] = hid_dim
-    results['n_neighbors'] = n_neighbors
-    results['min_dist'] = min_dist
-    results['lr'] = lr
-    results['edr'] = edr
-    results['fmr'] = fmr
-    results['tau'] = tau
-    results['lambd'] = lambd
-    results['pred_hid'] = pred_hid
-    results['alpha_gnn'] = alpha
-    results['beta_gnn'] = beta
-    results['gnn_type'] = gnn_type
-
+        results = {**global_metrics, **local_metrics}
+        results['model_name'] = model_name
+        results['out_dim'] = out_dim
+        results['hid_dim'] = hid_dim
+        results['n_neighbors'] = n_neighbors
+        results['min_dist'] = min_dist
+        results['lr'] = lr
+        results['edr'] = edr
+        results['fmr'] = fmr
+        results['tau'] = tau
+        results['lambd'] = lambd
+        results['pred_hid'] = pred_hid
+        results['alpha_gnn'] = alpha
+        results['beta_gnn'] = beta
+        results['gnn_type'] = gnn_type
 
     return (model, results, embeds)
