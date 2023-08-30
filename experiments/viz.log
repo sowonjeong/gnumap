@@ -2349,3 +2349,17 @@
 2023-08-30 11:52:19,043 - INFO - GRACE_Circles_tau_0.1_lambda_0.0001_gnn_type_symmetric_alpha_0.6000000000000001_beta_1.png
 2023-08-30 11:52:31,535 - INFO - GRACE_Circles_tau_0.2_lambda_0.0001_gnn_type_symmetric_alpha_0.6000000000000001_beta_1.png
 2023-08-30 11:52:56,634 - INFO - GRACE_Circles_tau_0.5_lambda_0.0001_gnn_type_symmetric_alpha_0.6000000000000001_beta_1.png
+2023-08-30 12:42:34,305 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-30 12:42:37,219 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.0.png
+2023-08-30 12:42:50,926 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.2.png
+2023-08-30 12:43:04,417 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.4.png
+2023-08-30 12:43:16,352 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.6000000000000001.png
+2023-08-30 12:43:31,211 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.8.png
+2023-08-30 12:43:43,992 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_1.0.png
+2023-08-30 12:47:49,758 - INFO - ------------------ START EXPERIMENT ---------------------
+2023-08-30 12:47:52,317 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.0.png
+2023-08-30 12:48:03,520 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.2.png
+2023-08-30 12:48:16,326 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.4.png
+2023-08-30 12:48:27,123 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.6000000000000001.png
+2023-08-30 12:48:39,957 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_0.8.png
+2023-08-30 12:48:52,123 - INFO - DGI_Circles_tau_nan_lambda_nan_gnn_type_symmetric_alpha_0.0_beta_1.0.png
