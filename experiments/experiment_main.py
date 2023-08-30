@@ -53,10 +53,11 @@ parser.add_argument('--a', type=float, default=1.)  # data construction
 parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
-# parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-# parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN', 'UMAP',
-#                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
-#                     help='List of models to run')
+parser.add_argument('--jcsv', type=float, default=True)  # make csv?
+parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
+                                                'UMAP', 'DenseMAP',
+                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
+                     help='List of models to run')
 args = parser.parse_args()
 
 import logging
@@ -119,9 +120,9 @@ visualize_dataset(X_ambient, cluster_labels, title=args.name,
 logging.info('------------------ START EXPERIMENT ---------------------')
 for model_name in args.jm:
     if model_name in ['DGI','BGRL']:
-        for alpha in np.arange(0, 1.1, 0.1):
-            for beta in np.arange(0, 1.1, 0.1):
-                for gnn_type in ['symmetric', 'RW']:
+        for alpha in np.arange(0, 1.1, 0.2):
+            for beta in np.arange(0, 1.1, 0.2):
+                for gnn_type in ['symmetric']:
                     mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                patience=20, epochs=args.epoch,
                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
@@ -134,58 +135,64 @@ for model_name in args.jm:
     elif model_name in ['GRACE','CCA-SSG', 'SPAGCN','GNUMAP']:
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0, 1.1, 0.1):
-                for beta in np.arange(0, 1.1, 0.1):
-                    for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
-                        if model_name == "GRACE":
-                            for tau in [0.1, 0.2, 0.5, 1., 10]:
-                                mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                           patience=20, epochs=args.epoch,
-                                                           n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                           hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                           tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                           proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
-                                                           random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                           gnn_type=gnn_type,
-                                                           name_file="logsGRACE " + name, dataset=args.name)
-                                results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
-                        elif model_name == 'CCA-SSG':
-                            for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
-                                mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                           patience=20, epochs=args.epoch,
-                                                           n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                           hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                           tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                           proj="standard", pred_hid=args.hid_dim,
-                                                           n_neighbors=15,
-                                                           random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                           gnn_type=gnn_type,
-                                                           name_file="logsCCA-SSG " + name, dataset=args.name)
-                                results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
-                        elif model_name == 'SPAGCN':
+                if model_name == "GRACE":
+                    lambd = 1e-4
+                    beta = 1
+                    for tau in [0.1, 0.2, 0.5, 1., 10]:
+                        mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                                   patience=20, epochs=args.epoch,
+                                                   n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                   hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                   tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                   proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
+                                                   random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                   gnn_type=gnn_type,
+                                                   name_file="logsGRACE " + name, dataset=args.name)
+                        results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                elif model_name == 'CCA-SSG':
+                    beta = 1
+                    for tau in [0.1, 0.2, 0.5, 1., 10]:
+                        for lambd in [1e-3, 5 *1e-2, 1e-2, 5 *1e-1, 1e-1, 1.]:
                             mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                         patience=20, epochs=args.epoch,
-                                                         n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                         hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                                                         tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
-                                                         gnn_type=gnn_type, dataset=args.name)
-                            results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
-                        elif model_name == 'GNUMAP':
-                            for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
-                                mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                           patience=20, epochs=args.epoch,
-                                                           n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                           hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                           tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                           proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
-                                                           random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                           gnn_type=gnn_type,
-                                                           name_file="logsGNUMAP " + name, dataset=args.name)
-                                results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
-                        else:
-                            raise ValueError('Invalid model name')
+                                                       patience=20, epochs=args.epoch,
+                                                       n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                       hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                       tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                       proj="standard", pred_hid=args.hid_dim,
+                                                       n_neighbors=15,
+                                                       random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                       gnn_type=gnn_type,
+                                                       name_file="logsCCA-SSG " + name, dataset=args.name)
+                            results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                elif model_name == 'SPAGCN':
+                    beta = 1
+                    for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
+                        mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                                     patience=20, epochs=args.epoch,
+                                                     n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                     hid_dim=args.hid_dim, lr=args.lr, wd=0,
+                                                     tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
+                                                     gnn_type=gnn_type, dataset=args.name)
+                        results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                elif model_name == 'GNUMAP':
+                    beta = 1
+                    for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
+                        for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
+                            mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                                       patience=20, epochs=args.epoch,
+                                                       n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                       hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                       tau=tau, lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                       proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
+                                                       random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                       gnn_type=gnn_type,
+                                                       name_file="logsGNUMAP " + name, dataset=args.name)
+                            results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                else:
+                    raise ValueError('Invalid model name')
 
     # 'UMAP', 'DenseMAP'
-    elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE']:
+    elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE','UMAP', 'DenseMAP']:
         mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                    out_dim=X_manifold.shape[1], dataset=args.name)
         results[name + '_' + model_name] = res
@@ -194,4 +201,4 @@ if args.jcsv:
     file_path = os.getcwd() + '/results/' + name + '_' + str(args.radius_knn) + '_gnn_results_0.csv'
     pd.DataFrame.from_dict(results, orient='index').to_csv(get_next_file_path(file_path))
 
-logging.info('------------------- END EXPERIMENT ----------------------')
+logging.info('------------------- END EXPERIMENT ------s----------------')
