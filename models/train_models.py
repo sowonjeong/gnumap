@@ -303,7 +303,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     model.eval()  # Set the model to evaluation mode
     with torch.no_grad():  # Disable gradient computation
-        embeddings = model(data.x.float(), data.edge_index).cpu().numpy()  # Get the embeddings as a numpy array
+        embeddings = model(data.x.float(), data.edge_index, data.edge_weight).cpu().numpy()  # Get the embeddings as a numpy array
     return model, embeddings
 
 
