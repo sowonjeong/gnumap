@@ -34,12 +34,6 @@ from gnumap.umap_functions import *
 from models.spagcn import *
 from experiments.create_dataset import *
 
-import logging
-
-# Configure logging settings
-logging.basicConfig(filename='viz.log', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def visualize_dataset(X, cluster_labels, title, file_name):
     fig = plt.figure()
@@ -51,11 +45,9 @@ def visualize_dataset(X, cluster_labels, title, file_name):
     else:
         fig.patch.set_facecolor('black')
         ax.set_facecolor('black')
-        logging.info(f'LOSS NAN: {file_name}')
 
     save_path = os.path.join(os.getcwd(), 'results', file_name)
     plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
-    logging.info(file_name)
 
 
 def experiment(model_name, G, X_ambient, X_manifold,

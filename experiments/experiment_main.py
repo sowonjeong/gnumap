@@ -61,11 +61,6 @@ parser.add_argument('--jm', nargs='+', default=['DGI','BGRL', 'GRACE','GNUMAP','
                                                  'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
                      help='List of models to run')
 args = parser.parse_args()
-# 'DGI',
-import logging
-# Configure logging settings
-logging.basicConfig(filename='viz.log', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def get_next_file_path(base_path):
@@ -121,7 +116,6 @@ visualize_dataset(X_manifold, cluster_labels, title=args.name, save_img = save_i
 visualize_dataset(X_ambient, cluster_labels, title=args.name, save_img = save_img,
                       save_path=os.getcwd() + '/results/' + "gt_ambient_" + args.name + ".png")
 
-logging.info('------------------ START EXPERIMENT ---------------------')
 for model_name in args.jm:
     if model_name in ['DGI','BGRL']:
         for alpha in np.arange(0, 1.1, 0.5):
@@ -204,5 +198,3 @@ for model_name in args.jm:
 if args.jcsv:
     file_path = os.getcwd() + '/results/' + name + '_' + str(args.radius_knn) + '_gnn_results_0.csv'
     pd.DataFrame.from_dict(results, orient='index').to_csv(get_next_file_path(file_path))
-
-logging.info('------------------- END EXPERIMENT ------s----------------')
