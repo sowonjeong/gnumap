@@ -249,9 +249,6 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         model.train()
         optimizer.zero_grad()
         tic = time.time()
-        # print(data.x.shape)
-        # print(data.edge_index.shape)
-        ### TODO
         out = model(data.x.float(), data.edge_index)
         diff_norm = torch.sum(torch.square(out[row_pos[index]] - out[col_pos[index]]), 1)
         diff_norm = torch.clip(diff_norm, min=1e-3)
@@ -308,7 +305,10 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
     model.load_state_dict(torch.load(os.getcwd() + '/experiments/model_weights/best_gnumap_' +
                                      str(method) + '_neigh' + str(neighbours)
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
-    return model
+    model.eval()  # Set the model to evaluation mode
+    with torch.no_grad():  # Disable gradient computation
+        embeddings = model(data.x.float(), data.edge_index).cpu().numpy()  # Get the embeddings as a numpy array
+    return model, embeddings
 
 
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
