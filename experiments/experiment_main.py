@@ -121,8 +121,8 @@ visualize_dataset(X_ambient, cluster_labels, title=args.name,
 logging.info('------------------ START EXPERIMENT ---------------------')
 for model_name in args.jm:
     if model_name in ['DGI','BGRL']:
-        for alpha in np.arange(0, 1.1, 0.2):
-            for beta in np.arange(0, 1.1, 0.2):
+        for alpha in np.arange(0, 1.1, 0.5):
+            for beta in np.arange(0, 1.1, 0.5):
                 for gnn_type in ['symmetric']:
                     mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                patience=20, epochs=args.epoch,
@@ -135,7 +135,7 @@ for model_name in args.jm:
 
     elif model_name in ['GRACE','CCA-SSG', 'SPAGCN','GNUMAP']:
         for gnn_type in ['symmetric', 'RW']:
-            for alpha in np.arange(0, 1.1, 0.1):
+            for alpha in np.arange(0, 1.1, 0.5):
                 if model_name == "GRACE":
                     lambd = 1e-4
                     beta = 1
