@@ -41,7 +41,7 @@ logging.basicConfig(filename='viz.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def visualize_dataset(X, cluster_labels, title, file_name, save=True):
+def visualize_dataset(X, cluster_labels, title, file_name):
     fig = plt.figure()
     ax = fig.gca()
 
@@ -53,12 +53,9 @@ def visualize_dataset(X, cluster_labels, title, file_name, save=True):
         ax.set_facecolor('black')
         logging.info(f'LOSS NAN: {file_name}')
 
-    if save:
-        save_path = os.path.join(os.getcwd(), 'results', file_name)
-        plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
-        logging.info(file_name)
-    else:
-        plt.show()
+    save_path = os.path.join(os.getcwd(), 'results', file_name)
+    plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
+    logging.info(file_name)
 
 
 def experiment(model_name, G, X_ambient, X_manifold,
@@ -70,7 +67,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
                n_neighbors=15, dataset='Blobs',
                random_state=42, perplexity=30,
                alpha=0.5, beta=0.1, gnn_type='symmetric',
-               name_file="1"):
+               name_file="1", save_img=False):
     # num_classes = int(data.y.max().item()) + 1
 
     if model_name == 'DGI':
@@ -121,10 +118,9 @@ def experiment(model_name, G, X_ambient, X_manifold,
                            dre2=edr, name_file=name_file)
         embeds = model.get_embedding(G)
     elif model_name == "GNUMAP":
-        model = train_gnumap(G, hid_dim, out_dim,
+        model, embeds = train_gnumap(G, hid_dim, out_dim,
                              n_layers=n_layers,
                              epochs=epochs, lr=lr, wd=wd)
-        embeds = model.get_embedding(G)
     elif model_name == "SPAGCN":
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
@@ -163,7 +159,10 @@ def experiment(model_name, G, X_ambient, X_manifold,
         f"{model_name}_{dataset}_tau_{tau}_lambda_{lambd}_gnn_type_{gnn_type}_"
         f"alpha_{alpha}_beta_{beta}.png"
     )
-    visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name, save=True)
+    if save_img:
+        visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name)
+    else:
+        pass
 
     if embeds is None:
         results = None

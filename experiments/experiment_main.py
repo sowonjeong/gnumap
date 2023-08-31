@@ -48,12 +48,13 @@ parser.add_argument('--noise', type=float, default=0)
 parser.add_argument('--n_layers', type=int, default=2)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--hid_dim', type=int, default=2)  # 512
-parser.add_argument('--epoch', type=int, default=200)
+parser.add_argument('--epoch', type=int, default=500)
 parser.add_argument('--a', type=float, default=1.)  # data construction
 parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
+parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
 parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
                                                 'UMAP', 'DenseMAP',
@@ -86,6 +87,8 @@ def get_next_file_path(base_path):
     return next_path
 
 
+save_img = args.save_img
+
 seed = args.seed
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -103,19 +106,19 @@ X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples=1
                                                           b=args.b)
 
 
-def visualize_dataset(X_ambient, cluster_labels, title, save_path=True):
-    plt.figure()
-    plt.scatter(X_ambient[:, 0], X_ambient[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
-    plt.title(title)
-    if save_path:
+def visualize_dataset(X_ambient, cluster_labels, title, save_img, save_path):
+    if save_img:
+        plt.figure()
+        plt.scatter(X_ambient[:, 0], X_ambient[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
+        plt.title(title)
         plt.savefig(save_path, format='png', dpi=300)
     else:
-        plt.show()
+        pass
 
 
-visualize_dataset(X_manifold, cluster_labels, title=args.name,
+visualize_dataset(X_manifold, cluster_labels, title=args.name, save_img = save_img,
                       save_path=os.getcwd() + '/results/' + "gt_manifold_" + args.name + ".png")
-visualize_dataset(X_ambient, cluster_labels, title=args.name,
+visualize_dataset(X_ambient, cluster_labels, title=args.name, save_img = save_img,
                       save_path=os.getcwd() + '/results/' + "gt_ambient_" + args.name + ".png")
 
 logging.info('------------------ START EXPERIMENT ---------------------')
@@ -129,7 +132,7 @@ for model_name in args.jm:
                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                tau=np.nan, lambd=np.nan, alpha=alpha, beta=beta,
-                                               gnn_type=gnn_type, dataset=args.name)
+                                               gnn_type=gnn_type, dataset=args.name, save_img=save_img)
         results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"] = res
 
 
@@ -148,7 +151,7 @@ for model_name in args.jm:
                                                    proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
                                                    random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                    gnn_type=gnn_type,
-                                                   name_file="logsGRACE " + name, dataset=args.name)
+                                                   name_file="logsGRACE " + name, dataset=args.name, save_img=save_img)
                         results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'CCA-SSG':
                     beta = 1
@@ -163,7 +166,7 @@ for model_name in args.jm:
                                                        n_neighbors=15,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsCCA-SSG " + name, dataset=args.name)
+                                                       name_file="logsCCA-SSG " + name, dataset=args.name, save_img=save_img)
                             results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'SPAGCN':
                     beta = 1
@@ -173,7 +176,7 @@ for model_name in args.jm:
                                                      n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                      hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                      tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
-                                                     gnn_type=gnn_type, dataset=args.name)
+                                                     gnn_type=gnn_type, dataset=args.name, save_img=save_img)
                         results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'GNUMAP':
                     beta = 1
@@ -187,7 +190,7 @@ for model_name in args.jm:
                                                        proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsGNUMAP " + name, dataset=args.name)
+                                                       name_file="logsGNUMAP " + name, dataset=args.name, save_img=save_img)
                             results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 else:
                     raise ValueError('Invalid model name')
@@ -195,7 +198,7 @@ for model_name in args.jm:
     # 'UMAP', 'DenseMAP'
     elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE','UMAP', 'DenseMAP']:
         mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                   out_dim=X_manifold.shape[1], dataset=args.name)
+                                   out_dim=X_manifold.shape[1], dataset=args.name, save_img=save_img)
         results[name + '_' + model_name] = res
 
 if args.jcsv:
