@@ -56,7 +56,7 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
+parser.add_argument('--jm', nargs='+', default=['DGI','BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
                                                 'UMAP', 'DenseMAP',
                                                  'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
                      help='List of models to run')
