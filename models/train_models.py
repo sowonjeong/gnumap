@@ -40,8 +40,11 @@ def init_weights(m):
 def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
               epochs=200, lr=1e-3, name_file="1", device=None, gnn_type="symmetric", alpha=0.5, beta=1.0):
     current_path = os.getcwd()
+    print('*****' + str(current_path))
     up_two_levels = os.path.dirname(os.path.dirname(current_path))
+    print(str(up_two_levels))
     directory_path = os.path.join(up_two_levels, "experiments/experiments/model_weights")
+    print(str(directory_path))
 
     # if not os.path.exists(directory_path):
     #     os.makedirs(directory_path)
