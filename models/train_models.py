@@ -400,8 +400,10 @@ def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data)  # train_semi(model, data, num_per_class, pos_idx)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
+        if np.isnan(loss):
+            break
     # tracker.stop()
-    return model
+    return model, loss
 
 
 def train_entropy_ssg(data, hid_dim, channels, lambd=1e-5,

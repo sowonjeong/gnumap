@@ -41,7 +41,7 @@ from experiments.experiment import *
 from metrics.evaluation_metrics import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', type=str, default='Circles')
+parser.add_argument('--name_dataset', type=str, default='Circles')
 parser.add_argument('--filename', type=str, default='test')
 parser.add_argument('--split', type=str, default='PublicSplit')
 parser.add_argument('--noise', type=float, default=0)
@@ -56,8 +56,7 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['DGI','BGRL', 'GRACE','GNUMAP','CCA-SSG', 'SPAGCN',
-                                                'UMAP', 'DenseMAP',
+parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'CCA-SSG', 'GRACE','GNUMAP', 'SPAGCN','UMAP', 'DenseMAP',
                                                  'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
                      help='List of models to run')
 args = parser.parse_args()
@@ -88,7 +87,7 @@ seed = args.seed
 np.random.seed(seed)
 torch.manual_seed(seed)
 
-name = args.name
+name_file = args.name + "_"  + args.filename
 results = {}
 
 X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples=1000,
@@ -126,7 +125,9 @@ for model_name in args.jm:
                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                tau=np.nan, lambd=np.nan, alpha=alpha, beta=beta,
-                                               gnn_type=gnn_type, dataset=args.name, save_img=save_img)
+                                               gnn_type=gnn_type, dataset=args.name, 
+                                               name_file=name_file,
+                                               save_img=save_img)
         results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"] = res
 
 
@@ -145,7 +146,8 @@ for model_name in args.jm:
                                                    proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
                                                    random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                    gnn_type=gnn_type,
-                                                   name_file="logsGRACE " + name, dataset=args.name, save_img=save_img)
+                                                   name_file="logsGRACE " + name_file, 
+                                                   dataset=args.name, save_img=save_img)
                         results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'CCA-SSG':
                     beta = 1
@@ -160,7 +162,7 @@ for model_name in args.jm:
                                                        n_neighbors=15,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsCCA-SSG " + name, dataset=args.name, save_img=save_img)
+                                                       name_file="logsCCA-SSG " + name_file, dataset=args.name, save_img=save_img)
                             results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'SPAGCN':
                     beta = 1
@@ -170,7 +172,8 @@ for model_name in args.jm:
                                                      n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                      hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                      tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
-                                                     gnn_type=gnn_type, dataset=args.name, save_img=save_img)
+                                                     gnn_type=gnn_type, dataset=args.name,
+                                                    name_file= "logs-Spagcn" + name_file, save_img=save_img)
                         results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'GNUMAP':
                     beta = 1
@@ -184,7 +187,7 @@ for model_name in args.jm:
                                                        proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsGNUMAP " + name, dataset=args.name, save_img=save_img)
+                                                       name_file="logsGNUMAP " + name_file, dataset=args.name, save_img=save_img)
                             results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 else:
                     raise ValueError('Invalid model name')

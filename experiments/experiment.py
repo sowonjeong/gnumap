@@ -83,13 +83,16 @@ def experiment(model_name, G, X_ambient, X_manifold,
             embeds = model.get_embedding(G)
 
     elif model_name == 'CCA-SSG':
-        model = train_cca_ssg(G, hid_dim=hid_dim,
-                              channels=out_dim,
-                              lambd=lambd,
-                              n_layers=n_layers,
-                              epochs=epochs, lr=lr,
-                              fmr=fmr, edr=edr, name_file=name_file)
-        embeds = model.get_embedding(G)
+        model, loss = train_cca_ssg(G, hid_dim=hid_dim,
+                                    channels=out_dim,
+                                    lambd=lambd,
+                                    n_layers=n_layers,
+                                    epochs=epochs, lr=lr,
+                                    fmr=fmr, edr=edr, name_file=name_file)
+        if np.isnan(loss):
+            embeds = None
+        else:
+            embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
         model = train_entropy_ssg(G, hid_dim=hid_dim,
                                   channels=out_dim,
@@ -112,7 +115,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     elif model_name == "GNUMAP":
         model, embeds = train_gnumap(G, hid_dim, out_dim,
                              n_layers=n_layers,
-                             epochs=epochs, lr=lr, wd=wd)
+                             epochs=epochs, lr=lr, wd=wd, name_file=name_file)
     elif model_name == "SPAGCN":
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix

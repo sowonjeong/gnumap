@@ -3,6 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="e3d46bd7-5a0a-460d-be35-077c9b5842c5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/archive/test.sbatch" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/archive/test.sbatch" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiment_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiment_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_1.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_1.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_1.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_1.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/results/dummy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/train_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/train_models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +30,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2USPM4iYvEIqQdKOYPtQdKqwaSN" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -36,6 +46,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/experiments/results" />
       <recent name="$PROJECT_DIR$/models" />
     </key>
   </component>
@@ -104,9 +115,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.spagcn" />
       <item itemvalue="Python.experiment" />
       <item itemvalue="Python.experiment_main" />
+      <item itemvalue="Python.spagcn" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
