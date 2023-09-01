@@ -87,7 +87,9 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
             best = loss
             best_t = epoch
             cnt_wait = 0
-            torch.save(model.state_dict(), directory_path + '/best_dgi_dim' + str(out_dim) + '_' + name_file + '.pkl')
+            save_path = directory_path + '/best_dgi_dim' + str(out_dim) + '_' + name_file + '.pkl'
+            print(f"Saving from: {save_path}")
+            torch.save(model.state_dict(), save_path)
         else:
             cnt_wait += 1
 
@@ -97,8 +99,9 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
     # tracker.stop()
 
     print('Loading {}th epoch'.format(best_t))
-    model.load_state_dict(torch.load(directory_path + '/best_dgi_dim'
-                                     + str(out_dim) + '_' + name_file + '.pkl'))
+    load_path = directory_path + '/best_dgi_dim' + str(out_dim) + '_' + name_file + '.pkl'
+    print(f"Loading from: {load_path}")
+    model.load_state_dict(torch.load(load_path))
     return model
 
 
