@@ -90,7 +90,7 @@ torch.manual_seed(seed)
 name_file = args.name_dataset + "_" + args.filename
 results = {}
 
-X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples=1000,
+X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name_dataset, n_samples=1000,
                                                           features='none', standardize=True,
                                                           centers=4, cluster_std=[0.1, 0.1, 1.0, 1.0],
                                                           ratio_circles=0.2, noise=args.noise,
@@ -110,10 +110,10 @@ def visualize_dataset(X_ambient, cluster_labels, title, save_img, save_path):
         pass
 
 
-visualize_dataset(X_manifold, cluster_labels, title=args.name, save_img = save_img,
-                      save_path=os.getcwd() + '/results/' + "gt_manifold_" + args.name + ".png")
-visualize_dataset(X_ambient, cluster_labels, title=args.name, save_img = save_img,
-                      save_path=os.getcwd() + '/results/' + "gt_ambient_" + args.name + ".png")
+visualize_dataset(X_manifold, cluster_labels, title=args.name_dataset, save_img = save_img,
+                      save_path=os.getcwd() + '/results/' + "gt_manifold_" + args.name_dataset + ".png")
+visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img = save_img,
+                      save_path=os.getcwd() + '/results/' + "gt_ambient_" + args.name_dataset + ".png")
 
 for model_name in args.jm:
     if model_name in ['DGI','BGRL']:
@@ -125,10 +125,10 @@ for model_name in args.jm:
                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                tau=np.nan, lambd=np.nan, alpha=alpha, beta=beta,
-                                               gnn_type=gnn_type, dataset=args.name, 
+                                               gnn_type=gnn_type, dataset=args.name_dataset,
                                                name_file=name_file,
                                                save_img=save_img)
-        results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"] = res
+        results[f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"] = res
 
 
     elif model_name in ['GRACE','CCA-SSG', 'SPAGCN','GNUMAP']:
@@ -147,8 +147,8 @@ for model_name in args.jm:
                                                    random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                    gnn_type=gnn_type,
                                                    name_file="logsGRACE " + name_file, 
-                                                   dataset=args.name, save_img=save_img)
-                        results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                                                   dataset=args.name_dataset, save_img=save_img)
+                        results[f"{args.name_dataset}_{model_name}_{gnn_type}_tau_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'CCA-SSG':
                     beta = 1
                     for tau in [0.1, 0.2, 0.5, 1., 10]:
@@ -162,8 +162,8 @@ for model_name in args.jm:
                                                        n_neighbors=15,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsCCA-SSG " + name_file, dataset=args.name, save_img=save_img)
-                            results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                                                       name_file="logsCCA-SSG " + name_file, dataset=args.name_dataset, save_img=save_img)
+                            results[f"{args.name_dataset}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'SPAGCN':
                     beta = 1
                     for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
@@ -172,9 +172,9 @@ for model_name in args.jm:
                                                      n_layers=args.n_layers, out_dim=X_manifold.shape[1],
                                                      hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                      tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
-                                                     gnn_type=gnn_type, dataset=args.name,
+                                                     gnn_type=gnn_type, dataset=args.name_dataset,
                                                     name_file= "logs-Spagcn" + name_file, save_img=save_img)
-                        results[f"{name}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                        results[f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 elif model_name == 'GNUMAP':
                     beta = 1
                     for tau in [0.01, 0.1, 0.2, 0.5, 1., 10]:
@@ -187,17 +187,17 @@ for model_name in args.jm:
                                                        proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
                                                        gnn_type=gnn_type,
-                                                       name_file="logsGNUMAP " + name_file, dataset=args.name, save_img=save_img)
-                            results[f"{name}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
+                                                       name_file="logsGNUMAP " + name_file, dataset=args.name_dataset, save_img=save_img)
+                            results[f"{args.name_dataset}_{model_name}_{gnn_type}_{tau}_alpha_{alpha}_beta_{beta}lambd_{lambd}"] = res
                 else:
                     raise ValueError('Invalid model name')
 
     # 'UMAP', 'DenseMAP'
     elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE','UMAP', 'DenseMAP']:
         mod, res, out = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                   out_dim=X_manifold.shape[1], dataset=args.name, save_img=save_img)
-        results[name + '_' + model_name] = res
+                                   out_dim=X_manifold.shape[1], dataset=args.name_dataset, save_img=save_img)
+        results[args.name_dataset + '_' + model_name] = res
 
 if args.jcsv:
-    file_path = os.getcwd() + '/results/' + name + '_' + str(args.radius_knn) + '_gnn_results_0.csv'
+    file_path = os.getcwd() + '/results/' + args.name_dataset + '_' + str(args.radius_knn) + '_gnn_results_0.csv'
     pd.DataFrame.from_dict(results, orient='index').to_csv(get_next_file_path(file_path))
