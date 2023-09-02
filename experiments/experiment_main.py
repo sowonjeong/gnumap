@@ -87,7 +87,7 @@ seed = args.seed
 np.random.seed(seed)
 torch.manual_seed(seed)
 
-name_file = args.name + "_"  + args.filename
+name_file = args.name_dataset + "_" + args.filename
 results = {}
 
 X_ambient, X_manifold, cluster_labels, G = create_dataset(args.name, n_samples=1000,
