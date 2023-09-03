@@ -56,8 +56,8 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['DGI', 'BGRL', 'CCA-SSG', 'GRACE','GNUMAP', 'SPAGCN','UMAP', 'DenseMAP',
-                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
+parser.add_argument('--jm', nargs='+', default=['GNUMAP','DGI', 'BGRL', 'CCA-SSG', 'GRACE', 'UMAP', 'DenseMAP',
+                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE', 'SPAGCN'],
                      help='List of models to run')
 args = parser.parse_args()
 
@@ -106,6 +106,7 @@ def visualize_dataset(X_ambient, cluster_labels, title, save_img, save_path):
         plt.scatter(X_ambient[:, 0], X_ambient[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
         plt.title(title)
         plt.savefig(save_path, format='png', dpi=300)
+        plt.close()
     else:
         pass
 

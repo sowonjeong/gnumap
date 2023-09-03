@@ -48,6 +48,7 @@ def visualize_dataset(X, cluster_labels, title, file_name):
 
     save_path = os.path.join(os.getcwd(), 'results', file_name)
     plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
+    plt.close()
 
 
 def experiment(model_name, G, X_ambient, X_manifold,
