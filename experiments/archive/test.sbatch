@@ -29,5 +29,5 @@ cd $SCRATCH/$USER/gnumap/experiments
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
     python experiment_main.py --name_dataset $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID --save_img yes
 else
-    python experiment_main.py --name_datasetme $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID
+    python experiment_main.py --name_dataset $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID
 fi
