@@ -20,8 +20,6 @@ job_id=$SLURM_ARRAY_JOB_ID
 module load python
 source activate gnumap
 
-result_file="${SLURM_ARRAY_JOB_ID}"
-echo "result file is ${result_file}"
 cd $SCRATCH/$USER/gnumap/experiments
 
-python experiment_main.py --name_dataset $1 --filename $result_file --save_img yes
+python experiment_main.py --name_dataset $1 --filename 12345 --save_img yes
