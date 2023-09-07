@@ -62,7 +62,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
                alpha=0.5, beta=0.1, gnn_type='symmetric',
                name_file="1", save_img=False):
     # num_classes = int(data.y.max().item()) + 1
-    loss_values = None
+    loss_values = [1]
 
     if model_name == 'DGI':  # a b type
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
