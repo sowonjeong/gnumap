@@ -68,6 +68,7 @@ class SPAGCN(nn.Module):
 
     def fit(self, x, adj, lr=0.001, max_epochs=10, update_interval=5, weight_decay=5e-4, opt="sgd", init="kmeans",
             n_neighbors=10, res=0.4):
+        loss_values = []
         self.trajectory = []
         print("Initializing cluster centers.")
         if opt == "sgd":
@@ -112,9 +113,11 @@ class SPAGCN(nn.Module):
             optimizer.zero_grad()
             z, q = self(x, adj)
             loss = self.loss_function(p, q)
+            loss_values.append(loss.detach().numpy())
             loss.backward()
             optimizer.step()
             self.trajectory.append(torch.argmax(q, dim=1).data.cpu().numpy())
+        return loss_values
 
     def predict(self, x, adj):
         z, q = self(torch.Tensor(x), torch.Tensor(adj))

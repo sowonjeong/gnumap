@@ -50,7 +50,6 @@ def visualize_dataset(X, cluster_labels, title, file_name):
     plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
     plt.close()
 
-
 def experiment(model_name, G, X_ambient, X_manifold,
                cluster_labels,
                patience=20, epochs=500,
@@ -62,9 +61,10 @@ def experiment(model_name, G, X_ambient, X_manifold,
                alpha=0.5, beta=0.1, gnn_type='symmetric',
                name_file="1", save_img=False):
     # num_classes = int(data.y.max().item()) + 1
+    loss_values = None
 
-    if model_name == 'DGI':
-        model = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
+    if model_name == 'DGI': # a b type
+        model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
                           n_layers=n_layers,
                           patience=patience,
                           epochs=epochs, lr=lr,
@@ -72,8 +72,8 @@ def experiment(model_name, G, X_ambient, X_manifold,
                           alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
 
-    elif model_name == 'GRACE':
-        model, loss = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
+    elif model_name == 'GRACE': # a b type t
+        model, loss, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                   tau=tau,
                                   epochs=epochs, lr=lr, wd=wd,
                                   fmr=fmr, edr=edr, proj=proj, name_file=name_file,
@@ -83,8 +83,8 @@ def experiment(model_name, G, X_ambient, X_manifold,
         else:
             embeds = model.get_embedding(G)
 
-    elif model_name == 'CCA-SSG':
-        model, loss = train_cca_ssg(G, hid_dim=hid_dim,
+    elif model_name == 'CCA-SSG': # a b type lam
+        model, loss, loss_values = train_cca_ssg(G, hid_dim=hid_dim,
                                     channels=out_dim,
                                     lambd=lambd,
                                     n_layers=n_layers,
@@ -95,7 +95,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         else:
             embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
-        model = train_entropy_ssg(G, hid_dim=hid_dim,
+        model, loss_values = train_entropy_ssg(G, hid_dim=hid_dim,
                                   channels=out_dim,
                                   lambd=lambd,
                                   n_layers=n_layers,
@@ -103,8 +103,8 @@ def experiment(model_name, G, X_ambient, X_manifold,
                                   fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(G)
 
-    elif model_name == 'BGRL':
-        model = train_bgrl(G, hid_dim, out_dim,
+    elif model_name == 'BGRL': #lamb a b type
+        model, loss_values = train_bgrl(G, hid_dim, out_dim,
                            lambd=lambd,
                            n_layers=n_layers,
                            epochs=epochs, lr=lr,
@@ -113,15 +113,15 @@ def experiment(model_name, G, X_ambient, X_manifold,
                            drf1=fmr, drf2=fmr, dre1=edr,
                            dre2=edr, name_file=name_file)
         embeds = model.get_embedding(G)
-    elif model_name == "GNUMAP":
-        model, embeds = train_gnumap(G, hid_dim, out_dim,
+    elif model_name == "GNUMAP": # alpha beta type
+        model, embeds, loss_values = train_gnumap(G, hid_dim, out_dim,
                              n_layers=n_layers,
                              epochs=epochs, lr=lr, wd=wd, name_file=name_file)
-    elif model_name == "SPAGCN":
+    elif model_name == "SPAGCN": # alpha
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
         model = SPAGCN(in_dim=X_ambient.shape[0], out_dim=out_dim, n_neighbors=n_neighbors)
-        model.fit(A, edge_index)
+        loss_values = model.fit(A, edge_index)
         embeds = model.predict(A, edge_index)[0]
         embeds = embeds.detach().numpy()
     elif model_name == 'PCA':
@@ -183,4 +183,4 @@ def experiment(model_name, G, X_ambient, X_manifold,
         results['beta_gnn'] = beta
         results['gnn_type'] = gnn_type
 
-    return (model, results, embeds)
+    return (model, results, embeds, loss_values)

@@ -18,6 +18,7 @@ from graph_utils import convert_to_graph
 from experiments.SBM.read_SBM import *
 from experiments.simulation_utils import *
 
+
 def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none', 
                    standardize=True, centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
                    ratio_circles = 0.2, noise = 0.05, 

@@ -22,6 +22,7 @@ from models.bgrl import BGRL
 from models.data_augmentation import *
 from models.clgr import CLGR
 from models.vgnae import *
+import matplotlib.pyplot as plt
 from scipy import optimize
 import scipy
 
@@ -60,6 +61,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
     loss_fn1 = nn.BCEWithLogitsLoss()
     # tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='DGI_'+ str(out_dim) + '_' +  name_file)
     # tracker.start()
+    loss_values = []
     for epoch in range(epochs):
         # tracker.epoch_start()
         tic_epoch = time.time()
@@ -80,6 +82,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
 
         loss.backward()
         optimizer.step()
+        loss_values.append(loss.item())
         # tracker.epoch_end()
 
         print('Epoch={:03d}, loss={:.4f}, time={:.4f}'.format(epoch, loss.item(), time.time() - tic_epoch))
@@ -102,7 +105,7 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
     load_path = directory_path + '/best_dgi_dim' + str(out_dim) + '_' + name_file + '.pkl'
     print(f"Loading from: {load_path}")
     model.load_state_dict(torch.load(load_path))
-    return model
+    return model, loss_values
 
 
 def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
@@ -128,6 +131,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
     # tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='MVGRL_'+ str(out_dim) + '_' +  name_file)
     # tracker.start()
 
+    loss_values = []
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -144,6 +148,7 @@ def train_mvgrl(data, diff, out_dim, n_layers, patience=20,
         loss = loss_fn1(logits, lbl)
         loss.backward()
         optimizer.step()
+        loss_values.append(loss.item())
         # pdb.set_trace()
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss.item()))
         if loss < best:
@@ -243,6 +248,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
     best = 1e9
     log_sigmoid = torch.nn.LogSigmoid()
     edges = [(e[0], e[1]) for _, e in enumerate(data.edge_index.numpy().T)]
+    loss_values = []
     for epoch in range(epochs):
         tic_epoch = time.time()
         model.train()
@@ -284,7 +290,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
         optimizer.step()
         for g in optimizer.param_groups:
             g['lr'] = lr * (1.0 - (float(epoch) / float(epochs)))
-
+        loss_values.append(loss.item())
         print('Epoch={:03d}, loss={:.4f}, time={:.4f}'.format(epoch, loss.item(), time.time() - tic_epoch))
         if loss < best:
             best = loss
@@ -307,7 +313,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
     model.eval()  # Set the model to evaluation mode
     with torch.no_grad():  # Disable gradient computation
         embeddings = model(data.x.float(), data.edge_index, data.edge_weight).cpu().numpy()  # Get the embeddings as a numpy array
-    return model, embeddings
+    return model, embeddings, loss_values
 
 
 def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
@@ -350,14 +356,16 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         return loss.item()
 
     # tracker.start()
+    loss_values = []
     for epoch in range(epochs):
         loss = train_grace_one_epoch(model, data, fmr,
                                      edr, proj)
         if np.isnan(loss):
             break
+        loss_values.append(loss)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     # tracker.stop()
-    return model, loss
+    return model, loss, loss_values
 
 
 def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
@@ -397,13 +405,15 @@ def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
         return loss.item()
 
     # tracker.start()
+    loss_values = []
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data)  # train_semi(model, data, num_per_class, pos_idx)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         if np.isnan(loss):
             break
+        loss_values.append(loss)
     # tracker.stop()
-    return model, loss
+    return model, loss, loss_values
 
 
 def train_entropy_ssg(data, hid_dim, channels, lambd=1e-5,
@@ -441,8 +451,10 @@ def train_entropy_ssg(data, hid_dim, channels, lambd=1e-5,
         return loss.item()
 
     # tracker.start()
+    loss_values = []
     for epoch in range(epochs):
         loss = train_entropy_one_epoch(model, data)  # train_semi(model, data, num_per_class, pos_idx)
+        loss_values.append(loss)
         # print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     # tracker.stop()
     return (model)
@@ -490,12 +502,14 @@ def train_bgrl(data, hid_dim, out_dim, lambd=1e-5,
 
         return loss.item()
 
+    loss_values = []
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
         loss = train_bgrl_one_epoch(model, data)
+        loss_values.append(loss)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
-    return (model)
+    return (model), loss_values
 
 
 def train_vgnae(data, hid_channels, out_channels, n_lay=2, alpha=0.1, non_linear='relu', normalize=True):
@@ -515,6 +529,7 @@ def train_vgnae(data, hid_channels, out_channels, n_lay=2, alpha=0.1, non_linear
     best_epoch_model = 0
     temp_res = []
 
+    loss_values = []
     for epoch in range(1, args.epochs):
         model.train()
         optimizer.zero_grad()
@@ -538,6 +553,7 @@ def train_vgnae(data, hid_channels, out_channels, n_lay=2, alpha=0.1, non_linear
                                             test_data.pos_edge_label_index,
                                             test_data.neg_edge_label_index)
             temp_res += [[epoch, train_auc, train_ap, roc_auc, ap]]
+            loss_values.append(loss)
             print(
                 'Epoch: {:03d}, LOSS: {:.4f}, AUC(train): {:.4f}, AP(train): {:.4f}  AUC(test): {:.4f}, AP(test): {:.4f}'.format(
                     epoch, loss, train_auc, train_ap, roc_auc, ap))
@@ -594,8 +610,10 @@ def train_clgr(data, hid_dim, channels,
     best_t = 0
     cnt_wait = 0
     best = 1e9
+    loss_values = []
     for epoch in range(epochs):
         loss = train_clgr_one_epoch(model, data)  # train_semi(model, data, num_per_class, pos_idx)
+        loss_values.append(loss)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         ### add patience
         if loss < best:

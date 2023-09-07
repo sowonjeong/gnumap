@@ -9,7 +9,7 @@
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=10000 #10G
+#SBATCH --mem-per-cpu=32G #10G
 #SBATCH --mail-type=ALL  # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=jiheeyou@rcc.uchicago.edu  # mail notification for the job
 
