@@ -73,27 +73,21 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = model.get_embedding(G)
 
     elif model_name == 'GRACE': # a b type t
-        model, loss, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
+        model, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                   tau=tau,
                                   epochs=epochs, lr=lr, wd=wd,
                                   fmr=fmr, edr=edr, proj=proj, name_file=name_file,
                                   alpha=alpha, beta=beta, gnn_type=gnn_type)
-        if np.isnan(loss):
-            embeds = None
-        else:
-            embeds = model.get_embedding(G)
+        embeds = model.get_embedding(G)
 
     elif model_name == 'CCA-SSG': # a b type lam
-        model, loss, loss_values = train_cca_ssg(G, hid_dim=hid_dim,
+        model, loss_values = train_cca_ssg(G, hid_dim=hid_dim,
                                     channels=out_dim,
                                     lambd=lambd,
                                     n_layers=n_layers,
                                     epochs=epochs, lr=lr,
                                     fmr=fmr, edr=edr, name_file=name_file)
-        if np.isnan(loss):
-            embeds = None
-        else:
-            embeds = model.get_embedding(G)
+        embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
         model, loss_values = train_entropy_ssg(G, hid_dim=hid_dim,
                                   channels=out_dim,
@@ -160,7 +154,8 @@ def experiment(model_name, G, X_ambient, X_manifold,
     else:
         pass
 
-    if embeds is None:
+    if np.isnan(loss_values[-1]):
+        embeds = None
         results = None
     else:
         global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,

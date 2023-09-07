@@ -356,16 +356,14 @@ def train_grace(data, channels, proj_hid_dim, n_layers=2, tau=0.5,
         return loss.item()
 
     # tracker.start()
-    loss_values = []
     for epoch in range(epochs):
         loss = train_grace_one_epoch(model, data, fmr,
                                      edr, proj)
         if np.isnan(loss):
             break
-        loss_values.append(loss)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
     # tracker.stop()
-    return model, loss, loss_values
+    return model, loss_vals
 
 
 def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
@@ -405,15 +403,13 @@ def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
         return loss.item()
 
     # tracker.start()
-    loss_values = []
     for epoch in range(epochs):
         loss = train_cca_one_epoch(model, data)  # train_semi(model, data, num_per_class, pos_idx)
         print('Epoch={:03d}, loss={:.4f}'.format(epoch, loss))
         if np.isnan(loss):
             break
-        loss_values.append(loss)
     # tracker.stop()
-    return model, loss, loss_values
+    return model, loss_vals
 
 
 def train_entropy_ssg(data, hid_dim, channels, lambd=1e-5,

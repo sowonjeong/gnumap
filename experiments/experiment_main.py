@@ -54,11 +54,11 @@ parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
-parser.add_argument('--save_img', type=bool, default=False)
+parser.add_argument('--save_img', type=bool, default=True)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
 parser.add_argument('--jm', nargs='+', default=['SPAGCN', 'GNUMAP', 'DGI', 'BGRL', 'CCA-SSG', 'GRACE',
                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
-                                                'UMAP', 'DenseMAP'],
+                                                ],
                     help='List of models to run')
 args = parser.parse_args()
 
@@ -137,7 +137,7 @@ for model_name in args.jm:
                                                    name_file="logsGNUMAP " + name_file, dataset=args.name_dataset,
                                                    save_img=save_img)
                         viz_loss(loss_values=loss_values, file_name=file_name)
-                    results[file_name] = res
+                    results[file_name] = res if res is not None else {}
         plt.legend()
         plt.title(model_name)
         plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
@@ -145,9 +145,9 @@ for model_name in args.jm:
 
     elif model_name in ['BGRL', 'CCA-SSG']:
         plt.figure(figsize=(16,12))
-        for alpha in np.arange(0, 1.1, 0.5):
-            for beta in np.arange(0, 1.1, 0.5):
-                for gnn_type in ['symmetric', 'RW']:
+        for gnn_type in ['symmetric', 'RW']:
+            for alpha in np.arange(0, 1.1, 0.5):
+                for beta in np.arange(0, 1.1, 0.5):
                     for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
                         file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_lambd_{lambd}"
                         if model_name == 'BGRL':
@@ -173,17 +173,17 @@ for model_name in args.jm:
                                                        name_file="logsCCA-SSG " + name_file, dataset=args.name_dataset,
                                                        save_img=save_img)
                             viz_loss(loss_values=loss_values, file_name=file_name)
-                        results[file_name] = res
-        plt.legend()
-        plt.title(model_name)
-        plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
-        plt.close()
+                        results[file_name] = res if res is not None else {}
+            plt.legend()
+            plt.title(model_name)
+            plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
+            plt.close()
 
     elif model_name == 'GRACE':
         plt.figure(figsize=(16,12))
-        for alpha in np.arange(0, 1.1, 0.5):
-            for beta in np.arange(0, 1.1, 0.5):
-                for gnn_type in ['symmetric', 'RW']:
+        for gnn_type in ['symmetric', 'RW']:
+            for alpha in np.arange(0, 1.1, 0.5):
+                for beta in np.arange(0, 1.1, 0.5):
                     for tau in [0.1, 0.2, 0.5, 1., 10]:
                         file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_tau_{tau}"
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
@@ -197,11 +197,11 @@ for model_name in args.jm:
                                                    name_file="logsGRACE " + name_file,
                                                    dataset=args.name_dataset, save_img=save_img)
                         viz_loss(loss_values=loss_values, file_name=file_name)
-                        results[file_name] = res
-        plt.legend()
-        plt.title(model_name)
-        plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
-        plt.close()
+                        results[file_name] = res if res is not None else {}
+            plt.legend()
+            plt.title(model_name)
+            plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
+            plt.close()
 
     elif model_name == 'SPAGCN':
         plt.figure(figsize=(16,12))
@@ -214,7 +214,7 @@ for model_name in args.jm:
                                        alpha=alpha, dataset=args.name_dataset,
                                        name_file="logs-Spagcn" + name_file, save_img=save_img)
             viz_loss(loss_values, file_name, short_epoch=True)
-            results[file_name] = res
+            results[file_name] = res if res is not None else {}
         plt.legend()
         plt.title(model_name)
         plt.savefig(os.getcwd() + '/results/loss/' + file_name + ".png", format='png', dpi=300)
@@ -223,7 +223,7 @@ for model_name in args.jm:
     elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE', 'UMAP', 'DenseMAP']:
         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                    out_dim=X_manifold.shape[1], dataset=args.name_dataset, save_img=save_img)
-        results[args.name_dataset + '_' + model_name] = res
+        results[args.name_dataset + '_' + model_name] = res if res is not None else {}
 
     else:
         raise ValueError('Invalid model name')
