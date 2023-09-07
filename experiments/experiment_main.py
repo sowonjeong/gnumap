@@ -1,3 +1,7 @@
+import warnings
+
+warnings.simplefilter('ignore', DeprecationWarning)
+
 import torch
 import torch_geometric
 from torch_geometric.data import Data
@@ -57,8 +61,8 @@ parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
 parser.add_argument('--jm', nargs='+', default=['UMAP', 'DenseMAP',
-                                                'SPAGCN', 'GNUMAP', 'DGI', 'BGRL',
-                                                'CCA-SSG', 'GRACE',
+                                                'CCA-SSG', 'SPAGCN', 'GNUMAP',
+                                                'GRACE', 'DGI', 'BGRL',
                                                 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
                                                 ],
                     help='List of models to run')
@@ -105,6 +109,7 @@ def viz_loss(loss_values, file_name, short_epoch=False):
         plt.xlim(0, 500)
         plt.ylim(-10, 10)
 
+
 visualize_dataset(X_manifold, cluster_labels, title=args.name_dataset, save_img=save_img,
                   save_path=os.getcwd() + '/results/' + "gt_manifold_" + args.name_dataset + ".png")
 visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img=save_img,
@@ -112,32 +117,34 @@ visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img=s
 
 for model_name in args.jm:
     if model_name in ['DGI', 'GNUMAP']:
-        plt.figure(figsize=(16,12))
+        plt.figure(figsize=(16, 12))
         for alpha in np.arange(0, 1.1, 0.5):
             for beta in np.arange(0, 1.1, 0.5):
                 for gnn_type in ['symmetric', 'RW']:
                     file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"
                     if model_name == 'DGI':
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                   patience=20, epochs=args.epoch,
-                                                   n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                   hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                                                   tau=np.nan, lambd=np.nan, alpha=alpha, beta=beta,
-                                                   gnn_type=gnn_type, dataset=args.name_dataset,
-                                                   name_file=name_file,
-                                                   save_img=save_img)
+                                                                patience=20, epochs=args.epoch,
+                                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                hid_dim=args.hid_dim, lr=args.lr, wd=0,
+                                                                tau=np.nan, lambd=np.nan, alpha=alpha, beta=beta,
+                                                                gnn_type=gnn_type, dataset=args.name_dataset,
+                                                                name_file=name_file,
+                                                                save_img=save_img)
                         viz_loss(loss_values=loss_values, file_name=file_name)
                     elif model_name == 'GNUMAP':
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                   patience=20, epochs=args.epoch,
-                                                   n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                   hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                   min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                   proj="standard", pred_hid=args.hid_dim, n_neighbors=np.nan,
-                                                   random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                   gnn_type=gnn_type,
-                                                   name_file="logsGNUMAP " + name_file, dataset=args.name_dataset,
-                                                   save_img=save_img)
+                                                                patience=20, epochs=args.epoch,
+                                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                                min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                                proj="standard", pred_hid=args.hid_dim,
+                                                                n_neighbors=np.nan,
+                                                                random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                                gnn_type=gnn_type,
+                                                                name_file="logsGNUMAP " + name_file,
+                                                                dataset=args.name_dataset,
+                                                                save_img=save_img)
                         viz_loss(loss_values=loss_values, file_name=file_name)
                     results[file_name] = res if res is not None else {}
         plt.legend()
@@ -146,34 +153,38 @@ for model_name in args.jm:
         plt.close()
 
     elif model_name in ['BGRL', 'CCA-SSG']:
-        plt.figure(figsize=(16,12))
+        plt.figure(figsize=(16, 12))
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0, 1.1, 0.5):
                 for beta in np.arange(0, 1.1, 0.5):
                     for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
                         file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_lambd_{lambd}"
                         if model_name == 'BGRL':
-                            mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                       patience=20, epochs=args.epoch,
-                                                       n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                       hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                                                       tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
-                                                       gnn_type=gnn_type, dataset=args.name_dataset,
-                                                       name_file=name_file,
-                                                       save_img=save_img)
+                            mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold,
+                                                                    cluster_labels,
+                                                                    patience=20, epochs=args.epoch,
+                                                                    n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                    hid_dim=args.hid_dim, lr=args.lr, wd=0,
+                                                                    tau=np.nan, lambd=lambd, alpha=alpha, beta=beta,
+                                                                    gnn_type=gnn_type, dataset=args.name_dataset,
+                                                                    name_file=name_file,
+                                                                    save_img=save_img)
                             viz_loss(loss_values=loss_values, file_name=file_name)
                         elif model_name == 'CCA-SSG':
-                            mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                       patience=20, epochs=args.epoch,
-                                                       n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                       hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                       lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                       proj="standard", pred_hid=args.hid_dim,
-                                                       n_neighbors=15,
-                                                       random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                       gnn_type=gnn_type,
-                                                       name_file="logsCCA-SSG " + name_file, dataset=args.name_dataset,
-                                                       save_img=save_img)
+                            mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold,
+                                                                    cluster_labels,
+                                                                    patience=20, epochs=args.epoch,
+                                                                    n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                    hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                                    lambd=lambd, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                                    proj="standard", pred_hid=args.hid_dim,
+                                                                    n_neighbors=15,
+                                                                    random_state=42, perplexity=30, alpha=alpha,
+                                                                    beta=beta,
+                                                                    gnn_type=gnn_type,
+                                                                    name_file="logsCCA-SSG " + name_file,
+                                                                    dataset=args.name_dataset,
+                                                                    save_img=save_img)
                             viz_loss(loss_values=loss_values, file_name=file_name)
                         results[file_name] = res if res is not None else {}
             plt.legend()
@@ -182,22 +193,22 @@ for model_name in args.jm:
             plt.close()
 
     elif model_name == 'GRACE':
-        plt.figure(figsize=(16,12))
+        plt.figure(figsize=(16, 12))
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0, 1.1, 0.5):
                 for beta in np.arange(0, 1.1, 0.5):
                     for tau in [0.1, 0.2, 0.5, 1., 10]:
                         file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_tau_{tau}"
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                   patience=20, epochs=args.epoch,
-                                                   n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                   hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                   tau=tau, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                   proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
-                                                   random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                   gnn_type=gnn_type,
-                                                   name_file="logsGRACE " + name_file,
-                                                   dataset=args.name_dataset, save_img=save_img)
+                                                                patience=20, epochs=args.epoch,
+                                                                n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                                tau=tau, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                                proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
+                                                                random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                                gnn_type=gnn_type,
+                                                                name_file="logsGRACE " + name_file,
+                                                                dataset=args.name_dataset, save_img=save_img)
                         viz_loss(loss_values=loss_values, file_name=file_name)
                         results[file_name] = res if res is not None else {}
             plt.legend()
@@ -206,15 +217,15 @@ for model_name in args.jm:
             plt.close()
 
     elif model_name == 'SPAGCN':
-        plt.figure(figsize=(16,12))
+        plt.figure(figsize=(16, 12))
         for alpha in np.arange(0, 1.1, 0.5):
             file_name = f"{args.name_dataset}_{model_name}_alpha_{alpha}"
             mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                       patience=20, epochs=args.epoch,
-                                       n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                       hid_dim=args.hid_dim, lr=args.lr, wd=0,
-                                       alpha=alpha, dataset=args.name_dataset,
-                                       name_file="logs-Spagcn" + name_file, save_img=save_img)
+                                                    patience=20, epochs=args.epoch,
+                                                    n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                    hid_dim=args.hid_dim, lr=args.lr, wd=0,
+                                                    alpha=alpha, dataset=args.name_dataset,
+                                                    name_file="logs-Spagcn" + name_file, save_img=save_img)
             viz_loss(loss_values, file_name, short_epoch=True)
             results[file_name] = res if res is not None else {}
         plt.legend()
@@ -224,7 +235,8 @@ for model_name in args.jm:
 
     elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE', 'UMAP', 'DenseMAP']:
         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                   out_dim=X_manifold.shape[1], dataset=args.name_dataset, save_img=save_img)
+                                                out_dim=X_manifold.shape[1], dataset=args.name_dataset,
+                                                save_img=save_img)
         results[args.name_dataset + '_' + model_name] = res if res is not None else {}
 
     else:

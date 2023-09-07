@@ -50,6 +50,7 @@ def visualize_dataset(X, cluster_labels, title, file_name):
     plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
     plt.close()
 
+
 def experiment(model_name, G, X_ambient, X_manifold,
                cluster_labels,
                patience=20, epochs=500,
@@ -63,55 +64,55 @@ def experiment(model_name, G, X_ambient, X_manifold,
     # num_classes = int(data.y.max().item()) + 1
     loss_values = None
 
-    if model_name == 'DGI': # a b type
+    if model_name == 'DGI':  # a b type
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
-                          n_layers=n_layers,
-                          patience=patience,
-                          epochs=epochs, lr=lr,
-                          name_file=name_file,
-                          alpha=alpha, beta=beta, gnn_type=gnn_type)
+                                       n_layers=n_layers,
+                                       patience=patience,
+                                       epochs=epochs, lr=lr,
+                                       name_file=name_file,
+                                       alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
 
-    elif model_name == 'GRACE': # a b type t
+    elif model_name == 'GRACE':  # a b type t
         model, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
-                                  tau=tau,
-                                  epochs=epochs, lr=lr, wd=wd,
-                                  fmr=fmr, edr=edr, proj=proj, name_file=name_file,
-                                  alpha=alpha, beta=beta, gnn_type=gnn_type)
+                                         tau=tau,
+                                         epochs=epochs, lr=lr, wd=wd,
+                                         fmr=fmr, edr=edr, proj=proj, name_file=name_file,
+                                         alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
 
-    elif model_name == 'CCA-SSG': # a b type lam
+    elif model_name == 'CCA-SSG':  # a b type lam
         model, loss_values = train_cca_ssg(G, hid_dim=hid_dim,
-                                    channels=out_dim,
-                                    lambd=lambd,
-                                    n_layers=n_layers,
-                                    epochs=epochs, lr=lr,
-                                    fmr=fmr, edr=edr, name_file=name_file)
+                                           channels=out_dim,
+                                           lambd=lambd,
+                                           n_layers=n_layers,
+                                           epochs=epochs, lr=lr,
+                                           fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
         model, loss_values = train_entropy_ssg(G, hid_dim=hid_dim,
-                                  channels=out_dim,
-                                  lambd=lambd,
-                                  n_layers=n_layers,
-                                  epochs=epochs, lr=lr,
-                                  fmr=fmr, edr=edr, name_file=name_file)
+                                               channels=out_dim,
+                                               lambd=lambd,
+                                               n_layers=n_layers,
+                                               epochs=epochs, lr=lr,
+                                               fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(G)
 
-    elif model_name == 'BGRL': #lamb a b type
+    elif model_name == 'BGRL':  # lamb a b type
         model, loss_values = train_bgrl(G, hid_dim, out_dim,
-                           lambd=lambd,
-                           n_layers=n_layers,
-                           epochs=epochs, lr=lr,
-                           fmr=fmr, edr=edr,
-                           pred_hid=pred_hid, wd=wd,
-                           drf1=fmr, drf2=fmr, dre1=edr,
-                           dre2=edr, name_file=name_file)
+                                        lambd=lambd,
+                                        n_layers=n_layers,
+                                        epochs=epochs, lr=lr,
+                                        fmr=fmr, edr=edr,
+                                        pred_hid=pred_hid, wd=wd,
+                                        drf1=fmr, drf2=fmr, dre1=edr,
+                                        dre2=edr, name_file=name_file)
         embeds = model.get_embedding(G)
-    elif model_name == "GNUMAP": # alpha beta type
+    elif model_name == "GNUMAP":  # alpha beta type
         model, embeds, loss_values = train_gnumap(G, hid_dim, out_dim,
-                             n_layers=n_layers,
-                             epochs=epochs, lr=lr, wd=wd, name_file=name_file)
-    elif model_name == "SPAGCN": # alpha
+                                                  n_layers=n_layers,
+                                                  epochs=epochs, lr=lr, wd=wd, name_file=name_file)
+    elif model_name == "SPAGCN":  # alpha
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
         model = SPAGCN(in_dim=X_ambient.shape[0], out_dim=out_dim, n_neighbors=n_neighbors)
@@ -154,10 +155,14 @@ def experiment(model_name, G, X_ambient, X_manifold,
     else:
         pass
 
-    if loss_values[-1] is np.nan:
+    try:
+        loss_values = [item.item() for item in loss_values]
+    except:
+        pass
+
+    if np.isnan(loss_values[-1]):
         embeds = None
         results = None
-
     else:
         global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
                                                  dataset=dataset)
