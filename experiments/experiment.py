@@ -154,10 +154,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     else:
         pass
 
-    if np.isnan(loss_values[-1]):
-        embeds = None
-        results = None
-    else:
+    if loss_values[-1]:
         global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
                                                  dataset=dataset)
         print("done with the embedding evaluation")
@@ -177,5 +174,9 @@ def experiment(model_name, G, X_ambient, X_manifold,
         results['alpha_gnn'] = alpha
         results['beta_gnn'] = beta
         results['gnn_type'] = gnn_type
+
+    else:
+        embeds = None
+        results = None
 
     return (model, results, embeds, loss_values)
