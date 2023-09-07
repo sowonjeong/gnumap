@@ -54,10 +54,11 @@ parser.add_argument('--b', type=float, default=1.)  # data construction
 parser.add_argument('--radius_knn', type=float, default=0.1)  # graph construction
 parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
-parser.add_argument('--save_img', type=bool, default=True)
+parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
 parser.add_argument('--jm', nargs='+', default=['SPAGCN', 'GNUMAP', 'DGI', 'BGRL', 'CCA-SSG', 'GRACE',
-                                                'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE'],
+                                                'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
+                                                'UMAP', 'DenseMAP'],
                     help='List of models to run')
 args = parser.parse_args()
 
