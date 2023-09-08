@@ -60,10 +60,9 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['UMAP', 'DenseMAP',
+parser.add_argument('--jm', nargs='+', default=['UMAP', 'DenseMAP', 'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
                                                 'CCA-SSG', 'SPAGCN', 'GNUMAP',
-                                                'GRACE', 'DGI', 'BGRL',
-                                                'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
+                                                'GRACE', 'DGI', 'BGRL'
                                                 ],
                     help='List of models to run')
 args = parser.parse_args()
@@ -111,9 +110,9 @@ def viz_loss(loss_values, file_name, short_epoch=False):
 
 
 visualize_dataset(X_manifold, cluster_labels, title=args.name_dataset, save_img=save_img,
-                  save_path=os.getcwd() + '/results/' + "gt_manifold_" + args.name_dataset + ".png")
+                  save_path=os.getcwd() + '/results/' + "gt_manifold_" + name_file + ".png")
 visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img=save_img,
-                  save_path=os.getcwd() + '/results/' + "gt_ambient_" + args.name_dataset + ".png")
+                  save_path=os.getcwd() + '/results/' + "gt_ambient_" + name_file + ".png")
 
 for model_name in args.jm:
     if model_name in ['DGI', 'GNUMAP']:
@@ -121,7 +120,7 @@ for model_name in args.jm:
         for alpha in np.arange(0, 1.1, 0.5):
             for beta in np.arange(0, 1.1, 0.5):
                 for gnn_type in ['symmetric', 'RW']:
-                    file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"
+                    file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}"+name_file
                     if model_name == 'DGI':
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                                 patience=20, epochs=args.epoch,
@@ -158,7 +157,7 @@ for model_name in args.jm:
             for alpha in np.arange(0, 1.1, 0.5):
                 for beta in np.arange(0, 1.1, 0.5):
                     for lambd in [1e-3, 5 * 1e-2, 1e-2, 5 * 1e-1, 1e-1, 1.]:
-                        file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_lambd_{lambd}"
+                        file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_lambd_{lambd}"+name_file
                         if model_name == 'BGRL':
                             mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold,
                                                                     cluster_labels,
@@ -198,7 +197,7 @@ for model_name in args.jm:
             for alpha in np.arange(0, 1.1, 0.5):
                 for beta in np.arange(0, 1.1, 0.5):
                     for tau in [0.1, 0.2, 0.5, 1., 10]:
-                        file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_tau_{tau}"
+                        file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}_tau_{tau}"+name_file
                         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                                 patience=20, epochs=args.epoch,
                                                                 n_layers=args.n_layers, out_dim=X_manifold.shape[1],
@@ -219,7 +218,7 @@ for model_name in args.jm:
     elif model_name == 'SPAGCN':
         plt.figure(figsize=(16, 12))
         for alpha in np.arange(0, 1.1, 0.5):
-            file_name = f"{args.name_dataset}_{model_name}_alpha_{alpha}"
+            file_name = f"{args.name_dataset}_{model_name}_alpha_{alpha}"+name_file
             mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                     patience=20, epochs=args.epoch,
                                                     n_layers=args.n_layers, out_dim=X_manifold.shape[1],
@@ -236,13 +235,13 @@ for model_name in args.jm:
     elif model_name in ['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE', 'UMAP', 'DenseMAP']:
         mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                 out_dim=X_manifold.shape[1], dataset=args.name_dataset,
-                                                save_img=save_img)
-        results[args.name_dataset + '_' + model_name] = res if res is not None else {}
+                                                save_img=save_img, name_file=name_file)
+        results[args.name_dataset + '_' + model_name+name_file] = res if res is not None else {}
 
     else:
         raise ValueError('Invalid model name')
 
 if args.jcsv:
     file_path = os.getcwd() + '/results/' + args.name_dataset + '_' + str(args.radius_knn) + \
-                '_gnn_results_' + str(args.seed) + '.csv'
+                '_gnn_results_' + str(args.seed) + name_file + '.csv'
     pd.DataFrame.from_dict(results, orient='index').to_csv(file_path)

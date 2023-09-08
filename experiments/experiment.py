@@ -62,7 +62,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
                alpha=0.5, beta=0.1, gnn_type='symmetric',
                name_file="1", save_img=False):
     # num_classes = int(data.y.max().item()) + 1
-    loss_values = None
+    loss_values = [1]
 
     if model_name == 'DGI':  # a b type
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
@@ -148,7 +148,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
 
     file_name = (
         f"{model_name}_{dataset}_tau_{tau}_lambda_{lambd}_gnn_type_{gnn_type}_"
-        f"alpha_{alpha}_beta_{beta}.png"
+        f"alpha_{alpha}_beta_{beta}_{name_file}.png"
     )
     if save_img:
         visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name)
