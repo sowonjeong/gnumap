@@ -19,7 +19,7 @@ from experiments.SBM.read_SBM import *
 from experiments.simulation_utils import *
 
 
-def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none', 
+def create_dataset(name, n_samples = 500, n_neighbours = 50, features='ones',
                    standardize=True, centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
                    ratio_circles = 0.2, noise = 0.05, 
                    a=1, b=1, n_bins = 10, random_state = None, radius_knn = 0, bw = 1,
