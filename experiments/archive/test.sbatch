@@ -5,7 +5,7 @@
 #SBATCH --error=logs/array_%A_%a.err
 #SBATCH --account=pi-cdonnat
 #SBATCH --array=1-50
-#SBATCH --time=18:00:00
+#SBATCH --time=20:00:00
 #SBATCH --partition=caslake
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
