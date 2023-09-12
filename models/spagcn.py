@@ -37,7 +37,7 @@ from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 
 
 class SPAGCN(nn.Module):
-    def __init__(self, in_dim=1000, nhid=50, n_clusters=10, alpha=0.5, out_dim=2, n_neighbors=15):
+    def __init__(self, in_dim=1000, nhid=512, n_clusters=10, alpha=0.5, out_dim=2, n_neighbors=15):
         super(SPAGCN, self).__init__()
         self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0.2)
         self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
@@ -66,7 +66,7 @@ class SPAGCN(nn.Module):
         p = p / torch.sum(p, dim=1, keepdim=True)
         return p
 
-    def fit(self, x, adj, lr=0.001, max_epochs=10, update_interval=5, weight_decay=5e-4, opt="sgd", init="kmeans",
+    def fit(self, x, adj, lr=0.001, max_epochs=200, update_interval=5, weight_decay=5e-4, opt="sgd", init="kmeans",
             n_neighbors=10, res=0.4):
         loss_values = []
         self.trajectory = []

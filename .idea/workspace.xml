@@ -3,18 +3,17 @@
   <component name="ChangeListManager">
     <list default="true" id="e3d46bd7-5a0a-460d-be35-077c9b5842c5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/archive/test.sbatch" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/archive/test.sbatch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/create_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/create_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/exp.sh" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/exp.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/experiment_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiment_main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Blobs_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Blobs_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Moons_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Moons_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Sphere_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Sphere_test.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Swissroll_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_dgi_dim2_Swissroll_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Blobs_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Blobs_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Moons_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Moons_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Sphere_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Sphere_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_1.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_1.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Swissroll_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/experiments/model_weights/best_gnumap_laplacian_neigh15_dim2_logsGNUMAP Swissroll_test.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/results/loss/dummy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/graph_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/baseline_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/baseline_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/spagcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/spagcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/train_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/train_models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,18 +41,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/Users/jiheeyou/Desktop/gnumap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jiheeyou/Desktop/gnumap&quot;
   },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "TEXT"
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;TEXT&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/experiments/results" />

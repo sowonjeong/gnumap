@@ -2,9 +2,9 @@ from numbers import Number
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# from torch_geometric.nn import GCNConv
+from torch_geometric.nn import GCNConv
 from models.aggregation import *
-# from models.aggregation import GAPPNP
+from models.aggregation import GAPPNP
 
 class LogReg(nn.Module):
     def __init__(self, hid_dim, out_dim):

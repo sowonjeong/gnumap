@@ -123,8 +123,8 @@ def deg(index, num_nodes: Optional[int] = None,
     return out.scatter_add_(0, index, one)
 
 
-def convert_to_graph(X, n_neighbours = 5, features='ones', standardize=True,
-                     radius_knn = 0.,featdim = 50, bw = None):
+def convert_to_graph(X, n_neighbours =15, features='none', standardize=True,
+                     radius_knn = 0., featdim = 50, bw = None):
     n = X.shape[0]
     if standardize:
         scaler = MinMaxScaler(feature_range=(-1, 1))

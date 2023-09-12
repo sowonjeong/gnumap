@@ -38,7 +38,7 @@ def init_weights(m):
         m.bias.data.fill_(0.1)
 
 
-def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
+def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.2, patience=20,
               epochs=200, lr=1e-3, name_file="1", device=None, gnn_type="symmetric", alpha=0.5, beta=1.0):
     directory_path = os.path.join(os.getcwd(), "experiments/model_weights")
 
@@ -91,7 +91,6 @@ def train_dgi(data, hid_dim, out_dim, n_layers, dropout_rate=0.5, patience=20,
             best_t = epoch
             cnt_wait = 0
             save_path = directory_path + '/best_dgi_dim' + str(out_dim) + '_' + name_file + '.pkl'
-            print(f"Saving from: {save_path}")
             torch.save(model.state_dict(), save_path)
         else:
             cnt_wait += 1
@@ -382,7 +381,7 @@ def train_cca_ssg(data, hid_dim, channels, lambd=1e-5,
     model = CCA_SSG(in_dim, hid_dim, out_dim, n_layers, lambd, N, use_mlp=False, gnn_type=gnn_type, alpha=alpha,
                     beta=beta)  #
     model = model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.0)
 
     # tracker = OfflineEmissionsTracker(country_iso_code="US", project_name='CCA-SSG_'+ str(channels) +
     #            '_lambda' + str(lambd) +

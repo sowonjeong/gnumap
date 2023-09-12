@@ -54,8 +54,8 @@ def visualize_dataset(X, cluster_labels, title, file_name):
 def experiment(model_name, G, X_ambient, X_manifold,
                cluster_labels,
                patience=20, epochs=500,
-               n_layers=2, out_dim=2, hid_dim=16, lr=1e-3, wd=0.0,
-               tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.5, fmr=0.2,
+               n_layers=2, out_dim=2, hid_dim=128, lr=1e-4, wd=0.0,
+               tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.8, fmr=0,
                proj="standard", pred_hid=512,
                n_neighbors=15, dataset='Blobs',
                random_state=42, perplexity=30,
@@ -68,7 +68,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
                                        n_layers=n_layers,
                                        patience=patience,
-                                       epochs=epochs, lr=lr,
+                                       epochs=epochs, lr=1e-4,
                                        name_file=name_file,
                                        alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
@@ -76,7 +76,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     elif model_name == 'GRACE':  # a b type t
         model, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                          tau=tau,
-                                         epochs=epochs, lr=lr, wd=wd,
+                                         epochs=100, lr=1e-4, wd=wd,
                                          fmr=fmr, edr=edr, proj=proj, name_file=name_file,
                                          alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
@@ -86,7 +86,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
                                            channels=out_dim,
                                            lambd=lambd,
                                            n_layers=n_layers,
-                                           epochs=epochs, lr=lr,
+                                           epochs=100, lr=1e-4,
                                            fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
@@ -102,7 +102,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         model, loss_values = train_bgrl(G, hid_dim, out_dim,
                                         lambd=lambd,
                                         n_layers=n_layers,
-                                        epochs=epochs, lr=lr,
+                                        epochs=epochs, lr=2e-4,
                                         fmr=fmr, edr=edr,
                                         pred_hid=pred_hid, wd=wd,
                                         drf1=fmr, drf2=fmr, dre1=edr,
@@ -111,7 +111,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     elif model_name == "GNUMAP":  # alpha beta type
         model, embeds, loss_values = train_gnumap(G, hid_dim, out_dim,
                                                   n_layers=n_layers,
-                                                  epochs=epochs, lr=lr, wd=wd, name_file=name_file)
+                                                  epochs=epochs, lr=1e-4, wd=wd, name_file=name_file)
     elif model_name == "SPAGCN":  # alpha
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
