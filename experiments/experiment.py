@@ -148,7 +148,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
 
     file_name = (
         f"{model_name}_{dataset}_tau_{tau}_lambda_{lambd}_gnn_type_{gnn_type}_"
-        f"alpha_{alpha}_beta_{beta}_{name_file}.png"
+        f"alpha_{alpha}_beta_{beta}_edr{edr}_fmr{fmr}_{name_file}.png"
     )
     if save_img:
         visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name)

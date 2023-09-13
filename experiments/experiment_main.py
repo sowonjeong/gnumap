@@ -58,9 +58,10 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=False)
 parser.add_argument('--jcsv', type=float, default=True)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
+parser.add_argument('--jm', nargs='+', default=['UMAP', 'DenseMAP',
+                                                'PCA', 'LaplacianEigenmap', 'Isomap', 'TSNE',
                                                 'CCA-SSG', 'SPAGCN', 'GNUMAP',
-                                                'GRACE', 'DGI', 'BGRL', 'UMAP', 'DenseMAP'
+                                                'GRACE', 'DGI', 'BGRL'
                                                 ],
                     help='List of models to run')
 args = parser.parse_args()
@@ -169,48 +170,46 @@ for model_name in args.jm:
                             viz_loss(loss_values=loss_values, file_name=file_name)
                             results[file_name] = res if res is not None else {}
                         elif model_name == 'CCA-SSG':
-                            for fmr in [0, 0.2, 0.8]:
-                                for edr in [0, 0.2, 0.8]:
-                                    file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}" \
-                                                f"_lambd_{lambd}_fmr_{fmr}_edr_{edr}" + name_file
-                                    mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold,
-                                                                            cluster_labels,
-                                                                            patience=20, epochs=args.epoch,
-                                                                            n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                                            hid_dim=args.hid_dim, lr=1e-4, wd=0.0,
-                                                                            lambd=lambd, min_dist=1e-3, edr=edr, fmr=fmr,
-                                                                            proj="standard", pred_hid=args.hid_dim,
-                                                                            n_neighbors=15,
-                                                                            random_state=42, perplexity=30, alpha=alpha,
-                                                                            beta=beta,
-                                                                            gnn_type=gnn_type,
-                                                                            name_file="logsCCA-SSG " + name_file,
-                                                                            dataset=args.name_dataset,
-                                                                            save_img=save_img)
-                                    viz_loss(loss_values=loss_values, file_name=file_name)
-                                    results[file_name] = res if res is not None else {}
+                            for (fmr, edr) in [(0, 0.8), (0.2, 0.2)]:
+                                file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}" \
+                                            f"_lambd_{lambd}_fmr_{fmr}_edr_{edr}" + name_file
+                                mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold,
+                                                                        cluster_labels,
+                                                                        patience=20, epochs=args.epoch,
+                                                                        n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                        hid_dim=args.hid_dim, lr=1e-4, wd=0.0,
+                                                                        lambd=lambd, min_dist=1e-3, edr=edr, fmr=fmr,
+                                                                        proj="standard", pred_hid=args.hid_dim,
+                                                                        n_neighbors=15,
+                                                                        random_state=42, perplexity=30, alpha=alpha,
+                                                                        beta=beta,
+                                                                        gnn_type=gnn_type,
+                                                                        name_file="logsCCA-SSG " + name_file,
+                                                                        dataset=args.name_dataset,
+                                                                        save_img=save_img)
+                                viz_loss(loss_values=loss_values, file_name=file_name)
+                                results[file_name] = res if res is not None else {}
 
     elif model_name == 'GRACE':
         for gnn_type in ['symmetric', 'RW']:
             for alpha in np.arange(0,1.1, 0.5):
                 for beta in np.arange(0,1.1, 0.5):
                     for tau in [0.1, 0.2, 0.5, 1., 10]:
-                        for fmr in [0, 0.2, 0.8]:
-                            for edr in [0, 0.2, 0.8]:
-                                file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}" \
-                                            f"_tau_{tau}_fmr_{fmr}_edr_{edr}"+name_file
-                                mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
-                                                                        patience=20, epochs=args.epoch,
-                                                                        n_layers=args.n_layers, out_dim=X_manifold.shape[1],
-                                                                        hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
-                                                                        tau=tau, min_dist=1e-3, edr=0.2, fmr=0.2,
-                                                                        proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
-                                                                        random_state=42, perplexity=30, alpha=alpha, beta=beta,
-                                                                        gnn_type=gnn_type,
-                                                                        name_file="logsGRACE " + name_file,
-                                                                        dataset=args.name_dataset, save_img=save_img)
-                                viz_loss(loss_values=loss_values, file_name=file_name)
-                                results[file_name] = res if res is not None else {}
+                        for (fmr, edr) in [(0, 0.8), (0.2, 0.2)]:
+                            file_name = f"{args.name_dataset}_{model_name}_{gnn_type}_alpha_{alpha}_beta_{beta}" \
+                                        f"_tau_{tau}_fmr_{fmr}_edr_{edr}"+name_file
+                            mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                                                                    patience=20, epochs=args.epoch,
+                                                                    n_layers=args.n_layers, out_dim=X_manifold.shape[1],
+                                                                    hid_dim=args.hid_dim, lr=args.lr, wd=0.0,
+                                                                    tau=tau, min_dist=1e-3, edr=0.2, fmr=0.2,
+                                                                    proj="standard", pred_hid=args.hid_dim, n_neighbors=15,
+                                                                    random_state=42, perplexity=30, alpha=alpha, beta=beta,
+                                                                    gnn_type=gnn_type,
+                                                                    name_file="logsGRACE " + name_file,
+                                                                    dataset=args.name_dataset, save_img=save_img)
+                            viz_loss(loss_values=loss_values, file_name=file_name)
+                            results[file_name] = res if res is not None else {}
 
     elif model_name == 'SPAGCN':
         for alpha in np.arange(0, 1.1, 0.5):
