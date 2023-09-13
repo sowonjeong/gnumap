@@ -3,7 +3,7 @@
 #SBATCH --job-name=array
 #SBATCH --output=logs/array_%A_%a.out
 #SBATCH --error=logs/array_%A_%a.err
-#SBATCH --array=1-50
+#SBATCH --array=1
 #SBATCH --time=20:00:00
 #SBATCH --partition=fast
 #SBATCH --nodes=1
@@ -24,6 +24,8 @@ source activate gnumap
 
 result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
+echo $SCRATCH
+echo $USER
 cd $SCRATCH/$USER/gnumap/experiments
 
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
