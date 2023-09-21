@@ -1,4 +1,8 @@
-setwd("~/gnumap/result_cluster/results")
+import rpy2.robjects as robjects
+
+# Define R script
+r_script = '''
+setwd("~/Desktop/emb_images/peanutcsv")
 
 library(tidyverse)
 # library(conflicted)
@@ -6,27 +10,23 @@ library(data.table)
 library(ggplot2)
 
 blob <-
-  list.files(pattern = "^Blob_False_gnn_results_4487761_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  list.files(pattern = "^Blobs_25023_[0-9]+\\.csv$", full.names=TRUE) %>%
   map_df(~read.csv(.))
 
 sphere <-
-  list.files(pattern = "^Sphere_False_gnn_results_4481288_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  list.files(pattern = "^Sphere_24978_[0-9]+\\.csv$", full.names=TRUE) %>%
   map_df(~read.csv(.))
 
 circles <-
-  list.files(pattern = "^Circles_False_gnn_results_4487866_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  list.files(pattern = "^Circles_24878_[0-9]+\\.csv$", full.names=TRUE) %>%
   map_df(~read.csv(.))
 
 moons <-
-  list.files(pattern = "^Moons_False_gnn_results_4487811_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  list.files(pattern = "^Moons_24928_[0-9]+\\.csv$", full.names=TRUE) %>%
   map_df(~read.csv(.))
 
 swissroll <-
-  list.files(pattern = "^Swissroll_False_gnn_results_4504910_[0-9]+\\.csv$", full.names=TRUE) %>% 
-  map_df(~read.csv(.))
-
-scurve <-
-  list.files(pattern = "^Scurve_False_gnn_results_4481340_[0-9]+\\.csv$", full.names=TRUE) %>% 
+  list.files(pattern = "^Swissroll_25024_[0-9]+\\.csv$", full.names=TRUE) %>%
   map_df(~read.csv(.))
 
 
@@ -91,4 +91,8 @@ df %>%
   #geom_point()+
   #scale_color_brewer(palette="Paired")+theme_minimal()+
   facet_grid(cols = vars(gnn_type))
+'''
+
+# Run R script
+robjects.r(r_script)
 
