@@ -123,8 +123,8 @@ def deg(index, num_nodes: Optional[int] = None,
     return out.scatter_add_(0, index, one)
 
 
-def convert_to_graph(X, n_neighbours = 5, features=None, standardize=True, 
-                     radius_knn = 0., bw = None):
+def convert_to_graph(X, n_neighbours =15, features='none', standardize=True,
+                     radius_knn = 0., featdim = 50, bw = None):
     n = X.shape[0]
     if standardize:
         scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -141,11 +141,12 @@ def convert_to_graph(X, n_neighbours = 5, features=None, standardize=True,
     if features == 'coordinates':
         feats = torch.from_numpy(X).float()
     elif features == 'ones':
-        feats = torch.ones(n, n)
+        feats = torch.ones(n, featdim)
     else:
         feats = torch.eye(n)
         
     new_data = Data(x=feats, edge_index=edge_index, # 
                     edge_weight=torch.exp(-(edge_weights**2)/(2 * bw**2))) # heat kernel
+    ## edge_weight kernel transf 0 1 todo
     return new_data
 

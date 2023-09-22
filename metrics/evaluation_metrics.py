@@ -1,4 +1,5 @@
-import os
+import sys,os
+sys.setrecursionlimit(3000)
 import json
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -135,7 +136,7 @@ def neighbor_kept_ratio_eval(G, X_new, n_neighbors=30):
     graph_ld -= np.eye(G.num_nodes) # Removing diagonal
     graph_ld = torch.tensor(graph_ld, dtype= torch.float32)
     neighbor_kept = torch.sum((graph_hd * graph_ld)[0], dim = 0)
-    deg_val = deg(G.edge_index)
+    deg_val = deg(G.edge_index, G.num_nodes)
     deg_val[deg_val == 0] = 1e-1
     neighbor_kept_ratio = torch.div(neighbor_kept, deg_val).sum()/G.num_nodes
     return neighbor_kept_ratio
@@ -665,7 +666,7 @@ def eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
     if dataset in ["Trefoil", "Helix", "Swissroll", "Sphere", "Helix",
                    "Swissroll", "Moons", "Circles"]:
         _,_, sp_manifold, _ = spearman_correlation_numpy(X_manifold, embeds)
-        fr_dist =  frdist(X_manifold, embeds)
+        fr_dist = frdist(X_manifold, embeds)
         curve_dist = np.square(X_manifold -  embeds).mean()
 
     elif dataset in ["Blobs"]:
@@ -677,11 +678,11 @@ def eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
     global_dist = {'frechet': fr_dist,
                     'distance_between_curves': curve_dist,
                     'acc': svm_eval(embeds, np.array(cluster_labels)),
-                    'acc_linear': logistic_eval(embeds, np.array(cluster_labels), n_splits=10, penalty="none"),
+                    'acc_linear': logistic_eval(embeds, np.array(cluster_labels), n_splits=10, penalty=None),
                     'acc_X': svm_eval(X_ambient,np.array(cluster_labels)),
                     'acc_manifold': svm_eval(X_manifold,np.array(cluster_labels)),
-                    'acc_linear_X': logistic_eval(X_ambient, np.array(cluster_labels), n_splits=10, penalty="none"),
-                    'acc_linear_X': logistic_eval(X_manifold, np.array(cluster_labels), n_splits=10, penalty="none"),
+                    'acc_linear_X': logistic_eval(X_ambient, np.array(cluster_labels), n_splits=10, penalty=None),
+                    'acc_linear_X': logistic_eval(X_manifold, np.array(cluster_labels), n_splits=10, penalty=None),
                     'silhouette_embeds': silhouette_score(embeds, np.array(cluster_labels)),
                     'silhouette_X': silhouette_score(X_ambient, np.array(cluster_labels)),
                     'silhouette_manifold': silhouette_score(X_manifold, np.array(cluster_labels)),
