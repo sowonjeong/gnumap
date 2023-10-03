@@ -17,14 +17,16 @@
 # Print the task id.
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "My SLURM_ARRAY_JOB_ID: " $SLURM_ARRAY_JOB_ID
+
 # Add lines here to run your computations
 job_id=$SLURM_ARRAY_JOB_ID
-module load python
-source activate gnumap
+source /opt/conda/etc/profile.d/conda.sh
+conda activate gnumap
 
 result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
-cd $SCRATCH/$USER/gnumap/experiments
+cd $HOME/gnumap/experiments
+
 
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
     python experiment_main.py --name_dataset $1 --filename $result_file --seed $SLURM_ARRAY_TASK_ID --save_img yes
