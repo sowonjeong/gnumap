@@ -35,14 +35,20 @@ from models.spagcn import *
 from experiments.create_dataset import *
 
 
-def visualize_dataset(X, cluster_labels, title, file_name):
+def visualize_embeds(X, cluster_labels, title, file_name):
     fig = plt.figure()
-    ax = fig.gca()
 
     if X is not None:
-        ax.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
-        ax.set_title(title)
+        if file_name.split('_')[0] in ['GRACE', 'GNUMAP']:
+            ax = fig.add_subplot(projection='3d')
+            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=cluster_labels, cmap=plt.cm.Spectral)
+            ax.set_title(title)
+        else:
+            ax = fig.gca()
+            ax.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
+            ax.set_title(title)
     else:
+        ax = fig.gca()
         fig.patch.set_facecolor('black')
         ax.set_facecolor('black')
 
@@ -68,7 +74,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
                                        n_layers=n_layers,
                                        patience=patience,
-                                       epochs=epochs, lr=1e-4,
+                                       epochs=epochs, lr=lr,
                                        name_file=name_file,
                                        alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
@@ -76,7 +82,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     elif model_name == 'GRACE':  # a b type t
         model, loss_values = train_grace(G, channels=hid_dim, proj_hid_dim=out_dim,
                                          tau=tau,
-                                         epochs=100, lr=1e-4, wd=wd,
+                                         epochs=epochs, lr=lr, wd=wd,
                                          fmr=fmr, edr=edr, proj=proj, name_file=name_file,
                                          alpha=alpha, beta=beta, gnn_type=gnn_type)
         embeds = model.get_embedding(G)
@@ -86,7 +92,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
                                            channels=out_dim,
                                            lambd=lambd,
                                            n_layers=n_layers,
-                                           epochs=100, lr=1e-4,
+                                           epochs=epochs, lr=lr,
                                            fmr=fmr, edr=edr, name_file=name_file)
         embeds = model.get_embedding(G)
     elif model_name == 'Entropy-SSG':
@@ -102,7 +108,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         model, loss_values = train_bgrl(G, hid_dim, out_dim,
                                         lambd=lambd,
                                         n_layers=n_layers,
-                                        epochs=epochs, lr=2e-4,
+                                        epochs=epochs, lr=lr,
                                         fmr=fmr, edr=edr,
                                         pred_hid=pred_hid, wd=wd,
                                         drf1=fmr, drf2=fmr, dre1=edr,
@@ -111,7 +117,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
     elif model_name == "GNUMAP":  # alpha beta type
         model, embeds, loss_values = train_gnumap(G, hid_dim, out_dim,
                                                   n_layers=n_layers,
-                                                  epochs=epochs, lr=1e-4, wd=wd, name_file=name_file)
+                                                  epochs=epochs, lr=lr, wd=wd, name_file=name_file)
     elif model_name == "SPAGCN":  # alpha
         edge_index = G.edge_index
         A = torch.eye(X_ambient.shape[0])  # identity feature matrix
@@ -151,7 +157,7 @@ def experiment(model_name, G, X_ambient, X_manifold,
         f"alpha_{alpha}_beta_{beta}_edr{edr}_fmr{fmr}_{name_file}.png"
     )
     if save_img:
-        visualize_dataset(embeds, cluster_labels, title=dataset, file_name=file_name)
+        visualize_embeds(embeds, cluster_labels, title=f"neigh{n_neighbors}_lam{lambd}_edr{edr}_fmr{fmr}", file_name=file_name)
     else:
         pass
 
@@ -164,24 +170,24 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = None
         results = None
     else:
-        global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
-                                                 dataset=dataset)
+        # global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
+        #                                          dataset=dataset)
         print("done with the embedding evaluation")
-
-        results = {**global_metrics, **local_metrics}
-        results['model_name'] = model_name
-        results['out_dim'] = out_dim
-        results['hid_dim'] = hid_dim
-        results['n_neighbors'] = n_neighbors
-        results['min_dist'] = min_dist
-        results['lr'] = lr
-        results['edr'] = edr
-        results['fmr'] = fmr
-        results['tau'] = tau
-        results['lambd'] = lambd
-        results['pred_hid'] = pred_hid
-        results['alpha_gnn'] = alpha
-        results['beta_gnn'] = beta
-        results['gnn_type'] = gnn_type
+        results=[]
+        # results = {**global_metrics, **local_metrics}
+        # results['model_name'] = model_name
+        # results['out_dim'] = out_dim
+        # results['hid_dim'] = hid_dim
+        # results['n_neighbors'] = n_neighbors
+        # results['min_dist'] = min_dist
+        # results['lr'] = lr
+        # results['edr'] = edr
+        # results['fmr'] = fmr
+        # results['tau'] = tau
+        # results['lambd'] = lambd
+        # results['pred_hid'] = pred_hid
+        # results['alpha_gnn'] = alpha
+        # results['beta_gnn'] = beta
+        # results['gnn_type'] = gnn_type
 
     return (model, results, embeds, loss_values)
