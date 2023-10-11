@@ -30,23 +30,27 @@ from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 # A = torch.eye(X.shape[0])
 
 
-###TODO: n_clusters pipeline
-###TODO: a,b
-### Question: SIMPLE_GC_DEC
-### TODO: mac_epochs
-
-
 class SPAGCN(nn.Module):
-    def __init__(self, in_dim=1000, nhid=512, n_clusters=10, alpha=0.5, out_dim=2, n_neighbors=15):
+    def __init__(self,
+                 in_dim=1000,
+                 nhid=256,
+                 n_clusters=10,  # kmeans
+                 alpha=0.5,
+                 out_dim=2,
+                 n_neighbors=15):  # louvain
         super(SPAGCN, self).__init__()
-        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0.2)
+        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=1, dropout_rate=0)
+        # TODO: comparison with our gcn
+        self.n_clusters = n_clusters  # for fit method kmeans
         self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
-        self.n_clusters = n_clusters
         self.alpha = alpha
 
     def forward(self, x, adj):
         x = self.gc(x, adj)
-        q = 1.0 / ((1.0 + torch.sum((x.unsqueeze(1) - self.mu) ** 2, dim=2) / self.alpha) + 1e-6)
+        print(x.size())
+        print(self.mu.size())
+        print(x.unsqueeze(1).size())
+        q = 1.0 / ((1.0 + torch.sum((x.unsqueeze(1) - self.mu) ** 2, dim=2) / self.alpha) + 1e-8)
         q = q ** (self.alpha + 1.0) / 2.0
         q = q / torch.sum(q, dim=1, keepdim=True)
         return x, q
@@ -56,7 +60,7 @@ class SPAGCN(nn.Module):
             return torch.mean(torch.sum(target * torch.log(target / (pred + 1e-6)), dim=1))
 
         loss = kld(p, q)
-        # print(loss)
+        print(loss)
         return loss
 
     def target_distribution(self, q):
@@ -66,14 +70,24 @@ class SPAGCN(nn.Module):
         p = p / torch.sum(p, dim=1, keepdim=True)
         return p
 
-    def fit(self, x, adj, lr=0.001, max_epochs=200, update_interval=5, weight_decay=5e-4, opt="sgd", init="kmeans",
-            n_neighbors=10, res=0.4):
+    def fit(self, x, adj,
+            lr=0.005,
+            max_epochs=2000,
+            update_interval=3,
+            trajectory_interval=50,
+            weight_decay=0,
+            opt="adam",
+            init="louvain",
+            n_neighbors=10,
+            res=0.4,
+            init_spa=True,
+            tol=1e-3):
         loss_values = []
         self.trajectory = []
-        print("Initializing cluster centers.")
+        print("Starting fit.")
         if opt == "sgd":
             optimizer = optim.SGD(self.parameters(), lr=lr, momentum=0.9)
-        elif opt == "adam":  # faster, whichever
+        elif opt == "adam":
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
         features, _ = self.forward(x, adj)
@@ -81,21 +95,28 @@ class SPAGCN(nn.Module):
         # ----------------------------------------------------------------
 
         if init == "kmeans":
-            # Uses umap-like functions
-            # Kmeans only use exp info, no spatial
-            # kmeans = KMeans(self.n_clusters, n_init=20)
-            # y_pred = kmeans.fit_predict(X)  #Here we use X as numpy
-            # Kmeans use exp and spatial
+            print("Initializing cluster centers with kmeans, n_clusters known")
             kmeans = KMeans(self.n_clusters, n_init=20)
-            y_pred = kmeans.fit_predict(features.detach().numpy())
+            if init_spa:
+                # ------Kmeans use exp and spatial
+                y_pred = kmeans.fit_predict(features.detach().numpy())
+            else:
+                # ------Kmeans only use exp info, no spatial
+                y_pred = kmeans.fit_predict(X)  # Here we use X as numpy
         elif init == "louvain":
-            adata = sc.AnnData(features.detach().numpy())
+            print("Initializing cluster centers with louvain, resolution = ", res)
+            if init_spa:
+                adata = sc.AnnData(features.detach().numpy())
+            else:
+                adata = sc.AnnData(X)
             sc.pp.neighbors(adata, n_neighbors=n_neighbors)
             sc.tl.louvain(adata, resolution=res)
             y_pred = adata.obs['louvain'].astype(int).to_numpy()
+            self.n_clusters = len(np.unique(y_pred))
         # ----------------------------------------------------------------
-        # x = torch.FloatTensor(x)
-        # adj = torch.FloatTensor(adj)
+        y_pred_last = y_pred
+        x = torch.FloatTensor(x)
+        adj = torch.FloatTensor(adj)
         self.trajectory.append(y_pred)
         features = pd.DataFrame(features.detach().numpy(), index=np.arange(0, features.shape[0]))
         Group = pd.Series(y_pred, index=np.arange(0, features.shape[0]), name="Group")
