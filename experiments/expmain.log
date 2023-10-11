@@ -1,2 +1,6 @@
-2023-10-10 16:32:38,669 - INFO - Requested http://ipinfo.io/json
-2023-10-10 16:32:39,590 - INFO - STARTING EXPERIMENT
+2023-10-11 08:14:02,806 - INFO - Requested http://ipinfo.io/json
+2023-10-11 08:14:03,758 - INFO - STARTING EXPERIMENT
+2023-10-11 08:14:17,293 - INFO - Swissroll_SPAGCN_alpha_0.0_Swissroll_test
+2023-10-11 08:14:29,487 - INFO - Swissroll_SPAGCN_alpha_0.5_Swissroll_test
+2023-10-11 08:14:41,490 - INFO - Swissroll_SPAGCN_alpha_1.0_Swissroll_test
+2023-10-11 08:14:41,510 - INFO - ENDING EXPERIMENT

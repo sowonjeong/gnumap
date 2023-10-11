@@ -113,8 +113,10 @@ visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img=s
                   save_path=os.getcwd() + '/results/' + "gt_ambient_" + name_file + ".png")
 
 for model_name in args.jm:
-    print(args.epoch)
-    loss_df = pd.DataFrame(columns=np.arange(1,args.epoch+1))
+    if model_name == 'SPAGCN':
+        loss_df = pd.DataFrame(columns=np.arange(1, 2001))
+    else:
+        loss_df = pd.DataFrame(columns=np.arange(1,args.epoch+1))
     if model_name in ['DGI', 'GNUMAP']:
         for alpha in np.arange(0,1.1,0.5):
             for beta in np.arange(0,1.1,0.5):
@@ -218,6 +220,8 @@ for model_name in args.jm:
                                                     alpha=alpha, dataset=args.name_dataset,
                                                     name_file="logs-Spagcn" + name_file, save_img=save_img)
             viz_loss(loss_values=loss_values, file_name=file_name)
+            print(loss_df.shape)
+            print(len(loss_values))
             results[file_name] = res if res is not None else {}
         loss_df.to_csv('results/loss/'+args.name_dataset+'_'+model_name+'.csv',index=True)
 

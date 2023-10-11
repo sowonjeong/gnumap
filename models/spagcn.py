@@ -47,9 +47,6 @@ class SPAGCN(nn.Module):
 
     def forward(self, x, adj):
         x = self.gc(x, adj)
-        print(x.size())
-        print(self.mu.size())
-        print(x.unsqueeze(1).size())
         q = 1.0 / ((1.0 + torch.sum((x.unsqueeze(1) - self.mu) ** 2, dim=2) / self.alpha) + 1e-8)
         q = q ** (self.alpha + 1.0) / 2.0
         q = q / torch.sum(q, dim=1, keepdim=True)
@@ -60,7 +57,6 @@ class SPAGCN(nn.Module):
             return torch.mean(torch.sum(target * torch.log(target / (pred + 1e-6)), dim=1))
 
         loss = kld(p, q)
-        print(loss)
         return loss
 
     def target_distribution(self, q):
@@ -77,7 +73,7 @@ class SPAGCN(nn.Module):
             trajectory_interval=50,
             weight_decay=0,
             opt="adam",
-            init="louvain",
+            init="kmeans",
             n_neighbors=10,
             res=0.4,
             init_spa=True,
@@ -115,8 +111,9 @@ class SPAGCN(nn.Module):
             self.n_clusters = len(np.unique(y_pred))
         # ----------------------------------------------------------------
         y_pred_last = y_pred
-        x = torch.FloatTensor(x)
-        adj = torch.FloatTensor(adj)
+        # adj = adj.type(torch.FloatTensor)
+        # x = torch.FloatTensor(x)
+        # adj = torch.FloatTensor(adj)
         self.trajectory.append(y_pred)
         features = pd.DataFrame(features.detach().numpy(), index=np.arange(0, features.shape[0]))
         Group = pd.Series(y_pred, index=np.arange(0, features.shape[0]), name="Group")
