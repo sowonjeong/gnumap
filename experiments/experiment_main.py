@@ -114,7 +114,7 @@ visualize_dataset(X_ambient, cluster_labels, title=args.name_dataset, save_img=s
 
 for model_name in args.jm:
     if model_name == 'SPAGCN':
-        loss_df = pd.DataFrame(columns=np.arange(1, 2001))
+        loss_df = pd.DataFrame(columns=np.arange(1, 10001))
     else:
         loss_df = pd.DataFrame(columns=np.arange(1,args.epoch+1))
     if model_name in ['DGI', 'GNUMAP']:

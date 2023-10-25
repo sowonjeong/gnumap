@@ -68,7 +68,7 @@ class SPAGCN(nn.Module):
 
     def fit(self, x, adj,
             lr=0.005,
-            max_epochs=2000,
+            max_epochs=10000,
             update_interval=3,
             trajectory_interval=50,
             weight_decay=0,
