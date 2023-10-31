@@ -40,8 +40,6 @@ class SPAGCN(nn.Module):
                  n_neighbors=15):  # louvain
         super(SPAGCN, self).__init__()
         self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=1, dropout_rate=0)
-        # TODO: comparison with our gcn
-        self.n_clusters = n_clusters  # for fit method kmeans
         self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
         self.alpha = alpha
 
@@ -60,17 +58,14 @@ class SPAGCN(nn.Module):
         return loss
 
     def target_distribution(self, q):
-        # weight = q ** 2 / q.sum(0)
-        # return torch.transpose((torch.transpose(weight,0,1) / weight.sum(1)),0,1)e
         p = q ** 2 / torch.sum(q, dim=0)
         p = p / torch.sum(p, dim=1, keepdim=True)
         return p
 
     def fit(self, x, adj,
             lr=0.005,
-            max_epochs=10000,
+            max_epochs=100,
             update_interval=3,
-            trajectory_interval=50,
             weight_decay=0,
             opt="adam",
             init="kmeans",
@@ -79,7 +74,6 @@ class SPAGCN(nn.Module):
             init_spa=True,
             tol=1e-3):
         loss_values = []
-        self.trajectory = []
         print("Starting fit.")
         if opt == "sgd":
             optimizer = optim.SGD(self.parameters(), lr=lr, momentum=0.9)
@@ -87,38 +81,11 @@ class SPAGCN(nn.Module):
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
         features, _ = self.forward(x, adj)
-        # long tensor error
-        # ----------------------------------------------------------------
 
-        if init == "kmeans":
-            print("Initializing cluster centers with kmeans, n_clusters known")
-            kmeans = KMeans(self.n_clusters, n_init=20)
-            if init_spa:
-                # ------Kmeans use exp and spatial
-                y_pred = kmeans.fit_predict(features.detach().numpy())
-            else:
-                # ------Kmeans only use exp info, no spatial
-                y_pred = kmeans.fit_predict(X)  # Here we use X as numpy
-        elif init == "louvain":
-            print("Initializing cluster centers with louvain, resolution = ", res)
-            if init_spa:
-                adata = sc.AnnData(features.detach().numpy())
-            else:
-                adata = sc.AnnData(X)
-            sc.pp.neighbors(adata, n_neighbors=n_neighbors)
-            sc.tl.louvain(adata, resolution=res)
-            y_pred = adata.obs['louvain'].astype(int).to_numpy()
-            self.n_clusters = len(np.unique(y_pred))
-        # ----------------------------------------------------------------
-        y_pred_last = y_pred
-        # adj = adj.type(torch.FloatTensor)
-        # x = torch.FloatTensor(x)
-        # adj = torch.FloatTensor(adj)
-        self.trajectory.append(y_pred)
         features = pd.DataFrame(features.detach().numpy(), index=np.arange(0, features.shape[0]))
         Group = pd.Series(y_pred, index=np.arange(0, features.shape[0]), name="Group")
         Mergefeature = pd.concat([features, Group], axis=1)
-        cluster_centers = np.asarray(Mergefeature.groupby("Group").mean())
+        cluster_centers = np.asarray(Mergefeature.groupby("Group").mean()) # mu determined by initial fitting
 
         self.mu.data.copy_(torch.Tensor(cluster_centers))
         self.train()
@@ -126,7 +93,7 @@ class SPAGCN(nn.Module):
             if epoch % update_interval == 0:
                 _, q = self.forward(x, adj)
                 p = self.target_distribution(q).data
-            if epoch % 100 == 0:
+            if epoch % 50 == 0:
                 print("Epoch ", epoch)
             optimizer.zero_grad()
             z, q = self(x, adj)
@@ -134,7 +101,6 @@ class SPAGCN(nn.Module):
             loss_values.append(loss.detach().numpy())
             loss.backward()
             optimizer.step()
-            self.trajectory.append(torch.argmax(q, dim=1).data.cpu().numpy())
         return loss_values
 
     def predict(self, x, adj):
