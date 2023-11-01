@@ -106,7 +106,7 @@ class SPAGCN(nn.Module):
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
         # -------------- p is calculated here - almost identical to umap high dimension probability
-        features, _ = self.gc(x, adj)
+        features = self.gc(x, adj)
         dist = np.square(euclidean_distances(features,features))
         rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
         N_NEIGHBOR = 15
