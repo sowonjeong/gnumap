@@ -42,8 +42,8 @@ class SPAGCN(nn.Module):
                  n_neighbors=15):  # louvain
         super(SPAGCN, self).__init__()
         self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=1, dropout_rate=0)
-        self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
         self.alpha = alpha
+        self.embeds = Parameter(torch.Tensor(in_dim, out_dim))
 
     def prob_high_dim(sigma, dist_row):
         """ For each row in dist, compute prob in high dim (1d array)"""
@@ -77,9 +77,9 @@ class SPAGCN(nn.Module):
         return approx_sigma
 
     def forward(self, x, adj):
-        h = self.gc(x, adj)
-        q = prob_low_dim(h)
-        return h, q
+        z = self.gc(x, adj)
+        q = prob_low_dim(z)
+        return z, q
 
     def loss_function(self, p, q):
         def ce(p,q):
@@ -121,17 +121,14 @@ class SPAGCN(nn.Module):
         print("\nMean sigma = " + str(np.mean(sigma_array)))
         p = (prob + np.transpose(prob)) / 2 # high-dimensional 
 
-        # initialize q
-        init_model = SpectralEmbedding(n_components = 2, n_neihbors=50)
-        y = init_model.fit_trainsform(x)
-        q = prob_low_dim(y)
-
         self.train()
         for epoch in range(max_epochs):
-            if epoch % update_interval == 0:
-                _, q = self.forward(x, adj)
-            if epoch % 50 == 0:
-                print("Epoch ", epoch)
+            if epoch == 0:
+                # initialize q
+                init_model = SpectralEmbedding(n_components = 2, n_neihbors=50)
+                y = init_model.fit_trainsform(x)
+                q = prob_low_dim(y)
+            print("Epoch ", epoch)
             optimizer.zero_grad()
             z, q = self(x, adj)
             loss = self.loss_function(p, q)
@@ -141,5 +138,4 @@ class SPAGCN(nn.Module):
         return loss_values
 
     def predict(self, x, adj):
-        z, q = self(torch.Tensor(x), torch.Tensor(adj))
-        return z, q
+        return self(torch.Tensor(x), torch.Tensor(adj)).embeds
