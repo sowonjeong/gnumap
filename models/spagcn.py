@@ -107,6 +107,7 @@ class SPAGCN(nn.Module):
 
         # -------------- p is calculated here - almost identical to umap high dimension probability
         features = self.gc(x, adj)
+        features = features.detach().numpy()
         dist = np.square(euclidean_distances(features,features))
         rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
         N_NEIGHBOR = 15
