@@ -114,9 +114,9 @@ class SPAGCN(nn.Module):
         prob = np.zeros((x.shape[0],x.shape[0]))
         sigma_array = []
         for dist_row in range(x.shape[0]):
-            func = lambda sigma: k(prob_high_dim(sigma, dist_row))
-            binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
-            prob[dist_row] = prob_high_dim(binary_search_result, dist_row)
+            func = lambda sigma: k(self.prob_high_dim(sigma, dist_row))
+            binary_search_result = self.igma_binary_search(func, N_NEIGHBOR)
+            prob[dist_row] = self.prob_high_dim(binary_search_result, dist_row)
             sigma_array.append(binary_search_result)
             if (dist_row + 1) % 100 == 0:
                 print("Sigma binary search finished {0} of {1} rows".format(dist_row + 1, n))
