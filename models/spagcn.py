@@ -111,7 +111,8 @@ class SPAGCN(nn.Module):
         dist = np.square(euclidean_distances(features,features))
         rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
         N_NEIGHBOR = 15
-        prob = np.zeros((n,n)); sigma_array = []
+        prob = np.zeros((in_dim,in_dim))
+        sigma_array = []
         for dist_row in range(n):
             func = lambda sigma: k(prob_high_dim(sigma, dist_row))
             binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
