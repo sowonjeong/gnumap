@@ -20,6 +20,7 @@ import scanpy as sc
 from sklearn.neighbors import kneighbors_graph
 from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.manifold import SpectralEmbedding
 
 
 # # INPUT 1: sparse matrix, numpy array form
@@ -54,6 +55,8 @@ class SPAGCN(nn.Module):
         return np.power(2, np.sum(prob))
 
     def prob_low_dim(Y):
+        a=1
+        b=1
         inv_distances = np.power(1+a*np.square(euclidean_distances(Y,Y))**b, -1)
         return inv_distances
 
@@ -75,38 +78,14 @@ class SPAGCN(nn.Module):
 
     def forward(self, x, adj):
         h = self.gc(x, adj)
-        
-        dist = np.square(euclidean_distances(h,h))
-        rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
-
-        N_NEIGHBOR = 15
-        prob = np.zeros((n,n)); sigma_array = []
-        for dist_row in range(n):
-            func = lambda sigma: k(prob_high_dim(sigma, dist_row))
-            binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
-            prob[dist_row] = prob_high_dim(binary_search_result, dist_row)
-            sigma_array.append(binary_search_result)
-            if (dist_row + 1) % 100 == 0:
-                print("Sigma binary search finished {0} of {1} cells".format(dist_row + 1, n))
-        print("\nMean sigma = " + str(np.mean(sigma_array)))
-        P = (prob + np.transpose(prob)) / 2
-        Q = prob_low_dim(Y)
-
-
-
-        q = 1.0 / ((1.0 + torch.sum((x.unsqueeze(1) - self.mu) ** 2, dim=2) / self.alpha) + 1e-8)
-        q = q ** (self.alpha + 1.0) / 2.0
-        q = q / torch.sum(q, dim=1, keepdim=True)
+        q = prob_low_dim(h)
         return h, q
 
     def loss_function(self, p, q):
-        loss = -p * np.log(q+0.01) - (1-p) * np.log(1-a + 0.01)
+        def ce(p,q):
+            return -p * np.log(q+0.01) - (1-p) * np.log(1-a + 0.01)
+        loss = ce(p,q)
         return loss
-
-    def target_distribution(self, q):
-        p = q ** 2 / torch.sum(q, dim=0)
-        p = p / torch.sum(p, dim=1, keepdim=True)
-        return p
 
     def fit(self, x, adj,
             lr=0.005,
@@ -126,19 +105,31 @@ class SPAGCN(nn.Module):
         elif opt == "adam":
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
+        # p is calculated here - almost identical to umap high dimension probability
         features, _ = self.forward(x, adj)
+        dist = np.square(euclidean_distances(features,features))
+        rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
+        N_NEIGHBOR = 15
+        prob = np.zeros((n,n)); sigma_array = []
+        for dist_row in range(n):
+            func = lambda sigma: k(prob_high_dim(sigma, dist_row))
+            binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
+            prob[dist_row] = prob_high_dim(binary_search_result, dist_row)
+            sigma_array.append(binary_search_result)
+            if (dist_row + 1) % 100 == 0:
+                print("Sigma binary search finished {0} of {1} rows".format(dist_row + 1, n))
+        print("\nMean sigma = " + str(np.mean(sigma_array)))
+        p = (prob + np.transpose(prob)) / 2 # high-dimensional 
 
-        features = pd.DataFrame(features.detach().numpy(), index=np.arange(0, features.shape[0]))
-        Group = pd.Series(y_pred, index=np.arange(0, features.shape[0]), name="Group")
-        Mergefeature = pd.concat([features, Group], axis=1)
-        cluster_centers = np.asarray(Mergefeature.groupby("Group").mean()) # mu determined by initial fitting
+        # initialize q
+        init_model = SpectralEmbedding(n_components = 2, n_neihbors=50)
+        y = init_model.fit_trainsform(x)
+        q = prob_low_dim(y)
 
-        self.mu.data.copy_(torch.Tensor(cluster_centers))
         self.train()
         for epoch in range(max_epochs):
             if epoch % update_interval == 0:
                 _, q = self.forward(x, adj)
-                p = self.target_distribution(q).data
             if epoch % 50 == 0:
                 print("Epoch ", epoch)
             optimizer.zero_grad()
