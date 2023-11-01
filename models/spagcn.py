@@ -45,22 +45,22 @@ class SPAGCN(nn.Module):
         self.alpha = alpha
         self.embeds = Parameter(torch.Tensor(in_dim, out_dim))
 
-    def prob_high_dim(sigma, dist_row):
+    def prob_high_dim(self, sigma, dist_row):
         """ For each row in dist, compute prob in high dim (1d array)"""
         d = dist[dist_row] - rho[dist_row] # list of all dist in the row - mindist
         d[d<0] = 0 # to avoid float errors
         return np.exp(-d/sigma)    
     
-    def k(prob): # gets number of nearest value
+    def k(self, prob): # gets number of nearest value
         return np.power(2, np.sum(prob))
 
-    def prob_low_dim(Y):
+    def prob_low_dim(self, Y):
         a=1
         b=1
         inv_distances = np.power(1+a*np.square(euclidean_distances(Y,Y))**b, -1)
         return inv_distances
 
-    def sigma_binary_search(k_of_sigma, fixed_k):
+    def sigma_binary_search(self, k_of_sigma, fixed_k):
         """
         Solve equation k_of_sigma(sigma) = fixed_k 
         with respect to sigma by the binary search algorithm
@@ -130,7 +130,7 @@ class SPAGCN(nn.Module):
                 # initialize q
                 init_model = SpectralEmbedding(n_components = 2, n_neihbors=50)
                 y = init_model.fit_trainsform(x)
-                q = prob_low_dim(y)
+                q = self.prob_low_dim(y)
             print("Epoch ", epoch)
             optimizer.zero_grad()
             z, q = self(x, adj)
