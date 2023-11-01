@@ -19,6 +19,7 @@ import numpy as np
 import scanpy as sc
 from sklearn.neighbors import kneighbors_graph
 from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
+from sklearn.metrics.pairwise import euclidean_distances
 
 
 # # INPUT 1: sparse matrix, numpy array form
@@ -43,18 +44,63 @@ class SPAGCN(nn.Module):
         self.mu = Parameter(torch.Tensor(n_clusters, out_dim))
         self.alpha = alpha
 
+    def prob_high_dim(sigma, dist_row):
+        """ For each row in dist, compute prob in high dim (1d array)"""
+        d = dist[dist_row] - rho[dist_row] # list of all dist in the row - mindist
+        d[d<0] = 0 # to avoid float errors
+        return np.exp(-d/sigma)    
+    
+    def k(prob): # gets number of nearest value
+        return np.power(2, np.sum(prob))
+
+    def prob_low_dim(Y):
+        inv_distances = np.power(1+a*np.square(euclidean_distances(Y,Y))**b, -1)
+        return inv_distances
+
+    def sigma_binary_search(k_of_sigma, fixed_k):
+        """
+        Solve equation k_of_sigma(sigma) = fixed_k 
+        with respect to sigma by the binary search algorithm
+        """
+        sigma_lower_limit = 0; sigma_upper_limit = 1000
+        for i in range(20):
+            approx_sigma = (sigma_lower_limit + sigma_upper_limit) / 2
+            if k_of_sigma(approx_sigma) < fixed_k:
+                sigma_lower_limit = approx_sigma
+            else:
+                sigma_upper_limit = approx_sigma
+            if np.abs(fixed_k - k_of_sigma(approx_sigma)) <= 1e-5:
+                break
+        return approx_sigma
+
     def forward(self, x, adj):
-        x = self.gc(x, adj)
+        h = self.gc(x, adj)
+        
+        dist = np.square(euclidean_distances(h,h))
+        rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
+
+        N_NEIGHBOR = 15
+        prob = np.zeros((n,n)); sigma_array = []
+        for dist_row in range(n):
+            func = lambda sigma: k(prob_high_dim(sigma, dist_row))
+            binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
+            prob[dist_row] = prob_high_dim(binary_search_result, dist_row)
+            sigma_array.append(binary_search_result)
+            if (dist_row + 1) % 100 == 0:
+                print("Sigma binary search finished {0} of {1} cells".format(dist_row + 1, n))
+        print("\nMean sigma = " + str(np.mean(sigma_array)))
+        P = (prob + np.transpose(prob)) / 2
+        Q = prob_low_dim(Y)
+
+
+
         q = 1.0 / ((1.0 + torch.sum((x.unsqueeze(1) - self.mu) ** 2, dim=2) / self.alpha) + 1e-8)
         q = q ** (self.alpha + 1.0) / 2.0
         q = q / torch.sum(q, dim=1, keepdim=True)
-        return x, q
+        return h, q
 
     def loss_function(self, p, q):
-        def kld(target, pred):
-            return torch.mean(torch.sum(target * torch.log(target / (pred + 1e-6)), dim=1))
-
-        loss = kld(p, q)
+        loss = -p * np.log(q+0.01) - (1-p) * np.log(1-a + 0.01)
         return loss
 
     def target_distribution(self, q):
