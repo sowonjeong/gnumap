@@ -113,7 +113,7 @@ class SPAGCN(nn.Module):
         N_NEIGHBOR = 15
         prob = np.zeros((x.shape[0],x.shape[0]))
         sigma_array = []
-        for dist_row in range(n):
+        for dist_row in range(x.shape[0]):
             func = lambda sigma: k(prob_high_dim(sigma, dist_row))
             binary_search_result = sigma_binary_search(func, N_NEIGHBOR)
             prob[dist_row] = prob_high_dim(binary_search_result, dist_row)
