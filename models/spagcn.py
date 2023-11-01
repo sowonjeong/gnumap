@@ -105,8 +105,8 @@ class SPAGCN(nn.Module):
         elif opt == "adam":
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
-        # p is calculated here - almost identical to umap high dimension probability
-        features, _ = self.forward(x, adj)
+        # -------------- p is calculated here - almost identical to umap high dimension probability
+        features, _ = self.gc(x, adj)
         dist = np.square(euclidean_distances(features,features))
         rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
         N_NEIGHBOR = 15
@@ -119,7 +119,8 @@ class SPAGCN(nn.Module):
             if (dist_row + 1) % 100 == 0:
                 print("Sigma binary search finished {0} of {1} rows".format(dist_row + 1, n))
         print("\nMean sigma = " + str(np.mean(sigma_array)))
-        p = (prob + np.transpose(prob)) / 2 # high-dimensional 
+        p = (prob + np.transpose(prob)) / 2
+        # ------------------------------------------------------------------------------------
 
         self.train()
         for epoch in range(max_epochs):
@@ -138,4 +139,4 @@ class SPAGCN(nn.Module):
         return loss_values
 
     def predict(self, x, adj):
-        return self(torch.Tensor(x), torch.Tensor(adj)).embeds
+        return z, q
