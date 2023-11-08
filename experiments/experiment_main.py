@@ -63,7 +63,7 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=True)
 parser.add_argument('--jcsv', type=float, default=False)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['SPAGCN'
+parser.add_argument('--jm', nargs='+', default=['SPAGCN','PCA'
                                                 ],
                     help='List of models to run')
 args = parser.parse_args()
@@ -100,11 +100,12 @@ def visualize_dataset(X_ambient, cluster_labels, title, save_img, save_path):
 
 
 # Visualize loss + does logging for each file
-def viz_loss(loss_values, file_name, epoch = args.epoch):
+def viz_loss(loss_values, file_name, save_path):
     logging.info(str(file_name))
-    while len(loss_values) < epoch:
-        loss_values.append(np.nan)
-    loss_df.loc[str(file_name)] = loss_values
+    plt.figure()
+    plt.plot(loss_values)
+    plt.savefig(save_path, format='png', dpi=300)
+    plt.close()
 
 
 visualize_dataset(X_manifold, cluster_labels, title=args.name_dataset, save_img=save_img,
@@ -219,7 +220,7 @@ for model_name in args.jm:
                                                     hid_dim=args.hid_dim, lr=args.lr, wd=0,
                                                     alpha=alpha, dataset=args.name_dataset,
                                                     name_file="logs-Spagcn" + name_file, save_img=save_img)
-            viz_loss(loss_values=loss_values, file_name=file_name)
+            viz_loss(loss_values=loss_values, file_name=file_name, save_path=os.getcwd() + '/results/loss/' + name_file + ".png")
             results[file_name] = res if res is not None else {}
         loss_df.to_csv('results/loss/'+args.name_dataset+'_'+model_name+'.csv',index=True)
 

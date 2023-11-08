@@ -17,6 +17,7 @@ from sklearn.neighbors import kneighbors_graph
 from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn import manifold
+from sklearn.decomposition import PCA
 
 
 class SPAGCN(nn.Module):
@@ -28,7 +29,7 @@ class SPAGCN(nn.Module):
                  out_dim=2,
                  epochs=500):
         super().__init__()
-        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=1, dropout_rate=0)
+        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=3, dropout_rate=0.2)
         self.alpha, self.beta, self.epochs, self.out_dim = alpha, beta, epochs, out_dim
 
     def forward(self, features, edge_index):
@@ -43,7 +44,7 @@ class SPAGCN(nn.Module):
     def loss_function(self, p, q):
         def CE(highd, lowd):
             # highd and lowd both have indim x indim dimensions
-            highd, lowd = torch.tensor(highd), torch.tensor(lowd)
+            #highd, lowd = torch.tensor(highd, requires_grad=True), torch.tensor(lowd, requires_grad=True)
             eps = 1e-9 # To prevent log(0)
             return -torch.sum(highd * torch.log(lowd + eps) + (1 - highd) * torch.log(1 - lowd + eps))
         loss = CE(p, q)
@@ -72,17 +73,22 @@ class SPAGCN(nn.Module):
         """
         # TODO: original umap uses there own spectral initialization (pretty theoretical)
         # or pca, random, tcswspectral
-        lap_init = manifold.SpectralEmbedding(n_components=self.out_dim, n_neighbors=15)
-        embeds_init = lap_init.fit_transform(features)
+        pca_init = PCA(n_components=2)
+        embeds_init = pca_init.fit_transform(features)
         lowdim_dist = euclidean_distances(embeds_init, embeds_init)
         q_initial = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2 * self.beta)))
 
+        # lap_init = manifold.SpectralEmbedding(n_components=self.out_dim, n_neighbors=15)
+        # embeds_init = lap_init.fit_transform(features)
+        # lowdim_dist = euclidean_distances(embeds_init, embeds_init)
+        # q_initial = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2 * self.beta)))
+
         self.train()
         for epoch in range(self.epochs):
-            # TODO: RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
             optimizer.zero_grad()
             if epoch == 0:
                 q = q_initial
+                q.requires_grad_(True)
             else:
                 _, q = self(features, edge_index)
             
@@ -91,7 +97,6 @@ class SPAGCN(nn.Module):
             rq = torch.log(rq1/rq2 + 1e-9)
             #print(rp.size(), rq.size()) # torch.Size([1000, 1000]) torch.Size([1000, 1000])
             # TODO: DENSITY corr = torch.cov(rp, rq) / torch.pow((torch.var(rp) * torch.var(rq)),0.5)
-
             loss = self.loss_function(p, q) #TODO- dens_lambda * corr
             loss_np = loss.item()
             print("Epoch ", epoch, " |  Loss ", loss_np)
