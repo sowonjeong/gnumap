@@ -11,7 +11,7 @@ from torch_geometric.utils.num_nodes import maybe_num_nodes
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.neighbors import kneighbors_graph, radius_neighbors_graph
 from torch_geometric.data import Data
-from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
+from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected, to_networkx
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
@@ -146,7 +146,8 @@ def convert_to_graph(X, n_neighbours =15, features='none', standardize=True,
         feats = torch.eye(n)
         
     new_data = Data(x=feats, edge_index=edge_index, # 
-                    edge_weight=torch.exp(-(edge_weights**2)/(2 * bw**2))) # heat kernel
+                    edge_weight=torch.exp(-(edge_weights**2)/(2 * bw**2)),
+                    sparse=A.toarray()) # heat kernel
     ## edge_weight kernel transf 0 1 todo
     return new_data
 

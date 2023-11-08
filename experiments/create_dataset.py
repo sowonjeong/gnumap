@@ -17,6 +17,8 @@ from data_utils import *
 from graph_utils import convert_to_graph
 from experiments.SBM.read_SBM import *
 from experiments.simulation_utils import *
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',
