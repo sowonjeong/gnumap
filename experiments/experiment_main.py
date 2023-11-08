@@ -1,3 +1,4 @@
+import sys, os
 import logging
 logging.basicConfig(filename='expmain.log', level=logging.INFO, filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 import torch
@@ -24,7 +25,6 @@ from numbers import Number
 import math
 import pandas as pd
 import random, time
-import sys, os
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_scatter import scatter_add
@@ -211,7 +211,7 @@ for model_name in args.jm:
         loss_df.to_csv('results/loss/'+args.name_dataset+'_'+model_name+'.csv',index=True)
 
     elif model_name == 'SPAGCN':
-        for alpha in np.arange(0, 1.1, 0.5):
+        for alpha in [0.5]:
             file_name = f"{args.name_dataset}_{model_name}_alpha_{alpha}_"+name_file
             mod, res, out, loss_values = experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
                                                     patience=20, epochs=args.epoch,
@@ -220,8 +220,6 @@ for model_name in args.jm:
                                                     alpha=alpha, dataset=args.name_dataset,
                                                     name_file="logs-Spagcn" + name_file, save_img=save_img)
             viz_loss(loss_values=loss_values, file_name=file_name)
-            print(loss_df.shape)
-            print(len(loss_values))
             results[file_name] = res if res is not None else {}
         loss_df.to_csv('results/loss/'+args.name_dataset+'_'+model_name+'.csv',index=True)
 

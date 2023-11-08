@@ -119,11 +119,12 @@ def experiment(model_name, G, X_ambient, X_manifold,
                                                   n_layers=n_layers,
                                                   epochs=epochs, lr=lr, wd=wd, name_file=name_file)
     elif model_name == "SPAGCN":  # alpha
+        sparse = G.sparse
         edge_index = G.edge_index
-        A = torch.eye(X_ambient.shape[0])  # identity feature matrix
-        model = SPAGCN(in_dim=X_ambient.shape[0], out_dim=out_dim, n_neighbors=n_neighbors)
-        loss_values = model.fit(A, edge_index)
-        embeds = model.predict(A, edge_index)[0]
+        feats = G.x
+        model = SPAGCN(in_dim=feats.shape[0], out_dim=out_dim)
+        loss_values = model.fit(feats, sparse, edge_index)
+        embeds = model.predict(feats, sparse, edge_index)[0]
         embeds = embeds.detach().numpy()
     elif model_name == 'PCA':
         model = PCA(n_components=2)

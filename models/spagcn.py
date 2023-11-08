@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
 import sys
-
-# target and u difference in simulation_utils.py?
-# A: t and u create the ground truth
-
 sys.path.append('../')
 from models.baseline_models import *
 import torch
@@ -20,84 +16,41 @@ import scanpy as sc
 from sklearn.neighbors import kneighbors_graph
 from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.manifold import SpectralEmbedding
-
-
-# # INPUT 1: sparse matrix, numpy array form
-# A_dist = kneighbors_graph(X, N_NEIGHBOURS, mode='distance', include_self=False) # adjacency matrix
-# edge_index, edge_weights = from_scipy_sparse_matrix(A_dist)
-# edge_index, edge_weights = to_undirected(edge_index, edge_weights)
-
-# # INPUT 2: input features: identity matrix
-# A = torch.eye(X.shape[0])
+from sklearn import manifold
 
 
 class SPAGCN(nn.Module):
     def __init__(self,
                  in_dim=1000,
                  nhid=256,
-                 n_clusters=10,  # kmeans
                  alpha=0.5,
+                 beta=0.5,
                  out_dim=2,
-                 n_neighbors=15):  # louvain
-        super(SPAGCN, self).__init__()
+                 epochs=500):
+        super().__init__()
         self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=1, dropout_rate=0)
-        self.alpha = alpha
-        self.embeds = Parameter(torch.Tensor(in_dim, out_dim))
+        self.alpha, self.beta, self.epochs, self.out_dim = alpha, beta, epochs, out_dim
 
-    def prob_high_dim(self, sigma, dist_row):
-        """ For each row in dist, compute prob in high dim (1d array)"""
-        d = dist[dist_row] - rho[dist_row] # list of all dist in the row - mindist
-        d[d<0] = 0 # to avoid float errors
-        return np.exp(-d/sigma)    
-    
-    def k(self, prob): # gets number of nearest value
-        return np.power(2, np.sum(prob))
-
-    def prob_low_dim(self, Y):
-        a=1
-        b=1
-        inv_distances = np.power(1+a*np.square(euclidean_distances(Y,Y))**b, -1)
-        return inv_distances
-
-    def sigma_binary_search(self, k_of_sigma, fixed_k):
+    def forward(self, features, edge_index):
         """
-        Solve equation k_of_sigma(sigma) = fixed_k 
-        with respect to sigma by the binary search algorithm
+        Updates current_embedding, calculates q (probability distribution of node connection in lowdim)
         """
-        sigma_lower_limit = 0; sigma_upper_limit = 1000
-        for i in range(20):
-            approx_sigma = (sigma_lower_limit + sigma_upper_limit) / 2
-            if k_of_sigma(approx_sigma) < fixed_k:
-                sigma_lower_limit = approx_sigma
-            else:
-                sigma_upper_limit = approx_sigma
-            if np.abs(fixed_k - k_of_sigma(approx_sigma)) <= 1e-5:
-                break
-        return approx_sigma
-
-    def forward(self, x, adj):
-        z = self.gc(x, adj)
-        q = prob_low_dim(z)
-        return z, q
+        current_embedding = self.gc(features, edge_index)
+        np_emb = current_embedding.detach().numpy()
+        lowdim_dist = euclidean_distances(np_emb, np_emb)
+        q = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2*self.beta)))
+        return current_embedding, q
 
     def loss_function(self, p, q):
-        def ce(p,q):
-            return -p * np.log(q+0.01) - (1-p) * np.log(1-a + 0.01)
-        loss = ce(p,q)
+        def CE(highd, lowd):
+            # highd and lowd both have indim x indim dimensions
+            highd, lowd = torch.tensor(highd), torch.tensor(lowd)
+            eps = 1e-9 # To prevent log(0)
+            return -torch.sum(highd * torch.log(lowd + eps) + (1 - highd) * torch.log(1 - lowd + eps))
+        loss = CE(p, q)
         return loss
 
-    def fit(self, x, adj,
-            lr=0.005,
-            max_epochs=100,
-            update_interval=3,
-            weight_decay=0,
-            opt="adam",
-            init="kmeans",
-            n_neighbors=10,
-            res=0.4,
-            init_spa=True,
-            tol=1e-3):
+    def fit(self, features, sparse, edge_index, lr=0.005, opt='adam', weight_decay=0):
         loss_values = []
         print("Starting fit.")
         if opt == "sgd":
@@ -105,40 +58,40 @@ class SPAGCN(nn.Module):
         elif opt == "adam":
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
-        # -------------- p is calculated here - almost identical to umap high dimension probability
-        features = self.gc(x, adj)
-        features = features.detach().numpy()
-        dist = np.square(euclidean_distances(features,features))
-        rho = [sorted(dist[i])[1] for i in range(dist.shape[0])] # min dist for each pt
-        N_NEIGHBOR = 15
-        prob = np.zeros((x.shape[0],x.shape[0]))
-        sigma_array = []
-        for dist_row in range(x.shape[0]):
-            func = lambda sigma: k(self.prob_high_dim(sigma, dist_row))
-            binary_search_result = self.sigma_binary_search(func, N_NEIGHBOR)
-            prob[dist_row] = self.prob_high_dim(binary_search_result, dist_row)
-            sigma_array.append(binary_search_result)
-            if (dist_row + 1) % 100 == 0:
-                print("Sigma binary search finished {0} of {1} rows".format(dist_row + 1, n))
-        print("\nMean sigma = " + str(np.mean(sigma_array)))
-        p = (prob + np.transpose(prob)) / 2
-        # ------------------------------------------------------------------------------------
+        """ 
+        Probability distribution in highdim defined as the sparse adj matrix with weights.
+        No further updates to p
+        """
+        p = torch.tensor(sparse)
+
+        """ 
+        Initial robability distribution in lowdim.
+        q will be updated at each forward pass
+        """
+        lap_init = manifold.SpectralEmbedding(n_components=self.out_dim, n_neighbors=15)
+        embeds_init = lap_init.fit_transform(features)
+        lowdim_dist = euclidean_distances(embeds_init, embeds_init)
+        q_initial = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2 * self.beta)))
 
         self.train()
-        for epoch in range(max_epochs):
-            if epoch == 0:
-                # initialize q
-                init_model = SpectralEmbedding(n_components = 2, n_neihbors=50)
-                y = init_model.fit_trainsform(x)
-                q = self.prob_low_dim(y)
-            print("Epoch ", epoch)
+        for epoch in range(self.epochs):
+            # TODO: RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
             optimizer.zero_grad()
-            z, q = self(x, adj)
-            loss = self.loss_function(p, q)
-            loss_values.append(loss.detach().numpy())
+            if epoch == 1000:
+                loss = self.loss_function(p, q_initial)
+            else:
+                current_embedding, q = self(features, edge_index)
+                loss = self.loss_function(p, q)
+            
+            # loss_np = loss.item()
+            # print("Epoch ", epoch, " |  Loss ", loss_np)
+            # loss_values.append(loss_np)
+
+            print(loss.type())
             loss.backward()
             optimizer.step()
         return loss_values
 
-    def predict(self, x, adj):
-        return z, q
+    def predict(self, features, edge_index):
+        current_embedding, q = self(features, edge_index)
+        return current_embedding, q
