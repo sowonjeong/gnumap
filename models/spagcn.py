@@ -36,9 +36,8 @@ class SPAGCN(nn.Module):
         Updates current_embedding, calculates q (probability distribution of node connection in lowdim)
         """
         current_embedding = self.gc(features, edge_index)
-        np_emb = current_embedding.detach().numpy()
-        lowdim_dist = euclidean_distances(np_emb, np_emb)
-        q = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2*self.beta)))
+        lowdim_dist = torch.cdist(current_embedding,current_embedding)
+        q = 1 / (1 + self.alpha * torch.pow(lowdim_dist, (2*self.beta)))
         return current_embedding, q
 
     def loss_function(self, p, q):
@@ -50,7 +49,7 @@ class SPAGCN(nn.Module):
         loss = CE(p, q)
         return loss
 
-    def fit(self, features, sparse, edge_index, lr=0.005, opt='adam', weight_decay=0):
+    def fit(self, features, sparse, edge_index, lr=0.005, opt='adam', weight_decay=0, dens_lambda=2.0):
         loss_values = []
         print("Starting fit.")
         if opt == "sgd":
@@ -63,11 +62,16 @@ class SPAGCN(nn.Module):
         No further updates to p
         """
         p = torch.tensor(sparse)
-
+        rp1 = torch.multiply(p, torch.pow(torch.cdist(p,p),2))
+        rp2 = torch.sum(p, axis=1) # sum edge weights over each row
+        rp = torch.log(rp1/rp2 + 1e-9)
+        
         """ 
         Initial robability distribution in lowdim.
         q will be updated at each forward pass
         """
+        # TODO: original umap uses there own spectral initialization (pretty theoretical)
+        # or pca, random, tcswspectral
         lap_init = manifold.SpectralEmbedding(n_components=self.out_dim, n_neighbors=15)
         embeds_init = lap_init.fit_transform(features)
         lowdim_dist = euclidean_distances(embeds_init, embeds_init)
@@ -77,17 +81,22 @@ class SPAGCN(nn.Module):
         for epoch in range(self.epochs):
             # TODO: RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
             optimizer.zero_grad()
-            if epoch == 1000:
-                loss = self.loss_function(p, q_initial)
+            if epoch == 0:
+                q = q_initial
             else:
-                current_embedding, q = self(features, edge_index)
-                loss = self.loss_function(p, q)
+                _, q = self(features, edge_index)
             
-            # loss_np = loss.item()
-            # print("Epoch ", epoch, " |  Loss ", loss_np)
-            # loss_values.append(loss_np)
+            rq1 = torch.multiply(q, torch.pow(torch.cdist(q,q),2))
+            rq2 = torch.sum(q, axis=1) # sum edge weights over each row
+            rq = torch.log(rq1/rq2 + 1e-9)
+            #print(rp.size(), rq.size()) # torch.Size([1000, 1000]) torch.Size([1000, 1000])
+            # TODO: DENSITY corr = torch.cov(rp, rq) / torch.pow((torch.var(rp) * torch.var(rq)),0.5)
 
-            print(loss.type())
+            loss = self.loss_function(p, q) #TODO- dens_lambda * corr
+            loss_np = loss.item()
+            print("Epoch ", epoch, " |  Loss ", loss_np)
+            loss_values.append(loss_np)
+
             loss.backward()
             optimizer.step()
         return loss_values
