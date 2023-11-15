@@ -122,8 +122,9 @@ def experiment(model_name, G, X_ambient, X_manifold,
         sparse = G.sparse
         edge_index = G.edge_index
         feats = G.x
+        edge_weight = G.edge_weight
         model = SPAGCN(in_dim=feats.shape[0], out_dim=out_dim)
-        loss_values = model.fit(feats, sparse, edge_index)
+        loss_values = model.fit(feats, sparse, edge_index, edge_weight)
         embeds = model.predict(feats, edge_index)[0]
         embeds = embeds.detach().numpy()
     elif model_name == 'PCA':

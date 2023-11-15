@@ -18,7 +18,8 @@ from torch_geometric.utils import from_scipy_sparse_matrix, to_undirected
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn import manifold
 from sklearn.decomposition import PCA
-
+siglog = torch.nn.LogSigmoid()
+import networkx as nx
 
 class SPAGCN(nn.Module):
     def __init__(self,
@@ -29,8 +30,8 @@ class SPAGCN(nn.Module):
                  out_dim=2,
                  epochs=500):
         super().__init__()
-        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=3, dropout_rate=0.2)
-        self.alpha, self.beta, self.epochs, self.out_dim = alpha, beta, epochs, out_dim
+        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0)
+        self.alpha, self.beta, self.epochs, self.in_dim, self.out_dim = alpha, beta, epochs, in_dim, out_dim
 
     def forward(self, features, edge_index):
         """
@@ -47,10 +48,16 @@ class SPAGCN(nn.Module):
             #highd, lowd = torch.tensor(highd, requires_grad=True), torch.tensor(lowd, requires_grad=True)
             eps = 1e-9 # To prevent log(0)
             return -torch.sum(highd * torch.log(lowd + eps) + (1 - highd) * torch.log(1 - lowd + eps))
-        loss = CE(p, q)
+        loss = CE(p, q) / self.in_dim # divide loss by num(data points)
         return loss
 
-    def fit(self, features, sparse, edge_index, lr=0.005, opt='adam', weight_decay=0, dens_lambda=2.0):
+    def density_r(self, array, coord):
+        r1 = torch.sum(torch.multiply(array, torch.pow(torch.cdist(coord,coord),2)), axis=1) # sum(edge weight * dist^2) for each row
+        r2 = torch.sum(array, axis=1) # sum(edge weights) over each row
+        r = siglog(r1/r2) # for stability
+        return r
+
+    def fit(self, features, sparse, edge_index, edge_weight, lr=0.005, opt='adam', weight_decay=0, dens_lambda=200.0):
         loss_values = []
         print("Starting fit.")
         if opt == "sgd":
@@ -62,43 +69,37 @@ class SPAGCN(nn.Module):
         Probability distribution in highdim defined as the sparse adj matrix with weights.
         No further updates to p
         """
+        G_nx = nx.Graph()
+        for i, edge in enumerate(edge_index.t()):
+            source, target = edge.numpy()
+            weight = edge_weight[i].item()
+            G_nx.add_edge(source, target, weight=weight)
+        pos = nx.spring_layout(G_nx, dim=self.out_dim)
+        node_coords = np.zeros((self.in_dim, self.out_dim))
+        for node in sorted(pos.keys()):
+            node_coords[node] = pos[node]
+
         p = torch.tensor(sparse)
-        rp1 = torch.multiply(p, torch.pow(torch.cdist(p,p),2))
-        rp2 = torch.sum(p, axis=1) # sum edge weights over each row
-        rp = torch.log(rp1/rp2 + 1e-9)
-        
+        rp = self.density_r(p, torch.tensor(node_coords)) # one time rp calculation for densitycoef(rp, rq)
+
         """ 
-        Initial robability distribution in lowdim.
+        q is probability distribution in lowdim
         q will be updated at each forward pass
         """
-        # TODO: original umap uses there own spectral initialization (pretty theoretical)
-        # or pca, random, tcswspectral
-        pca_init = PCA(n_components=2)
-        embeds_init = pca_init.fit_transform(features)
-        lowdim_dist = euclidean_distances(embeds_init, embeds_init)
-        q_initial = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2 * self.beta)))
-
-        # lap_init = manifold.SpectralEmbedding(n_components=self.out_dim, n_neighbors=15)
-        # embeds_init = lap_init.fit_transform(features)
-        # lowdim_dist = euclidean_distances(embeds_init, embeds_init)
-        # q_initial = 1 / (1 + self.alpha * torch.pow(torch.tensor(lowdim_dist), (2 * self.beta)))
 
         self.train()
         for epoch in range(self.epochs):
             optimizer.zero_grad()
-            if epoch == 0:
-                q = q_initial
-                q.requires_grad_(True)
-            else:
-                _, q = self(features, edge_index)
-            
-            rq1 = torch.multiply(q, torch.pow(torch.cdist(q,q),2))
-            rq2 = torch.sum(q, axis=1) # sum edge weights over each row
-            rq = torch.log(rq1/rq2 + 1e-9)
-            #print(rp.size(), rq.size()) # torch.Size([1000, 1000]) torch.Size([1000, 1000])
-            # TODO: DENSITY corr = torch.cov(rp, rq) / torch.pow((torch.var(rp) * torch.var(rq)),0.5)
-            loss = self.loss_function(p, q) #TODO- dens_lambda * corr
+            current_embedding, q = self(features, edge_index)
+            q.requires_grad_(True)
+            rq = self.density_r(q, current_embedding)
+
+            cov_matrix = torch.cov(torch.stack((rp,rq)))
+            corr = cov_matrix[0,1] / torch.pow(cov_matrix[0,0]*cov_matrix[1,1],0.5)
+
+            loss = self.loss_function(p, q) - dens_lambda * corr
             loss_np = loss.item()
+            print("corr ", corr)
             print("Epoch ", epoch, " |  Loss ", loss_np)
             loss_values.append(loss_np)
 
