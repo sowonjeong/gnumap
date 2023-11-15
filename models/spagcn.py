@@ -20,6 +20,7 @@ from sklearn import manifold
 from sklearn.decomposition import PCA
 siglog = torch.nn.LogSigmoid()
 import networkx as nx
+from scipy.optimize import curve_fit
 
 class SPAGCN(nn.Module):
     def __init__(self,
@@ -31,7 +32,23 @@ class SPAGCN(nn.Module):
                  epochs=500):
         super().__init__()
         self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0)
-        self.alpha, self.beta, self.epochs, self.in_dim, self.out_dim = alpha, beta, epochs, in_dim, out_dim
+        self.epochs, self.in_dim, self.out_dim = epochs, in_dim, out_dim
+        self.alpha, self.beta = self.find_ab_params()
+        
+    def find_ab_params(self, spread=1, min_dist=0.1):
+        """Exact UMAP function for fitting a, b params"""
+        # spread=1, min_dist=0.1 default umap value -> a=1.57, b=0.89
+        # spread=1, min_dist=0.01 -> a=1.92, b=0.79
+
+        def curve(x, a, b):
+            return 1.0 / (1.0 + a * x ** (2 * b))
+
+        xv = np.linspace(0, spread * 3, 300)
+        yv = np.zeros(xv.shape)
+        yv[xv < min_dist] = 1.0
+        yv[xv >= min_dist] = np.exp(-(xv[xv >= min_dist] - min_dist) / spread)
+        params, covar = curve_fit(curve, xv, yv)
+        return params[0], params[1]
 
     def forward(self, features, edge_index):
         """
