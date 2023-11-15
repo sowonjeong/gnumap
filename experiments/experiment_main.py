@@ -63,7 +63,7 @@ parser.add_argument('--bw', type=float, default=1.)  # graph construction
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--save_img', type=bool, default=True)
 parser.add_argument('--jcsv', type=float, default=False)  # make csv?
-parser.add_argument('--jm', nargs='+', default=['SPAGCN','PCA'
+parser.add_argument('--jm', nargs='+', default=['SPAGCN','PCA','LaplacianEigenmap'
                                                 ],
                     help='List of models to run')
 args = parser.parse_args()
