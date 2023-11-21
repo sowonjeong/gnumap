@@ -22,6 +22,7 @@ from models.bgrl import BGRL
 from models.data_augmentation import *
 from models.clgr import CLGR
 from models.vgnae import *
+from models.spagcn import SPAGCN
 import matplotlib.pyplot as plt
 from scipy import optimize
 import scipy
@@ -29,7 +30,6 @@ import scipy
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from codecarbon import OfflineEmissionsTracker
 from gnumap.umap_functions import *
-
 
 def init_weights(m):
     if isinstance(m, nn.Linear):
@@ -311,7 +311,7 @@ def train_gnumap(data, hid_dim, dim, n_layers=2, target=None,
                                      + '_dim' + str(dim) + '_' + name_file + '.pkl'))
     model.eval()  # Set the model to evaluation mode
     with torch.no_grad():  # Disable gradient computation
-        embeddings = model(data.x.float(), data.edge_index, data.edge_weight).cpu().numpy()  # Get the embeddings as a numpy array
+        embeddings = model(data.x.float(), data.edge_index).cpu().numpy()  # Get the embeddings as a numpy array
     return model, embeddings, loss_values
 
 
@@ -627,3 +627,14 @@ def train_clgr(data, hid_dim, channels,
                                      + name_file + '.pkl'))
     # tracker.stop()
     return (model)
+
+def train_spagcn(G, cluster_labels, in_dim, hid_dim, out_dim, epochs, n_layers):
+    sparse = G.sparse
+    edge_index = G.edge_index
+    feats = G.x
+    edge_weight = G.edge_weight
+    model = SPAGCN(in_dim=in_dim, nhid=hid_dim, out_dim=out_dim, epochs=epochs, n_layers=n_layers)
+    loss_values = model.fit(cluster_labels, feats, sparse, edge_index, edge_weight)
+    embeds = model.predict(feats, edge_index)[0]
+    embeds = embeds.detach().numpy()
+    return model, embeds, loss_values

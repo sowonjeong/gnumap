@@ -26,14 +26,13 @@ class SPAGCN(nn.Module):
     def __init__(self,
                  in_dim=1000,
                  nhid=256,
-                 alpha=0.5,
-                 beta=0.5,
                  out_dim=2,
-                 epochs=500):
+                 epochs=500,
+                 n_layers=2):
         super().__init__()
-        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=2, dropout_rate=0)
+        self.gc = GCN(in_dim=in_dim, hid_dim=nhid, out_dim=out_dim, n_layers=n_layers, dropout_rate=0)
         self.epochs, self.in_dim, self.out_dim = epochs, in_dim, out_dim
-        self.alpha, self.beta = self.find_ab_params()
+        self.alpha, self.beta = self.find_ab_params(spread=1, min_dist=0.1)
         
     def find_ab_params(self, spread=1, min_dist=0.1):
         """Exact UMAP function for fitting a, b params"""
@@ -56,7 +55,8 @@ class SPAGCN(nn.Module):
         """
         current_embedding = self.gc(features, edge_index)
         lowdim_dist = torch.cdist(current_embedding,current_embedding)
-        q = 1 / (1 + self.alpha * torch.pow(lowdim_dist, (2*self.beta)))
+        q = 1 / (1 + self.alpha * torch.pow(lowdim_dist, (2*self.beta))) # observed min 0.1, mean 0.4, max 1
+        print(torch.min(q), torch.mean(q), torch.max(q))
         return current_embedding, q
 
     def loss_function(self, p, q):
@@ -74,7 +74,7 @@ class SPAGCN(nn.Module):
         r = siglog(r1/r2) # for stability
         return r
 
-    def fit(self, features, sparse, edge_index, edge_weight, lr=0.005, opt='adam', weight_decay=0, dens_lambda=200.0):
+    def fit(self, cluster_labels, features, sparse, edge_index, edge_weight, lr=0.005, opt='adam', weight_decay=0, dens_lambda=200.0):
         loss_values = []
         print("Starting fit.")
         if opt == "sgd":
@@ -83,21 +83,21 @@ class SPAGCN(nn.Module):
             optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
         """ 
-        Probability distribution in highdim defined as the sparse adj matrix with weights.
+        Probability distribution in highdim defined as the sparse adj matrix with probability of node connection.
         No further updates to p
         """
-        G_nx = nx.Graph()
-        for i, edge in enumerate(edge_index.t()):
-            source, target = edge.numpy()
-            weight = edge_weight[i].item()
-            G_nx.add_edge(source, target, weight=weight)
-        pos = nx.spring_layout(G_nx, dim=self.out_dim)
-        node_coords = np.zeros((self.in_dim, self.out_dim))
-        for node in sorted(pos.keys()):
-            node_coords[node] = pos[node]
-
-        p = torch.tensor(sparse)
-        rp = self.density_r(p, torch.tensor(node_coords)) # one time rp calculation for densitycoef(rp, rq)
+        
+        p = torch.zeros((features.shape[0],features.shape[0])) # 1000,1000
+        for i in range(len(edge_weight)):
+            source = edge_index[0, i]
+            target = edge_index[1, i]
+            weight = edge_weight[i]
+            p[source, target] = weight # create p from edge_index, edge_weight
+        # Calculate density term in highdim
+        pdist = torch.tensor(sparse)
+        rp1 = torch.sum(torch.multiply(p, torch.pow(pdist,2)), axis=1) # sum(edge weight * dist^2) for each row
+        rp2 = torch.sum(p, axis=1) # sum(edge weights) over each row
+        rp = siglog(rp1/rp2) # one time rp calculation for densitycoef(rp, rq)
 
         """ 
         q is probability distribution in lowdim
@@ -114,7 +114,7 @@ class SPAGCN(nn.Module):
             cov_matrix = torch.cov(torch.stack((rp,rq)))
             corr = cov_matrix[0,1] / torch.pow(cov_matrix[0,0]*cov_matrix[1,1],0.5)
 
-            loss = self.loss_function(p, q) - dens_lambda * corr
+            loss = self.loss_function(p, q) # - dens_lambda * corr
             loss_np = loss.item()
             print("corr ", corr)
             print("Epoch ", epoch, " |  Loss ", loss_np)

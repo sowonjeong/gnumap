@@ -656,24 +656,26 @@ def regression_eval(X, y, n_splits=10, **kwargs):
     return avg_acc
 
 
-def eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
+def eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,model_name,
              dataset = "Blobs"):
     ### Global metrics
     _,_,sp,_ = spearman_correlation_eval(G, embeds)
     X_manifold = MinMaxScaler().fit_transform(X_manifold)
     X_ambient = MinMaxScaler().fit_transform(X_ambient)
     embeds = MinMaxScaler().fit_transform(embeds)
-    if dataset in ["Trefoil", "Helix", "Swissroll", "Sphere", "Helix",
-                   "Swissroll", "Moons", "Circles"]:
-        _,_, sp_manifold, _ = spearman_correlation_numpy(X_manifold, embeds)
-        fr_dist = frdist(X_manifold, embeds)
-        curve_dist = np.square(X_manifold -  embeds).mean()
-
-    elif dataset in ["Blobs"]:
+    if model_name=='GRACE' or dataset in ["Blobs"]:
         sp_manifold = np.nan
         fr_dist =  np.nan
         curve_dist = np.nan
 
+    elif dataset in ["Trefoil", "Helix", "Swissroll", "Sphere", "Helix",
+                   "Swissroll", "Moons", "Circles"]:
+        _,_, sp_manifold, _ = spearman_correlation_numpy(X_manifold, embeds)
+        fr_dist = frdist(X_manifold, embeds)
+        curve_dist = np.square(X_manifold -  embeds).mean()
+        sp_manifold = np.nan
+        fr_dist =  np.nan
+        curve_dist = np.nan
 
     global_dist = {'frechet': fr_dist,
                     'distance_between_curves': curve_dist,
