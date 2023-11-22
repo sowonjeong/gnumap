@@ -21,7 +21,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',
+def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',featdim = 50,
                    standardize=True, centers = 4, cluster_std = [0.1,0.1,1.0,1.0],
                    ratio_circles = 0.2, noise = 0.05, 
                    a=1, b=1, n_bins = 10, random_state = None, radius_knn = 0, bw = 1,
@@ -31,39 +31,39 @@ def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',
         X_ambient, cluster_labels = datasets.make_blobs( n_samples=n_samples, centers=centers, 
                                         cluster_std=cluster_std, random_state=random_state)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
         X_manifold = X_ambient
 
     elif name == 'Sphere':
         X_ambient, X_manifold, cluster_labels   = create_sphere(r = 1, size = n_samples,  a = a, b=b, n_bins = n_bins)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
 
     elif name == 'Circles':
         X_ambient, X_manifold, cluster_labels =create_circles(ratio = ratio_circles, size = n_samples, a = a, b=b, 
                                                               noise= noise, n_bins = n_bins)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                            radius_knn = radius_knn, bw = bw)
+                            radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
 
     elif name == 'Moons':
         X_ambient, X_manifold, cluster_labels = create_moons(size = n_samples, a = a, b=b, noise= noise, n_bins = n_bins)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
 
     elif name == 'Swissroll':
         X_ambient, X_manifold, cluster_labels = create_swissroll(size = n_samples, a = a, b=b, noise= noise, n_bins = n_bins)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
 
     elif name == "Trefoil":
         X_ambient, X_manifold, cluster_labels = create_trefoil(size = n_samples, a = a, b=b, noise= noise, n_bins = n_bins)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
         
     elif name == "Helix":
@@ -72,7 +72,7 @@ def create_dataset(name, n_samples = 500, n_neighbours = 50, features='none',
                                                              radius_torus=radius_torus, 
                                                              radius_tube=radius_tube, nb_loops=nb_loops)
         G = convert_to_graph(X_ambient, n_neighbours=n_neighbours, features=features, standardize=standardize, 
-                             radius_knn = radius_knn, bw = bw)
+                             radius_knn = radius_knn, bw = bw,featdim = 50,)
         G.y = torch.from_numpy(cluster_labels)
              
     elif name == 'SBM':

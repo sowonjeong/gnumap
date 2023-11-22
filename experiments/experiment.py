@@ -35,40 +35,14 @@ from models.spagcn import *
 from experiments.create_dataset import *
 
 
-def visualize_embeds(X, cluster_labels, title, file_name):
-    fig = plt.figure()
-
-    if X is not None:
-        if file_name.split('_')[0] in ['GRACE', 'GNUMAP']:
-            ax = fig.add_subplot(projection='3d')
-            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=cluster_labels, cmap=plt.cm.Spectral)
-            ax.set_title(title)
-        else:
-            ax = fig.gca()
-            ax.scatter(X[:, 0], X[:, 1], c=cluster_labels, cmap=plt.cm.Spectral)
-            ax.set_title(title)
-    else:
-        ax = fig.gca()
-        fig.patch.set_facecolor('black')
-        ax.set_facecolor('black')
-
-    save_path = os.path.join(os.getcwd(), 'results', file_name)
-    plt.savefig(save_path, format='png', dpi=300, facecolor=fig.get_facecolor())
-    plt.close()
-
-
-def experiment(model_name, G, X_ambient, X_manifold,
-               cluster_labels,
-               patience=20, epochs=500,
-               n_layers=2, out_dim=2, hid_dim=128, lr=1e-4, wd=0.0,
-               tau=0.5, lambd=1e-4, min_dist=1e-3, edr=0.8, fmr=0,
-               proj="standard", pred_hid=512,
-               n_neighbors=15, dataset='Blobs',
-               random_state=42, perplexity=30,
-               alpha=0.5, beta=0.1, gnn_type='symmetric',
-               name_file="1", save_img=False):
+def experiment(model_name, G, X_ambient, X_manifold, cluster_labels,
+                epochs=np.nan, n_layers=np.nan, out_dim=np.nan, hid_dim=np.nan, 
+                lr=np.nan, n_neighbors=np.nan, dataset=np.nan,
+                alpha=np.nan, beta=np.nan, gnn_type=np.nan, tau=np.nan, lambd=np.nan, edr=np.nan, fmr=np.nan,
+                name_file=np.nan, save_img=np.nan,
+                random_state=42, perplexity=30, wd=0.0, pred_hid=512,proj="standard",min_dist=1e-3,patience=20):
     # num_classes = int(data.y.max().item()) + 1
-    loss_values = [1]
+    loss_values = [1] # placeholder for 6 models without training
 
     if model_name == 'DGI':  # a b type
         model, loss_values = train_dgi(G, hid_dim=hid_dim, out_dim=out_dim,
@@ -118,15 +92,8 @@ def experiment(model_name, G, X_ambient, X_manifold,
         model, embeds, loss_values = train_gnumap(G, hid_dim, out_dim,
                                                   n_layers=n_layers,
                                                   epochs=epochs, lr=lr, wd=wd, name_file=name_file)
-    elif model_name == "SPAGCN":  # alpha
-        sparse = G.sparse
-        edge_index = G.edge_index
-        feats = G.x
-        edge_weight = G.edge_weight
-        model = SPAGCN(in_dim=feats.shape[0], out_dim=out_dim)
-        loss_values = model.fit(feats, sparse, edge_index, edge_weight)
-        embeds = model.predict(feats, edge_index)[0]
-        embeds = embeds.detach().numpy()
+    elif model_name == "SPAGCN":
+        model, embeds, loss_values = train_spagcn(G, cluster_labels, X_ambient.shape[0], hid_dim, out_dim, epochs, n_layers)
     elif model_name == 'PCA':
         model = PCA(n_components=2)
         embeds = model.fit_transform(
@@ -154,15 +121,6 @@ def experiment(model_name, G, X_ambient, X_manifold,
     else:
         raise ValueError("Model unknown!!")
 
-    file_name = (
-        f"{model_name}_{dataset}_tau_{tau}_lambda_{lambd}_gnn_type_{gnn_type}_"
-        f"alpha_{alpha}_beta_{beta}_edr{edr}_fmr{fmr}_{name_file}.png"
-    )
-    if save_img:
-        visualize_embeds(embeds, cluster_labels, title=f"neigh{n_neighbors}_lam{lambd}_edr{edr}_fmr{fmr}", file_name=file_name)
-    else:
-        pass
-
     try:
         loss_values = [item.item() for item in loss_values]
     except:
@@ -172,24 +130,24 @@ def experiment(model_name, G, X_ambient, X_manifold,
         embeds = None
         results = None
     else:
-        # global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,
-        #                                          dataset=dataset)
+        global_metrics, local_metrics = eval_all(G, X_ambient, X_manifold, embeds, cluster_labels,model_name,
+                                                 dataset=dataset)
         print("done with the embedding evaluation")
         results=[]
-        # results = {**global_metrics, **local_metrics}
-        # results['model_name'] = model_name
-        # results['out_dim'] = out_dim
-        # results['hid_dim'] = hid_dim
-        # results['n_neighbors'] = n_neighbors
-        # results['min_dist'] = min_dist
-        # results['lr'] = lr
-        # results['edr'] = edr
-        # results['fmr'] = fmr
-        # results['tau'] = tau
-        # results['lambd'] = lambd
-        # results['pred_hid'] = pred_hid
-        # results['alpha_gnn'] = alpha
-        # results['beta_gnn'] = beta
-        # results['gnn_type'] = gnn_type
+        results = {**global_metrics, **local_metrics}
+        results['model_name'] = model_name
+        results['out_dim'] = out_dim
+        results['hid_dim'] = hid_dim
+        results['n_neighbors'] = n_neighbors
+        results['min_dist'] = min_dist
+        results['lr'] = lr
+        results['edr'] = edr
+        results['fmr'] = fmr
+        results['tau'] = tau
+        results['lambd'] = lambd
+        results['pred_hid'] = pred_hid
+        results['alpha_gnn'] = alpha
+        results['beta_gnn'] = beta
+        results['gnn_type'] = gnn_type
 
     return (model, results, embeds, loss_values)

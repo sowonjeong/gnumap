@@ -124,7 +124,7 @@ def deg(index, num_nodes: Optional[int] = None,
 
 
 def convert_to_graph(X, n_neighbours =15, features='none', standardize=True,
-                     radius_knn = 0., featdim = 50, bw = None):
+                     radius_knn = 0., featdim = 50, bw = None):                
     n = X.shape[0]
     if standardize:
         scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -146,8 +146,8 @@ def convert_to_graph(X, n_neighbours =15, features='none', standardize=True,
         feats = torch.eye(n)
         
     new_data = Data(x=feats, edge_index=edge_index, # 
-                    edge_weight=torch.exp(-(edge_weights**2)/(2 * bw**2)),
-                    sparse=A.toarray()) # heat kernel
+                    edge_weight=-(edge_weights - max(edge_weights))/max(edge_weights),
+                    sparse=A.toarray())
     ## edge_weight kernel transf 0 1 todo
     return new_data
 
